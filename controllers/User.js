@@ -10,22 +10,26 @@ const checkPhoneNumber = (phone) => {
     return false;
 };
 
+const checkRepeatPassword = (password, repeatPassword) => {
+    const regex = new RegExp('(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])[0-9a-zA-Z!@#$%^&*]{8,}');
+    if (!password || password !== repeatPassword || !regex.test(password)) throw badRequest('Enter correct password');
+};
+
 class User {
     static async register (data) {
         const ConfirmCode = mongoose.model('confirm_code');
-        const {phone, code, email, password, repeatPassword} = data;
+        const {phone, code, password, repeatPassword} = data;
         if (checkPhoneNumber(phone)) throw badRequest('Enter correct phone number');
         const [user, confirmCode] = await Promise.all([
             this.findOne({phone}),
             ConfirmCode.findOne({phone})
         ]);
-        
+        checkRepeatPassword(password, repeatPassword);
         if (user) throw conflict('User already exists');
         if (!confirmCode || confirmCode.code === null || confirmCode.code !== code) throw unauthorized('Auth error');
         confirmCode.code = null;
 
-        const regex = new RegExp('(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])[0-9a-zA-Z!@#$%^&*]{8,}');
-        if (!password || password !== repeatPassword || !regex.test(password)) throw badRequest('Enter correct password');
+        
         const hash = await auth.hashPassword(password);
 
         const [registerUser] = await Promise.all([
@@ -45,6 +49,14 @@ class User {
             token,
             _id: registerUser._id
         };
+    }
+
+    static async checkCode(data) {
+        const ConfirmCode = mongoose.model('confirm_code');
+        const {phone, code} = data;
+        const confirmCode = await ConfirmCode.findOne({phone, code});
+        if (!confirmCode) throw unauthorized('Auth error');
+        return {message: 'ok'};
     }
 
     static async sendCode(data) {
@@ -89,6 +101,28 @@ class User {
         const result = await auth.checkPassword(password, user.password);
         if (!result) throw unauthorized('Auth error');
         return {phone, email: user.email, _id: user._id};
+    }
+
+    static async resetPassword(data) {
+        const ConfirmCode = mongoose.model('confirm_code');
+        const {phone, code, password, repeatPassword} = data;
+        if (!code) throw badRequest('Enter code');
+        checkRepeatPassword(password, repeatPassword);
+        const [user, confirmCode] = await Promise.all([
+            this.findOne({phone}),
+            ConfirmCode.findOne({phone})
+        ]);
+        if (!confirmCode || !user || !confirmCode.code || confirmCode.code !== code) throw unauthorized('Auth error');
+        confirmCode.code = null;
+        user.password = await auth.hashPassword(password);
+        const [token] = await Promise.all([
+            jwt.sign({_id: user._id, createdAt: new Date()}),
+            user.save()
+        ]);
+        return {
+            token,
+            _id: user._id
+        };
     }
 
     static async loginAndSendCode (data) {

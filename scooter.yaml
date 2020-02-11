@@ -1,8 +1,8 @@
 swagger: '2.0'
 info:
-  title: gas
+  title: scooter
   version: 1.0.0
-host: 'vvdev.ru:1334'
+host: '78.24.222.88:1888'
 schemes:
   - http
 basePath: /api
@@ -11,6 +11,8 @@ produces:
 paths:
   /users/confirm_code:
     post:
+      tags:
+      - Users
       summary: Send code method for register of user
       parameters:
       - in: body
@@ -40,6 +42,8 @@ paths:
           description: server error
   /users/register:
     post:
+      tags:
+        - Users
       summary: Register to user after sent code
       parameters:
       - in: body
@@ -70,6 +74,8 @@ paths:
           description: server error
   /users/login:
     post:
+      tags:
+        - Users
       summary: Login user
       parameters:
       - in: body
@@ -90,6 +96,8 @@ paths:
               message: 
                 type: string
                 description: code sent to your phone number
+              code:
+                type: string
         400:
           description: Incorrect phone number/enter password
         401:
@@ -98,6 +106,8 @@ paths:
           description: server error
   /users/confirm_login:
     post:
+      tags:
+      - Users
       summary: enter code to confirm login user
       parameters:
       - in: body
