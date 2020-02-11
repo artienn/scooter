@@ -4,7 +4,6 @@ const {conflict, tooManyRequests, badRequest, unauthorized} = require('boom');
 const moment = require('moment');
 const jwt = require('../libs/jwt');
 const auth = require('vvdev-auth');
-const validator = require('email-validator');
 
 const checkPhoneNumber = (phone) => {
     if (!phone || phone.length !== 13 || phone.slice(0, 4) !== '+380' ) return true;
@@ -29,12 +28,9 @@ class User {
         if (!password || password !== repeatPassword || !regex.test(password)) throw badRequest('Enter correct password');
         const hash = await auth.hashPassword(password);
 
-        // if (!email || !validator.validate(email)) throw badRequest('Enter correct email');
-
         const [registerUser] = await Promise.all([
             this({
-                phone, 
-                email, 
+                phone,
                 password: hash
             }).save(),
             confirmCode.save()
