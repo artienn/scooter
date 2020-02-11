@@ -1,6 +1,8 @@
 const express = require('express');
 const router = express.Router();
 const User = require('../schemas').User;
+const Balance = require('../controllers').Balance;
+const {checkUser} = require('../libs/jwt');
 
 router.post('/register', async (req, res, next) => {
     try {
@@ -13,7 +15,16 @@ router.post('/register', async (req, res, next) => {
 
 router.post('/login', async (req, res, next) => {
     try {
-        const result = await User.login(req.body);
+        const result = await User.loginAndSendCode(req.body);
+        res.send(result);
+    } catch (err) {
+        next(err);
+    }
+});
+
+router.post('/confirm_login', async (req, res, next) => {
+    try {
+        const result = await User.confirmCode(req.body);
         res.send(result);
     } catch (err) {
         next(err);
@@ -24,6 +35,23 @@ router.post('/confirm_code', async (req, res, next) => {
     try {
         const result = await User.sendCode(req.body);
         res.send(result);
+    } catch (err) {
+        next(err);
+    }
+});
+
+router.put('/balance/bonus_code', checkUser, async (req, res, next) => {
+    try {
+        const result = await Balance.replenishmentByBonusCode(req.user, req.body);
+        res.send(result);
+    } catch (err) {
+        next(err);
+    }
+});
+
+router.get('/info', checkUser, async (req, res, next) => {
+    try {
+        res.send({user: req.user});
     } catch (err) {
         next(err);
     }

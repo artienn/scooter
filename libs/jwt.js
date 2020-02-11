@@ -16,7 +16,7 @@ exports.sign = async (body) => {
     });
 };
 
-const checkToken = (req, _res, next) => {
+const checkUser = (req, _res, next) => {
     let jwtToken = req.headers['x-access-token'];
     if (!jwtToken) return next(unauthorized('Ошибка авторизации'));
     jwt.verify(jwtToken, jwtKey, async (error, data) => {
@@ -24,11 +24,11 @@ const checkToken = (req, _res, next) => {
         req.authData = data;
         // if (!data.date || moment().diff(moment(data.date), 'minutes') > 1560) 
         //     return next(unauthorized('Ошибка авторизации'));
-        const user = await User.findById(req.authData._id, {password: 0, _id: 0, confirm: 0, __v: 0}).lean();
+        const user = await User.findById(req.authData._id, {password: 0, __v: 0}).lean();
         req.user = user;
         if (!req.user) return next(unauthorized('Ошибка авторизации'));
         next();
     });
 };
 
-exports.checkUser = checkToken;
+exports.checkUser = checkUser;

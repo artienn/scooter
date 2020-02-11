@@ -19,10 +19,12 @@
   "dependencies": {
     "boom": "^7.3.0",
     "cors": "^2.8.5",
+    "email-validator": "^2.0.4",
     "express": "^4.17.1",
     "google-libphonenumber": "^3.2.6",
     "jsonwebtoken": "^8.5.1",
     "moment": "^2.24.0",
-    "mongoose": "^5.8.11"
+    "mongoose": "^5.8.11",
+    "vvdev-auth": "^1.0.0"
   }
 }

@@ -3,6 +3,8 @@ const generateCode = require('../libs/generateCode');
 const {conflict, tooManyRequests, badRequest, unauthorized} = require('boom');
 const moment = require('moment');
 const jwt = require('../libs/jwt');
+const auth = require('vvdev-auth');
+const validator = require('email-validator');
 
 const checkPhoneNumber = (phone) => {
     if (!phone || phone.length !== 13 || phone.slice(0, 4) !== '+380' ) return true;
@@ -12,7 +14,7 @@ const checkPhoneNumber = (phone) => {
 class User {
     static async register (data) {
         const ConfirmCode = mongoose.model('confirm_code');
-        const {phone, code, email} = data;
+        const {phone, code, email, password, repeatPassword} = data;
         if (checkPhoneNumber(phone)) throw badRequest('Enter correct phone number');
         const [user, confirmCode] = await Promise.all([
             this.findOne({phone}),
@@ -22,14 +24,27 @@ class User {
         if (user) throw conflict('User already exists');
         if (!confirmCode || confirmCode.code === null || confirmCode.code !== code) throw unauthorized('Auth error');
         confirmCode.code = null;
+
+        const regex = new RegExp('(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])[0-9a-zA-Z!@#$%^&*]{8,}');
+        if (!password || password !== repeatPassword || !regex.test(password)) throw badRequest('Enter correct password');
+        const hash = await auth.hashPassword(password);
+
+        if (!email || !validator.validate(email)) throw badRequest('Enter correct email');
+
         const [registerUser] = await Promise.all([
-            this({phone, email}).save(),
+            this({
+                phone, 
+                email, 
+                password: hash
+            }).save(),
             confirmCode.save()
         ]);
+
         const token = await jwt.sign({
             _id: registerUser._id,
             createdAt: new Date()
         });
+
         return {
             token,
             _id: registerUser._id
@@ -46,30 +61,44 @@ class User {
         confirmCode.code = generateCode();
         await confirmCode.save();
         return {
-            code: confirmCode.code
+            code: confirmCode.code,
+            message: 'Code sent to your phone number'
+        };
+    }
+
+    static async confirmCode(data) {
+        const ConfirmCode = mongoose.model('confirm_code');
+        const {phone, code, password} = data;
+        const confirmCode = await ConfirmCode.findOne({phone});
+        if (!confirmCode || confirmCode.code === null || confirmCode.code !== code) throw unauthorized('Auth error');
+        confirmCode.code = null;
+        const [user] = await Promise.all([
+            this.login({password, phone}),
+            confirmCode.save()
+        ]);
+        const token = await jwt.sign({
+            _id: user._id,
+            createdAt: new Date()
+        });
+        return {
+            token,
+            _id: user._id
         };
     }
 
     static async login(data) {
-        const ConfirmCode = mongoose.model('confirm_code');
-        const {phone, code} = data;
+        const {phone, password} = data;
         if (checkPhoneNumber(phone)) throw badRequest('Enter correct phone number');
-        const [user, confirmCode] = await Promise.all([
-            this.findOne({phone}),
-            ConfirmCode.findOne({phone})
-        ]);
-        if (!confirmCode || confirmCode.code === null || confirmCode.code !== code) throw unauthorized('Auth error');
-        confirmCode.code = null;
-        if (!user) return {registerRequire: true, message: 'Register require'};
-        const [token] = await Promise.all([
-            jwt.sign({_id: user._id}),
-            confirmCode.save()
-        ]);
-        return {
-            token,
-            _id: user._id,
-            registerRequire: false
-        };
+        const user = await this.findOne({phone});
+        const result = await auth.checkPassword(password, user.password);
+        if (!result) throw unauthorized('Auth error');
+        return {phone, email: user.email, _id: user._id};
+    }
+
+    static async loginAndSendCode (data) {
+        const {phone, password} = data;
+        await this.login({phone, password});
+        return this.sendCode({phone});
     }
 }
 
