@@ -59,7 +59,12 @@ router.post('/confirm_code', async (req, res, next) => {
 });
 
 router.put('/reset_password', async (req, res, next) => {
-
+    try {
+        const result = await User.resetPassword(req.body);
+        res.send(result);
+    } catch (err) {
+        next(err);
+    }
 });
 
 router.put('/balance/bonus_code', checkUser, async (req, res, next) => {

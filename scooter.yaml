@@ -104,6 +104,58 @@ paths:
           description: Auth error(password wrong, user is undefined)
         500:
           description: server error
+  /users/check_code:
+    put:
+      tags:
+      - Users
+      summary: Check code before register or reset password
+      parameters:
+      - in: body
+        name: body
+        schema:
+          type: object
+          properties:
+            phone:
+              type: string
+            code:
+              type: string
+      responses:
+        200:
+          description: OK
+        400:
+          description: Enter data
+        401:
+          description: Auth error
+        500:
+          description: Server error
+  /users/reset_password:
+    put:
+      tags:
+      - Users
+      summary: Reset password
+      parameters:
+      - in: body
+        name: body
+        schema:
+          type: object
+          properties:
+            phone:
+              type: string
+            code:
+              type: string
+            password:
+              type: string
+            repeatPassword:
+              type: string
+      responses:
+        200:
+          description: OK
+          schema:
+            $ref: '#/definitions/token'
+        401:
+          description: Auth error
+        500:
+          description: Server error
   /users/confirm_login:
     post:
       tags:
