@@ -69,7 +69,7 @@ class User {
         const confirmCode = await ConfirmCode.findOne({phone});
         if (!confirmCode || confirmCode.code === null || confirmCode.code !== code) throw unauthorized('Auth error');
         confirmCode.code = null;
-        const [user] = await this.login({password, phone});
+        const user = await this.login({password, phone});
         await confirmCode.save();
         const token = await jwt.sign({
             _id: user._id,
