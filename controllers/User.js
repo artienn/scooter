@@ -29,7 +29,7 @@ class User {
         if (!password || password !== repeatPassword || !regex.test(password)) throw badRequest('Enter correct password');
         const hash = await auth.hashPassword(password);
 
-        if (!email || !validator.validate(email)) throw badRequest('Enter correct email');
+        // if (!email || !validator.validate(email)) throw badRequest('Enter correct email');
 
         const [registerUser] = await Promise.all([
             this({
@@ -69,13 +69,12 @@ class User {
     static async confirmCode(data) {
         const ConfirmCode = mongoose.model('confirm_code');
         const {phone, code, password} = data;
+        if (!password) throw badRequest('Enter password');
         const confirmCode = await ConfirmCode.findOne({phone});
         if (!confirmCode || confirmCode.code === null || confirmCode.code !== code) throw unauthorized('Auth error');
         confirmCode.code = null;
-        const [user] = await Promise.all([
-            this.login({password, phone}),
-            confirmCode.save()
-        ]);
+        const [user] = await this.login({password, phone});
+        await confirmCode.save();
         const token = await jwt.sign({
             _id: user._id,
             createdAt: new Date()
@@ -88,6 +87,7 @@ class User {
 
     static async login(data) {
         const {phone, password} = data;
+        if (!password) throw badRequest('Enter password');
         if (checkPhoneNumber(phone)) throw badRequest('Enter correct phone number');
         const user = await this.findOne({phone});
         const result = await auth.checkPassword(password, user.password);

@@ -1,0 +1,134 @@
+swagger: '2.0'
+info:
+  title: gas
+  version: 1.0.0
+host: 'vvdev.ru:1334'
+schemes:
+  - http
+basePath: /api
+produces:
+  - application/json
+paths:
+  /users/confirm_code:
+    post:
+      summary: Send code method for register of user
+      parameters:
+      - in: body
+        name: body
+        schema:
+          type: object
+          properties:
+            phone:
+              type: string
+              description: 'format +380XXXXXXXXX'
+      responses:
+        200:
+          description: Send code on phone number to user
+          schema:
+            type: object
+            properties:
+              message:
+                type: string
+              code:
+                type: string
+                description: Code sent on client only in test-version
+        400:
+          description: Incorrect phone number
+        422:
+          description: too many requests on send code(only one request in two minutes)
+        500:
+          description: server error
+  /users/register:
+    post:
+      summary: Register to user after sent code
+      parameters:
+      - in: body
+        name: body
+        schema:
+          type: object
+          properties:
+            phone:
+              type: string
+            code:
+              type: string
+            password:
+              type: string
+            repeatPassword:
+              type: string
+      responses:
+        200:
+          description: OK
+          schema:
+            $ref: '#/definitions/token'
+        400:
+          description: Enter correct data(password=repeatPassword, phone number correct, password more 8 symbols and include lower case, upper case and number symbol)
+        401:
+          description: Code incorrect
+        409:
+          description: User already exists
+        500:
+          description: server error
+  /users/login:
+    post:
+      summary: Login user
+      parameters:
+      - in: body
+        name: body
+        schema:
+          type: object
+          properties:
+            password:
+              type: string
+            phone:
+              type: string
+      responses:
+        200:
+          description: OK
+          schema:
+            type: object
+            properties:
+              message: 
+                type: string
+                description: code sent to your phone number
+        400:
+          description: Incorrect phone number/enter password
+        401:
+          description: Auth error(password wrong, user is undefined)
+        500:
+          description: server error
+  /users/confirm_login:
+    post:
+      summary: enter code to confirm login user
+      parameters:
+      - in: body
+        name: body
+        schema:
+          type: object
+          properties:
+            phone:
+              type: string
+            code:
+              type: string
+      responses:
+        200:
+          description: OK
+          schema:
+            $ref: '#/definitions/token'
+        400:
+          description: Enter phone/code
+        401:
+          description: Auth error
+        500:
+          description: server error
+    
+definitions:
+  token:
+    type: object
+    properties:
+      token:
+        type: string
+        description: 'send this token in headers x-access-token' 
+      _id:
+        type: string
+        description: user ID
+    
