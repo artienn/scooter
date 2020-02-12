@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const User = require('../schemas').User;
 const Balance = require('../controllers').Balance;
-const {checkUser} = require('../libs/jwt');
+const {checkUser, checkUserWithoutPhone} = require('../libs/jwt');
 const passport = require('passport');
 require('../libs/facebookAuth');
 
@@ -20,6 +20,24 @@ router.get('/login/facebook/callback', async (req, res, next) => {
 router.post('/register', async (req, res, next) => {
     try {
         const result = await User.register(req.body);
+        res.send(result);
+    } catch (err) {
+        next(err);
+    }
+});
+
+router.put('/login/facebook/phone', checkUserWithoutPhone, async (req, res, next) => {
+    try {
+        const result = await User.facebookLoginPhoneUpdate(req.user, req.body);
+        res.send(result);
+    } catch (err) {
+        next(err);
+    }
+});
+
+router.put('/login/facebook/phone/confirm', checkUserWithoutPhone, async (req, res, next) => {
+    try {
+        const result = await User.facebookLoginPhoneConfirm(req.user, req.body);
         res.send(result);
     } catch (err) {
         next(err);
