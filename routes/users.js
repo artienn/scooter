@@ -10,9 +10,6 @@ router.get('/login/facebook', passport.authenticate('facebook', { scope : 'email
 
 router.get('/login/facebook/callback', 
     passport.initialize(), 
-    passport.serializeUser(function(user, done) {
-        done(null, user);
-    }),
     passport.authenticate('facebook', {
         successRedirect : '/',
         failureRedirect : '/login'
