@@ -2,7 +2,7 @@ const express = require('express');
 const app = express();
 
 const config = require('./config');
-
+const passport = require('passport');
 const port = process.env.PORT || config.port;
 
 const {notFound} = require('boom');
@@ -14,7 +14,7 @@ const {checkUser} = require('./libs/jwt');
 
 app.use(express.urlencoded({extended:true}));
 app.use(express.json());
-
+app.use(passport.initialize());
 app.use(require('cors')({
     'origin': true,
     'methods': 'GET,POST,PUT,DELETE,OPTIONS',
