@@ -6,7 +6,7 @@ const {checkUser, checkUserWithoutPhone} = require('../libs/jwt');
 const passport = require('passport');
 require('../libs/facebookAuth');
 
-router.get('/login/facebook', passport.authenticate('facebook', { scope : 'phone' }));
+router.get('/login/facebook', passport.authenticate('facebook', { scope : 'email' }));
 
 router.get('/login/facebook/callback', async (req, res, next) => {
     try {
