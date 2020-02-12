@@ -4,18 +4,14 @@ const User = require('../schemas').User;
 const Balance = require('../controllers').Balance;
 const {checkUser} = require('../libs/jwt');
 const passport = require('passport');
-const facebookAuth = require('../libs/facebook');
 require('../libs/facebookAuth');
 
-router.get('/login/facebook', passport.authenticate('facebook', { scope : 'email' }));
+router.get('/login/facebook', passport.authenticate('facebook', { scope : 'phone' }));
 
 router.get('/login/facebook/callback', async (req, res, next) => {
     try {
-        const {code} = req.query;
-        const tokenObject = await facebookAuth.checkCode(code);
-        const data = await facebookAuth.data(tokenObject.access_token);
-        console.log(data);
-        res.send(data);
+        const result = await User.facebookLogin(req.query);
+        res.send(result);
     } catch (err) {
         next(err);
     }

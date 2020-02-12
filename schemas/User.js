@@ -13,6 +13,7 @@ const User = new Schema({
         default: 0
     },
     fb: {
+        id: String,
         access_token: String,
         firstName: String,
         lastName: String,

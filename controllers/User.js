@@ -4,6 +4,7 @@ const {conflict, tooManyRequests, badRequest, unauthorized} = require('boom');
 const moment = require('moment');
 const jwt = require('../libs/jwt');
 const auth = require('vvdev-auth');
+const facebook = require('../libs/facebook');
 
 const checkPhoneNumber = (phone) => {
     if (!phone || phone.length !== 13 || phone.slice(0, 4) !== '+380' ) return true;
@@ -16,6 +17,27 @@ const checkRepeatPassword = (password, repeatPassword) => {
 };
 
 class User {
+
+    static async facebookLogin(data) {
+        const {code, phone} = data;
+        console.log(data);
+        const tokenObject = await facebook.checkCode(code);
+        const res = await facebook.data(tokenObject.access_token);
+        if (!res.data || !res.data.user_id) throw unauthorized('Auth error');
+        let user = await this.findOne({'fb.id': res.data.user_id});
+        if (!user)
+            user = await this({fb: {id: res.data.user_id}}).save();
+        const token = await jwt.sign({
+            _id: user._id,
+            createdAt: new Date()
+        });
+        return {
+            token,
+            _id: user
+        }
+        
+    }
+
     static async register (data) {
         const ConfirmCode = mongoose.model('confirm_code');
         const {phone, code, password, repeatPassword} = data;
