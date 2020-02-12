@@ -17,9 +17,13 @@ router.get('/login/facebook/callback',
         successRedirect : '/',
         failureRedirect : '/login'
     }), async (req, res, next) => {
-        console.log(req.query);
-        res.send({message: 'ok'});
-});
+        try {
+            console.log(req.query);
+            res.send({message: 'ok'});
+        } catch (err) {
+            next(err);
+        }
+    });
 
 router.post('/register', async (req, res, next) => {
     try {
