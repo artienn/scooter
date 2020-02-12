@@ -54,7 +54,7 @@ function(access_token, refresh_token, profile, done) {
 
 router.get('/login/facebook', passport.authenticate('facebook', { scope : 'email' }));
 
-router.get('/login/facebook/callback', passport.authenticate('facebook', {
+router.get('/login/facebook/callback', passport.initialize(), passport.authenticate('facebook', {
     successRedirect : '/',
     failureRedirect : '/login'
 }), async (req, res, next) => {
