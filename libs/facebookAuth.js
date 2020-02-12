@@ -3,7 +3,7 @@ const {facebook} = require('../config');
 const FacebookStrategy = require('passport-facebook').Strategy;
 const {User} = require('../schemas');
 
-passport.use('facebook', new FacebookStrategy({
+passport.use(new FacebookStrategy({
     clientID: facebook.appID,
     clientSecret: facebook.appSecret,
     callbackURL: facebook.callbackUrl
