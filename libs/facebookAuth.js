@@ -1,6 +1,6 @@
 const passport = require('passport');
 const {facebook} = require('../config');
-const FacebookStrategy = require('passport-facebook');
+const FacebookStrategy = require('passport-facebook').Strategy;
 const {User} = require('../schemas');
 
 passport.use('facebook', new FacebookStrategy({

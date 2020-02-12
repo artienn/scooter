@@ -2,7 +2,7 @@ const express = require('express');
 const app = express();
 
 const config = require('./config');
-const passport = require('passport');
+const passport = require('./libs/facebookAuth');
 const port = process.env.PORT || config.port;
 
 const {notFound} = require('boom');
@@ -14,17 +14,6 @@ const {checkUser} = require('./libs/jwt');
 
 app.use(express.urlencoded({extended:true}));
 app.use(express.json());
-
-app.use(require('cookie-parser')());
-app.use(require('body-parser').urlencoded({ extended: true }));
-app.use(require('express-session')({
-    secret: 'keyboard cat',
-    resave: true,
-    saveUninitialized: true
-}));
-app.use(passport.initialize());
-app.use(passport.session());
-
 
 app.use(require('cors')({
     'origin': true,
