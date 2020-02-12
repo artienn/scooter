@@ -8,12 +8,17 @@ require('../libs/facebookAuth');
 
 router.get('/login/facebook', passport.authenticate('facebook', { scope : 'email' }));
 
-router.get('/login/facebook/callback', passport.initialize(), passport.authenticate('facebook', {
-    successRedirect : '/',
-    failureRedirect : '/login'
-}), async (req, res, next) => {
-    console.log(req.query);
-    res.send({message: 'ok'});
+router.get('/login/facebook/callback', 
+    passport.initialize(), 
+    passport.serializeUser(function(user, done) {
+        done(null, user);
+    }),
+    passport.authenticate('facebook', {
+        successRedirect : '/',
+        failureRedirect : '/login'
+    }), async (req, res, next) => {
+        console.log(req.query);
+        res.send({message: 'ok'});
 });
 
 router.post('/register', async (req, res, next) => {
