@@ -32,7 +32,7 @@ class User {
         });
         return {
             token,
-            _id: user
+            _id: user._id
         };   
     }
 
