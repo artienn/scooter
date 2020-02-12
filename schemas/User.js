@@ -13,6 +13,12 @@ const User = new Schema({
     balance: {
         type: Number,
         default: 0
+    },
+    fb: {
+        access_token: String,
+        firstName: String,
+        lastName: String,
+        email: String
     }
 }, {
     timestamps: true
