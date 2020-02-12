@@ -4,7 +4,8 @@ const User = require('../schemas').User;
 const Balance = require('../controllers').Balance;
 const {checkUser} = require('../libs/jwt');
 const passport = require('passport');
-const facebookAuth = require('../libs/facebookAuth');
+const facebookAuth = require('../libs/facebook');
+require('../libs/facebookAuth');
 
 router.get('/login/facebook', passport.authenticate('facebook', { scope : 'email' }));
 
