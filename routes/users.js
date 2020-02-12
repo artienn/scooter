@@ -12,8 +12,10 @@ router.get('/login/facebook', passport.authenticate('facebook', { scope : 'email
 router.get('/login/facebook/callback', async (req, res, next) => {
     try {
         const {code} = req.query;
-        const result = await facebookAuth(code);
-        res.send(result);
+        const tokenObject = await facebookAuth.checkCode(code);
+        const data = await facebookAuth.data(tokenObject.access_token);
+        console.log(data);
+        res.send(data);
     } catch (err) {
         next(err);
     }

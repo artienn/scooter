@@ -1,12 +1,23 @@
 const rpn = require('request-promise-native');
 const {facebook} = require('../config');
 
-module.exports = async (code) => {
+exports.checkCode = async (code) => {
     const options = {
         uri: `https://graph.facebook.com/v6.0/oauth/access_token?client_id=${facebook.appID}&redirect_uri=${facebook.callbackUrl}&client_secret=${facebook.appSecret}&code=${code}`
     };
     return rpn(options)
         .then(result => {
             console.log(result);
+        });
+};
+
+exports.data = async (token) => {
+    const options = {
+        uri: `https://graph.facebook.com/debug_token?input_token=${token}
+        &access_token=120633292693716|11fHBVihNknxxTHou26gVaZEoUw`
+    };
+    return rpn(options) 
+        .then(result => {
+            return result;
         });
 };
