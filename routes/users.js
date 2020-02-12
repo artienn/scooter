@@ -35,7 +35,7 @@ router.put('/login/facebook/phone', checkUserWithoutPhone, async (req, res, next
     }
 });
 
-router.put('/login/facebook/phone/confirm', checkUserWithoutPhone, async (req, res, next) => {
+router.put('/login/facebook/phone_confirm', checkUserWithoutPhone, async (req, res, next) => {
     try {
         const result = await User.facebookLoginPhoneConfirm(req.user, req.body);
         res.send(result);

@@ -2,9 +2,9 @@ swagger: '2.0'
 info:
   title: scooter
   version: 1.0.0
-host: '78.24.222.88:1888'
+host: 'school.vvdev.ru'
 schemes:
-  - http
+  - https
 basePath: /api
 produces:
   - application/json
@@ -182,7 +182,96 @@ paths:
           description: Auth error
         500:
           description: server error
-    
+  /users/login/facebook:
+    get:
+      tags:
+      - Users
+      summary: This method redirect to facebook auth page
+      responses:
+        200:
+          description: ok
+        500:
+          description: server error
+  /users/login/facebook/callback:
+    get:
+      tags:
+      - Users
+      summary: After auth on facebook, code sent on method
+      parameters:
+      - in: query
+        name: code
+        type: string
+        required: true
+      responses:
+        200:
+          description: If this first login with facebook auth, next method send phone number for confrim phone number
+          schema:
+            $ref: '#/definitions/token'
+        400:
+          description: enter data
+        500:
+          description: server error
+  /users/login/facebook/phone:
+    put:
+      tags:
+      - Users
+      summary: put phone number to user 
+      parameters:
+      - in: body
+        name: body
+        schema:
+          type: object
+          properties:
+            phone:
+              type: string
+      responses:
+        200:
+          description: OK
+          schema:
+            type: object
+            properties:
+              code:
+                type: string
+              message:
+                type: string
+        500:
+          description: server error
+  /users/login/facebook/phone_confirm:
+    put:
+      tags:
+      - Users
+      summary: Confrim phone after first facebook auth
+      parameters:
+      - in: body
+        name: body
+        schema:
+          type: object
+          properties:
+            code:
+              type: string
+            phone:
+              type: string
+      responses:
+        200:
+          description: OK
+          schema:
+            $ref: '#/definitions/token'
+        401:
+          description: Auth error
+        500:
+          description: server error
+  /users/info:
+    get:
+      tags:
+      - Users
+      summary: Get private information
+      responses:
+        200:
+          description: OK
+          schema:
+            $ref: '#/definitions/user'
+        500:
+          description: server error
 definitions:
   token:
     type: object
@@ -193,4 +282,12 @@ definitions:
       _id:
         type: string
         description: user ID
-    
+  user:
+    type: object
+    properties:
+      _id: 
+        type: string
+      phone:
+        type: string
+      balance:
+        type: number
