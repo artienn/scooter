@@ -1,5 +1,8 @@
 const {BonusCode, UserBonusHistory} = require('../schemas');
-const {notFound} = require('boom');
+const {notFound, badImplementation} = require('boom');
+const mongoose = require('mongoose');
+const liqPay = require('../libs/liqPay');
+const {LiqPayOrder, LiqPayOrderResult} = require('../schemas');
 
 exports.replenishmentByBonusCode = async (user, data) => {
     const {bonusCode} = data;
@@ -10,11 +13,74 @@ exports.replenishmentByBonusCode = async (user, data) => {
 };
 
 exports.createUserBonusHistory = async (user, data) => {
+    const User = mongoose.model('user');
     const {type, amount} = data;
-    const userBonusHistory = await UserBonusHistory({
-        type,
-        amount,
-        user: user._id
-    }).save();
+    const [userBonusHistory] = await Promise.all([
+        UserBonusHistory({
+            type,
+            amount,
+            user: user._id
+        }).save(),
+        User.updateOne({_id: user._id}, {$inc: {balance: amount}})
+    ]);
     return userBonusHistory;
+};
+
+exports.callbackPayment = async (query) => {
+    const {data, signature} = query;
+    const check = liqPay.callbackPayment(data, signature);
+    if (!check) throw badImplementation('Server error');
+    let json = data;
+    if (typeof data === 'string')
+        json = JSON.parse(data);
+    
+};  
+
+exports.subscribe = async (user, data) => {
+    const {amount, description, cardNumber, cardMonth, cardYear, cvv} = data;
+    const liqPayOrder = await LiqPayOrder({description, amount, user: user._id, type: 'subscribe'}).save();
+    const result = await liqPay.subscribe(user.phone.slice(1), amount, description, liqPayOrder._id, cardNumber, cardMonth, cardYear, cvv);
+    const liqPayOrderResult = await LiqPayOrderResult({...result, id: liqPayOrder._id}).save();
+    console.log(liqPayOrderResult);
+    return {status: liqPayOrderResult.status};
+};
+
+exports.hold = async (user, data) => {
+    const {amount, description, cardNumber, cardMonth, cardYear, cvv} = data;
+    const liqPayOrder = await LiqPayOrder({description, amount, user: user._id, type: 'hold'});
+    const result = await liqPay.hold(user.phone.slice(1), amount, description, liqPayOrder._id, cardNumber, cardMonth, cardYear, cvv);
+    const liqPayOrderResult = await LiqPayOrderResult({...result, id: liqPayOrder._id});
+    console.log(liqPayOrderResult);
+    return {status: liqPayOrderResult.status};
+};
+
+exports.status = async (user, data) => {
+    const {orderId} = data;
+    const liqPayOrder = await LiqPayOrder.findOne({_id: orderId, user: user._id});
+    if (!liqPayOrder) throw notFound('Order is not found');
+    const result = await liqPay.status(orderId);
+    console.log(result);
+    return {status: result.status};
+};
+
+exports.cancelPayment = async (user, data) => {
+    const {orderId} = data;
+    const liqPayOrder = await LiqPayOrder.findOne({_id: orderId, user: user._id, type: 'hold'});
+    if (!liqPayOrder) throw notFound('Order is not found');
+    const result = await liqPay.cancelPayment(orderId);
+    const liqPayOrderResult = await LiqPayOrderResult(result).save();
+    if (result.status === 'success') await liqPayOrder.updateOne({_id: orderId}, {$set: {cancelled: {value: true, ref: liqPayOrderResult._id}}});
+    console.log(result);
+    return {status: liqPayOrderResult.status};
+};
+
+exports.cancelSubscribe = async (user, data) => {
+    const {orderId} = data;
+    const liqPayOrder = await LiqPayOrder.findOne({_id: orderId, user: user._id, type: 'subscribe'});
+    if (liqPayOrder) throw notFound('Order is not found');
+    const result = await liqPay.cancelSubscribe(orderId);
+    const liqPayOrderResult = await LiqPayOrderResult(result).save();
+    if (result.status === 'success') await liqPayOrder.updateOne({_id: orderId}, {$set: {cancelled: {value: true, ref: liqPayOrderResult._id}}});
+    console.log(result);
+    return {status: liqPayOrderResult.status};
 };

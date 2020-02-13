@@ -7,7 +7,12 @@ const UserBonusHistory = new Schema({
         ref: 'user'
     },
     amount: Number,
-    type: String
+    type: {
+        type: String,
+        enum: [
+            'bonus_code'
+        ]
+    }
 }, {
     timestamps: true
 });
