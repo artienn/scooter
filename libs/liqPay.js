@@ -45,6 +45,8 @@ exports.hold = async (phone, amount, description, order_id, card, card_exp_month
         currency = 'USD',
         opt = {
             server_uri,
+            public_ley: liq.publicKey,
+            private_key: liq.privateKey,
             action,
             version,
             phone,
