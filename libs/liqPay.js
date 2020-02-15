@@ -1,66 +1,12 @@
-const LiqPay = require('liqpay');
 const rpn = require('request-promise-native');
 const sha1 = require('js-sha1');
 const {liq, baseUri} = require('../config');
-const liqpay = new LiqPay(liq.publicKey, liq.privateKey);
 const moment = require('moment');
 const liqPayUri = 'https://www.liqpay.ua/api/request';
 const version = 3,
     currency = 'USD';
-const result_url = '';
+    
 const server_uri = `${baseUri}/api/users/balance/callback`;
-
-//Подписка
-exports.subscribe = async (phone, amount, description, order_id, card, card_exp_month, card_exp_year, card_cvv) => {
-    const action = 'subscribe',
-        subscribe = '1',
-        subscribe_periodicity = 'month',
-        subscribe_date_start = moment().format('YYYY-MM-DD HH:MM:SS'),
-        options = {
-            server_uri,
-            action,
-            version,
-            phone,
-            amount,
-            currency,
-            description,
-            order_id,
-            subscribe,
-            subscribe_date_start,
-            subscribe_periodicity,
-            card,
-            card_exp_month,
-            card_exp_year,
-            card_cvv
-        };
-    liqpay.api('request', options, result => {
-        console.log( result );
-        return result;
-    });
-};
-//Двухстадийная оплата
-exports.hold = async (phone, amount, description, order_id, card, card_exp_month, card_exp_year, card_cvv) => {
-    const action = 'hold',
-        version = '3',
-        currency = 'USD',
-        opt = {
-            server_uri,
-            public_ley: liq.publicKey,
-            action,
-            version,
-            phone,
-            amount,
-            currency,
-            description,
-            order_id,
-            card,
-            card_exp_month,
-            card_exp_year,
-            card_cvv
-        };
-    console.log(opt, JSON.stringify(opt));
-    return template(opt);
-};
 
 const template = async (opt) => {
     const data = (new Buffer(JSON.stringify(opt))).toString('base64');
@@ -86,6 +32,55 @@ const template = async (opt) => {
         });
 };
 
+//Подписка
+exports.subscribe = async (phone, amount, description, order_id, card, card_exp_month, card_exp_year, card_cvv) => {
+    const action = 'subscribe',
+        subscribe = '1',
+        subscribe_periodicity = 'month',
+        subscribe_date_start = moment().format('YYYY-MM-DD HH:MM:SS'),
+        options = {
+            server_uri,
+            action,
+            version,
+            phone,
+            amount,
+            currency,
+            description,
+            order_id,
+            subscribe,
+            subscribe_date_start,
+            subscribe_periodicity,
+            card,
+            card_exp_month,
+            card_exp_year,
+            card_cvv
+        };
+    return template(options);
+};
+//Двухстадийная оплата
+exports.hold = async (phone, amount, description, order_id, card, card_exp_month, card_exp_year, card_cvv) => {
+    const action = 'hold',
+        version = '3',
+        currency = 'USD',
+        opt = {
+            server_uri,
+            public_ley: liq.publicKey,
+            action,
+            version,
+            phone,
+            amount,
+            currency,
+            description,
+            order_id,
+            card,
+            card_exp_month,
+            card_exp_year,
+            card_cvv
+        };
+    console.log(opt, JSON.stringify(opt));
+    return template(opt);
+};
+
 //Отмена платежа
 exports.cancelPayment = async (order_id) => {
     const action = 'refund',
@@ -96,10 +91,7 @@ exports.cancelPayment = async (order_id) => {
             order_id
         };
     console.log(options);
-    liqpay.api('request', options, result => {
-        console.log( result );
-        return result;
-    });
+    return template(options);
 };
 
 exports.cancelSubscribe = async (order_id) => {
@@ -110,10 +102,7 @@ exports.cancelSubscribe = async (order_id) => {
             version,
             order_id
         };
-    liqpay.api('request', options, result => {
-        console.log( result );
-        return result;
-    });
+    return template(options);
 };
 
 exports.status = async (order_id) => {
@@ -124,10 +113,7 @@ exports.status = async (order_id) => {
             version,
             order_id
         };
-    liqpay.api('request', options, result => {
-        console.log(result);
-        return result;
-    });
+    return template(options);
 };
 
 exports.callbackPayment = async (data, signature) => {
