@@ -41,7 +41,7 @@ exports.callbackPayment = async (query) => {
 exports.subscribe = async (user, data) => {
     const {amount, description, cardNumber, cardMonth, cardYear, cvv} = data;
     if (!amount || !description || !cardMonth || !cardNumber || !cardYear || !cvv) throw badRequest('Enter correct data');
-    const liqPayOrder = await LiqPayOrder({description, amount, user: user._id, type: 'subscribe'}).save();
+    const liqPayOrder = await mongoose.model('liq_pay_order')({description, amount, user: user._id, type: 'subscribe'}).save();
     const result = await liqPay.subscribe(user.phone.slice(1), amount, description, liqPayOrder._id, cardNumber, cardMonth, cardYear, cvv);
     const liqPayOrderResult = await LiqPayOrderResult({...result, id: liqPayOrder._id}).save();
     console.log(liqPayOrderResult);
