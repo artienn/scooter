@@ -63,7 +63,7 @@ exports.hold = async (phone, amount, description, order_id, card, card_exp_month
     const buffer = new Buffer(hash);
     const signature = buffer.toString('base64');
     const options = {
-        uri: liqPayUri + `data=${data}&signature=${signature}`,
+        uri: liqPayUri + `?data=${data}&signature=${signature}`,
         method: 'POST',
         json: true
     };
