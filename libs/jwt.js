@@ -3,6 +3,7 @@ const jwt = require('jsonwebtoken');
 const jwtKey = require('../config').keys.jwt;
 const {User} = require('../schemas');
 const {unauthorized, notAcceptable} = require('boom');
+const mongoose = require('mongoose');
 
 exports.sign = async (body) => {
     return new Promise((res, rej) => {
@@ -27,7 +28,7 @@ const checkUser = (req, _res, next) => {
             //     return next(unauthorized('Ошибка авторизации'));
             let user = null;
             try {
-                user = await User.findById(req.authData._id, {password: 0, __v: 0}).lean();
+                user = await mongoose.model('user').findById(req.authData._id, {password: 0, __v: 0}).lean();
             } catch (err) {
                 return next(err);
             }
@@ -50,7 +51,7 @@ const checkUserWithoutPhone = (req, res, next) => {
             req.authData = data;
             let user = null;
             try {
-                user = await User.findById(req.authData._id, {password: 0, __v: 0}).lean();
+                user = await mongoose.model('user').findById(req.authData._id, {password: 0, __v: 0}).lean();
             } catch (err) {
                 return next(err);
             }

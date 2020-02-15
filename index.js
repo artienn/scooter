@@ -8,7 +8,6 @@ const {notFound} = require('boom');
 const mongooseValidationErrors = require('./libs/mongooseValidationErrors');
 
 require('./db')();
-require('./schemas');
 
 const {checkUser} = require('./libs/jwt');
 
