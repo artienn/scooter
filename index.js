@@ -29,10 +29,7 @@ app.use((req, _res, next) => {
 app.use('/public', checkUser,express.static('./public'));
 
 app.use('/api', require('./routes'));
-app.use('/api/webhook', (req, res, next) => {
-    console.log(req.query, req.body);
-    res.send({});
-});
+
 app.use((_req, _res, next) => {
     next(notFound('Not found'));
 });
