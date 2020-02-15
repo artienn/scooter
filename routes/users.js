@@ -154,7 +154,7 @@ router.put('/balance/bonus_code', checkUser, async (req, res, next) => {
 
 router.get('/info', checkUser, async (req, res, next) => {
     try {
-        const fields = ['facebook', '_id', 'phone', 'balance'];
+        const fields = ['fb', '_id', 'phone', 'balance'];
         const result = {};
         for (const f of fields)
             result[f] = req.user[f];
