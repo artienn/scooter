@@ -46,7 +46,6 @@ exports.hold = async (phone, amount, description, order_id, card, card_exp_month
         opt = {
             server_uri,
             public_ley: liq.publicKey,
-            private_key: liq.privateKey,
             action,
             version,
             phone,
@@ -61,7 +60,7 @@ exports.hold = async (phone, amount, description, order_id, card, card_exp_month
         };
 
     const data = (new Buffer(JSON.stringify(opt))).toString('base64');
-    const hash = sha1(liq.privateKey + JSON.stringify(opt) + liq.publicKey);
+    const hash = sha1(liq.privateKey + JSON.stringify(opt) + liq.privateKey);
     const buffer = new Buffer(hash);
     const signature = buffer.toString('base64');
     const options = {
