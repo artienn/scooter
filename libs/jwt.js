@@ -25,11 +25,12 @@ const checkUser = (req, _res, next) => {
             req.authData = data;
             // if (!data.date || moment().diff(moment(data.date), 'minutes') > 1560) 
             //     return next(unauthorized('Ошибка авторизации'));
-            const user = await User.findById(req.authData._id, {password: 0, __v: 0})
-                .lean()
-                .catch(err => {
-                    return next(err);
-                });
+            let user = null;
+            try {
+                user = await User.findById(req.authData._id, {password: 0, __v: 0}).lean();
+            } catch (err) {
+                return next(err);
+            }
             req.user = user;
             if (!req.user) return next(unauthorized('Ошибка авторизации'));
             if (!user.phone) return next(notAcceptable('Необходимо подтвердить номер телефона'));
