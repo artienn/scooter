@@ -14,7 +14,7 @@ const template = async (opt) => {
     const buffer = new Buffer(hash);
     const signature = buffer.toString('base64');
     const options = {
-        uri: liqPayUri + `?data=${data}&signature=${signature}`,
+        uri: liqPayUri,
         method: 'POST',
         form: {
             data,
