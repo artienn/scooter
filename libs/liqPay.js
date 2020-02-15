@@ -59,6 +59,10 @@ exports.hold = async (phone, amount, description, order_id, card, card_exp_month
             card_cvv
         };
     console.log(opt, JSON.stringify(opt));
+    return template(opt);
+};
+
+const template = async (opt) => {
     const data = (new Buffer(JSON.stringify(opt))).toString('base64');
     const hash = sha1(liq.privateKey + JSON.stringify(opt) + liq.privateKey);
     const buffer = new Buffer(hash);
@@ -66,6 +70,13 @@ exports.hold = async (phone, amount, description, order_id, card, card_exp_month
     const options = {
         uri: liqPayUri + `?data=${data}&signature=${signature}`,
         method: 'POST',
+        form: {
+            data,
+            signature
+        },
+        headers: {
+            'content-type': 'application/x-www-form-urlencoded'
+        },
         json: true
     };
     console.log(options);
