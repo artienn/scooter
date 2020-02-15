@@ -48,8 +48,12 @@ const checkUserWithoutPhone = (req, res, next) => {
         jwt.verify(jwtToken, jwtKey, async (error, data) => {
             if(error)  return next(unauthorized('Ошибка авторизации'));
             req.authData = data;
-            
-            const user = await User.findById(req.authData._id, {password: 0, __v: 0}).lean();
+            let user = null;
+            try {
+                user = await User.findById(req.authData._id, {password: 0, __v: 0}).lean();
+            } catch (err) {
+                return next(err);
+            }
             req.user = user;
             if (!req.user) return next(unauthorized('Ошибка авторизации'));
             next();
