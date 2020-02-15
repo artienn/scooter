@@ -1,9 +1,10 @@
 const LiqPay = require('liqpay');
-
+const rpn = require('request-promise-native');
 const sha1 = require('js-sha1');
 const {liq, baseUri} = require('../config');
 const liqpay = new LiqPay(liq.publicKey, liq.privateKey);
 const moment = require('moment');
+const liqPayUri = 'https://www.liqpay.ua/api/request';
 const version = 3,
     currency = 'USD';
 const result_url = '';
@@ -42,7 +43,7 @@ exports.hold = async (phone, amount, description, order_id, card, card_exp_month
     const action = 'hold',
         version = '3',
         currency = 'USD',
-        options = {
+        opt = {
             server_uri,
             action,
             version,
@@ -56,11 +57,21 @@ exports.hold = async (phone, amount, description, order_id, card, card_exp_month
             card_exp_year,
             card_cvv
         };
+
+    const data = (new Buffer(JSON.stringify(opt))).toString('base64');
+    const hash = sha1(liq.privateKey + JSON.stringify(opt) + liq.publicKey);
+    const buffer = new Buffer(hash);
+    const signature = buffer.toString('base64');
+    const options = {
+        uri: liqPayUri + `data=${data}&signature=${signature}`,
+        method: 'POST',
+        json: true
+    };
     console.log(options);
-    liqpay.api('request', options, result => {
-        console.log( result );
-        return result;
-    });
+    return rpn(options)
+        .then(result => {
+            return result;
+        });
 };
 
 //Отмена платежа
