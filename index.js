@@ -2,13 +2,13 @@ const express = require('express');
 const app = express();
 
 const config = require('./config');
-const passport = require('./libs/facebookAuth');
 const port = process.env.PORT || config.port;
 
 const {notFound} = require('boom');
 const mongooseValidationErrors = require('./libs/mongooseValidationErrors');
 
 require('./db')();
+require('./schemas');
 
 const {checkUser} = require('./libs/jwt');
 
