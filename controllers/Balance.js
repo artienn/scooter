@@ -2,7 +2,6 @@ const {BonusCode, UserBonusHistory} = require('../schemas');
 const {notFound, badImplementation, badRequest} = require('boom');
 const mongoose = require('mongoose');
 const liqPay = require('../libs/liqPay');
-const {LiqPayOrder, LiqPayOrderResult} = require('../schemas');
 
 
 exports.replenishmentByBonusCode = async (user, data) => {
@@ -40,6 +39,7 @@ exports.callbackPayment = async (query) => {
 };  
 
 exports.subscribe = async (user, data) => {
+    const LiqPayOrderResult = mongoose.model('liq_pay_order_result');
     const {amount, description, cardNumber, cardMonth, cardYear, cvv} = data;
     if (!amount || !description || !cardMonth || !cardNumber || !cardYear || !cvv) throw badRequest('Enter correct data');
     const liqPayOrder = await mongoose.model('liq_pay_order')({description, amount, user: user._id, type: 'subscribe'}).save();
@@ -50,6 +50,8 @@ exports.subscribe = async (user, data) => {
 };
 
 exports.hold = async (user, data) => {
+    const LiqPayOrderResult = mongoose.model('liq_pay_order_result');
+    const LiqPayOrder = mongoose.model('liq_pay_order');
     const {amount, description, cardNumber, cardMonth, cardYear, cvv} = data;
     if (!amount || !description || !cardMonth || !cardNumber || !cardYear || !cvv) throw badRequest('Enter correct data');
     const liqPayOrder = await LiqPayOrder({description, amount, user: user._id, type: 'hold'}).save();
@@ -60,6 +62,7 @@ exports.hold = async (user, data) => {
 };
 
 exports.status = async (user, data) => {
+    const LiqPayOrder = mongoose.model('liq_pay_order');
     const {orderId} = data;
     if (!orderId) throw badRequest('Enter correct data');
     const liqPayOrder = await LiqPayOrder.findOne({_id: orderId, user: user._id});
@@ -70,6 +73,8 @@ exports.status = async (user, data) => {
 };
 
 exports.cancelPayment = async (user, data) => {
+    const LiqPayOrderResult = mongoose.model('liq_pay_order_result');
+    const LiqPayOrder = mongoose.model('liq_pay_order');
     const {orderId} = data;
     if (!orderId) throw badRequest('Enter correct data');
     const liqPayOrder = await LiqPayOrder.findOne({_id: orderId, user: user._id, type: 'hold'});
@@ -82,6 +87,8 @@ exports.cancelPayment = async (user, data) => {
 };
 
 exports.cancelSubscribe = async (user, data) => {
+    const LiqPayOrderResult = mongoose.model('liq_pay_order_result');
+    const LiqPayOrder = mongoose.model('liq_pay_order');
     const {orderId} = data;
     if (!orderId) throw badRequest('Enter correct data');
     const liqPayOrder = await LiqPayOrder.findOne({_id: orderId, user: user._id, type: 'subscribe'});
