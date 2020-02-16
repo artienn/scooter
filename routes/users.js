@@ -98,6 +98,15 @@ router.post('/balance/hold', checkUser, async (req, res, next) => {
     }
 });
 
+router.put('/balance/hold_completion', checkUser, async (req, res, next) => {
+    try {
+        const result = await Balance.holdCompletion(req.user, req.body);
+        res.send(result);
+    } catch (err) {
+        next(err);
+    }
+});
+
 router.post('/balance/subscribe', checkUser, async (req, res, next) => {
     try {
         const result = await Balance.subscribe(req.user, req.body);
