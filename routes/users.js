@@ -1,7 +1,6 @@
 const express = require('express');
 const router = express.Router();
 const User = require('../schemas').User;
-const Balance = require('../controllers').Balance;
 const {checkUser, checkUserWithoutPhone} = require('../libs/jwt');
 const passport = require('passport');
 require('../libs/facebookAuth');
@@ -83,78 +82,6 @@ router.post('/confirm_code', async (req, res, next) => {
 router.put('/reset_password', async (req, res, next) => {
     try {
         const result = await User.resetPassword(req.body);
-        res.send(result);
-    } catch (err) {
-        next(err);
-    }
-});
-
-router.post('/balance/hold', checkUser, async (req, res, next) => {
-    try {
-        const result = await Balance.hold(req.user, req.body);
-        res.send(result);
-    } catch (err) {
-        next(err);
-    }
-});
-
-router.put('/balance/hold_completion', checkUser, async (req, res, next) => {
-    try {
-        const result = await Balance.holdCompletion(req.user, req.body);
-        res.send(result);
-    } catch (err) {
-        next(err);
-    }
-});
-
-router.post('/balance/subscribe', checkUser, async (req, res, next) => {
-    try {
-        const result = await Balance.subscribe(req.user, req.body);
-        res.send(result);
-    } catch (err) {
-        next(err);
-    }
-});
-
-router.post('/balance/cancel_hold', checkUser, async (req, res, next) => {
-    try {
-        const result = await Balance.cancelPayment(req.user, req.body);
-        res.send(result);
-    } catch (err) {
-        next(err);
-    }
-});
-
-router.post('/balance/cancel_subscribe', checkUser, async (req, res, next) => {
-    try {
-        const result = await Balance.cancelSubscribe(req.user, req.body);
-        res.send(result);
-    } catch (err) {
-        next(err);
-    }
-});
-
-router.get('/balance/status', checkUser, async (req, res, next) => {
-    try {
-        const result = await Balance.status(req.user, req.query);
-        res.send(result);
-    } catch (err) {
-        next(err);
-    }
-});
-
-router.post('/balance/callback', async (req, res, next) => {
-    try {
-        const result = await Balance.callbackPayment(req.user, req.body);
-        res.send(result);
-    } catch (err) {
-        next(err);
-    }
-});
-
-router.put('/balance/bonus_code', checkUser, async (req, res, next) => {
-    try {
-        const result = await Balance.replenishmentByBonusCode(req.user, req.body);
         res.send(result);
     } catch (err) {
         next(err);
