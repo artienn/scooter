@@ -70,7 +70,7 @@ router.post('/confirm_login', async (req, res, next) => {
     }
 });
 
-router.post('/confirm_code', async (req, res, next) => {
+router.post('/code', async (req, res, next) => {
     try {
         const result = await User.sendCode(req.body);
         res.send(result);
