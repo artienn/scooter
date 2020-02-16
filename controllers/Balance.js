@@ -6,9 +6,10 @@ const liqPay = require('../libs/liqPay');
 
 exports.replenishmentByBonusCode = async (user, data) => {
     const {bonusCode} = data;
-    const bonusCodeObject = await BonusCode.findOne({code: bonusCode});
+    const bonusCodeObject = await BonusCode.findOne({code: bonusCode, active: true});
     if (!bonusCodeObject) throw notFound('Bonus code not found');
     await this.createUserBonusHistory(user, {type: 'bonus_code', amount: bonusCodeObject.amount});
+    await BonusCode.updateOne({code: bonusCode}, {$set: {active: false}});
     return {message: 'Ok'};
 };
 
@@ -90,7 +91,7 @@ exports.status = async (user, data) => {
     return result;
 };
 
-exports.cancelPayment = async (user, data) => {
+exports.cancelHold = async (user, data) => {
     const LiqPayOrderResult = mongoose.model('liq_pay_order_result');
     const LiqPayOrder = mongoose.model('liq_pay_order');
     const {orderId} = data;

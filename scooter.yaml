@@ -272,6 +272,166 @@ paths:
             $ref: '#/definitions/user'
         500:
           description: server error
+  /balance/hold:
+    post:
+      tags:
+      - Balance
+      summary: Payment with hold action(first part)
+      parameters:
+      - in: body
+        name: body
+        schema:
+          type: object
+          properties:
+            amount:
+              type: number
+            description:
+              type: string
+            cardNumber:
+              type: string
+            cardMonth:
+              type: string
+            cardYear:
+              type: string
+            cvv:
+              type: string
+      responses:
+        200:
+          description: hold wait (go to second part)
+        402:
+          description: Error on liqpay
+        500:
+          description: server error
+  /balance/hold_completion:
+    put:
+      tags:
+      - Balance
+      summary: Confirm payment with action the hold
+      parameters:
+      - in: body
+        name: body
+        schema:
+          type: object
+          properties:
+            orderId:
+              type: string
+      responses:
+        200:
+          description: success
+        402:
+          description: Error on liqpay
+        500:
+          description: server error
+  /balance/subscribe:
+    post:
+      tags:
+      - Balance
+      summary: create subscribe
+      parameters:
+      - in: body
+        name: body
+        schema:
+          type: object
+          properties:
+            amount:
+              type: number
+            description:
+              type: string
+            cardNumber:
+              type: string
+            cardMonth:
+              type: string
+            cardYear:
+              type: string
+            cvv:
+              type: string
+      responses:
+        200:
+          description: success
+        402:
+          description: Error on liqpay
+        500:
+          description: server error
+  /balance/cancel_hold:
+    put:
+      tags:
+      - Balance
+      summary: cancel hold
+      parameters:
+      - in: body
+        name: body
+        schema:
+          type: object
+          properties:
+            orderId:
+              type: string
+      responses:
+        200:
+          description: success
+        402:
+          description: Error on liqpay
+        500:
+          description: server error
+  /balance/cancel_subscribe:
+    put:
+      tags:
+      - Balance
+      summary: cancel subscribe
+      parameters:
+      - in: body
+        name: body
+        schema:
+          type: object
+          properties:
+            orderId:
+              type: string
+      responses:
+        200:
+          description: success
+        402:
+          description: Error on liqpay
+        500:
+          description: server error
+  /balance/status:
+    get:
+      tags:
+      - Balance
+      summary: status payment
+      parameters:
+      - in: body
+        name: body
+        schema:
+          type: object
+          properties:
+            orderId:
+              type: string
+      responses:
+        200:
+          description: success
+        404:
+          description: Bonus code not found
+        500:
+          description: server error
+  /balance/bonus_code:
+    post:
+      tags:
+      - Balance
+      summary: bonus code bonuses
+      parameters:
+      - in: body
+        name: body
+        schema:
+          type: object
+          properties:
+            bonusCode:
+              type: string
+      responses:
+        200:
+          description: success
+        402:
+          description: Error on liqpay
+        500:
+          description: server error
 definitions:
   token:
     type: object

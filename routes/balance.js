@@ -30,16 +30,16 @@ router.post('/subscribe', checkUser, async (req, res, next) => {
     }
 });
 
-router.post('/cancel_hold', checkUser, async (req, res, next) => {
+router.put('/cancel_hold', checkUser, async (req, res, next) => {
     try {
-        const result = await Balance.cancelPayment(req.user, req.body);
+        const result = await Balance.cancelHold(req.user, req.body);
         res.send(result);
     } catch (err) {
         next(err);
     }
 });
 
-router.post('/cancel_subscribe', checkUser, async (req, res, next) => {
+router.put('/cancel_subscribe', checkUser, async (req, res, next) => {
     try {
         const result = await Balance.cancelSubscribe(req.user, req.body);
         res.send(result);
@@ -66,7 +66,7 @@ router.post('/callback', async (req, res, next) => {
     }
 });
 
-router.put('/bonus_code', checkUser, async (req, res, next) => {
+router.post('/bonus_code', checkUser, async (req, res, next) => {
     try {
         const result = await Balance.replenishmentByBonusCode(req.user, req.body);
         res.send(result);
