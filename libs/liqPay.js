@@ -1,6 +1,4 @@
 const rpn = require('request-promise-native');
-const sha1 = require('js-sha1');
-const hash = require('object-hash');
 const {liq, baseUri} = require('../config');
 const moment = require('moment');
 const crypto = require('crypto');
@@ -11,9 +9,10 @@ const version = 3,
 const server_uri = `${baseUri}/api/users/balance/callback`;
 
 const template = async (opt) => {
+    if (!opt.public_key) opt.public_key = liq.publicKey;
     const data = (new Buffer(JSON.stringify(opt))).toString('base64');
     const sha = crypto.createHash('sha1').update(liq.privateKey + data + liq.privateKey).digest();
-    const signature = sha.toString('base64');//hash(liq.privateKey + data + liq.privateKey, {algorithm: 'sha1', encoding: 'base64'});
+    const signature = sha.toString('base64');
     const options = {
         uri: liqPayUri,
         method: 'POST',
@@ -118,9 +117,8 @@ exports.status = async (order_id) => {
 };
 
 exports.callbackPayment = async (data, signature) => {
-    const hash = sha1(liq.privateKey + data + liq.publicKey);
-    const buffer = new Buffer(hash);
-    const base64 = buffer.toString('base64');
+    const sha = crypto.createHash('sha1').update(liq.privateKey + data + liq.privateKey).digest();
+    const base64 = sha.toString('base64');
     if (signature === base64) return true;
     return false;
 };
