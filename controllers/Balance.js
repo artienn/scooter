@@ -1,5 +1,5 @@
 const {BonusCode, UserBonusHistory} = require('../schemas');
-const {notFound, badImplementation, badRequest} = require('boom');
+const {notFound, badImplementation, badRequest, paymentRequired} = require('boom');
 const mongoose = require('mongoose');
 const liqPay = require('../libs/liqPay');
 
@@ -46,6 +46,7 @@ exports.subscribe = async (user, data) => {
     const result = await liqPay.subscribe(user.phone.slice(1), amount, description, liqPayOrder._id, cardNumber, cardMonth, cardYear, cvv);
     const liqPayOrderResult = await LiqPayOrderResult({...result, id: liqPayOrder._id}).save();
     console.log(liqPayOrderResult);
+    if (result.result !== 'ok') throw paymentRequired(result.err_description);
     return result;
 };
 
@@ -58,6 +59,7 @@ exports.hold = async (user, data) => {
     const result = await liqPay.hold(user.phone.slice(1), amount, description, liqPayOrder._id, cardNumber, cardMonth, cardYear, cvv);
     const liqPayOrderResult = await LiqPayOrderResult({...result, id: liqPayOrder._id}).save();
     console.log(liqPayOrderResult);
+    if (result.result !== 'ok') throw paymentRequired(result.err_description);
     return result;
 };
 
@@ -72,6 +74,7 @@ exports.holdCompletion = async (user, data) => {
     await LiqPayOrder({user: user._id, type: 'hold_completion'});
     const result = await liqPay.holdCompletion(orderId);
     await LiqPayOrderResult(result).save();
+    if (result.result !== 'ok') throw paymentRequired(result.err_description);
     return result;
 };
 
@@ -83,6 +86,7 @@ exports.status = async (user, data) => {
     if (!liqPayOrder) throw notFound('Order is not found');
     const result = await liqPay.status(orderId);
     console.log(result);
+    if (result.result !== 'ok') throw paymentRequired(result.err_description);
     return result;
 };
 
@@ -97,6 +101,7 @@ exports.cancelPayment = async (user, data) => {
     const liqPayOrderResult = await LiqPayOrderResult(result).save();
     if (result.status === 'success') await liqPayOrder.updateOne({_id: orderId}, {$set: {cancelled: {value: true, ref: liqPayOrderResult._id}}}).save();
     console.log(result);
+    if (result.result !== 'ok') throw paymentRequired(result.err_description);
     return result;
 };
 
@@ -111,5 +116,6 @@ exports.cancelSubscribe = async (user, data) => {
     const liqPayOrderResult = await LiqPayOrderResult(result).save();
     if (result.status === 'success') await liqPayOrder.updateOne({_id: orderId}, {$set: {cancelled: {value: true, ref: liqPayOrderResult._id}}});
     console.log(result);
+    if (result.result !== 'ok') throw paymentRequired(result.err_description);
     return result;
 };
