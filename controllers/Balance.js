@@ -66,6 +66,7 @@ exports.holdCompletion = async (user, data) => {
     const LiqPayOrder = mongoose.model('liq_pay_order');
     const {orderId} = data;
     const liqPayOrderResult = await LiqPayOrderResult.findOne({order_id: orderId});
+    console.log(liqPayOrderResult);
     if (!liqPayOrderResult) throw notFound('Order not found');
     if (liqPayOrderResult.status !== 'hold_wait') throw badRequest('Action is not the hold');
     await LiqPayOrder({user: user._id, type: 'hold_completion'});
