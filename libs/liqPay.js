@@ -11,7 +11,9 @@ const server_uri = `${baseUri}/api/users/balance/callback`;
 
 const template = async (opt) => {
     const data = (new Buffer(JSON.stringify(opt))).toString('base64');
-    const signature = hash(liq.privateKey + data + liq.privateKey, {algorithm: 'sha1', encoding: 'base64'});
+    const sha = sha1(liq.privateKey + data + liq.privateKey);
+    const buf = new Buffer(sha);
+    const signature = buf.toString('base64');//hash(liq.privateKey + data + liq.privateKey, {algorithm: 'sha1', encoding: 'base64'});
     const options = {
         uri: liqPayUri,
         method: 'POST',
