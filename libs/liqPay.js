@@ -3,6 +3,7 @@ const sha1 = require('js-sha1');
 const hash = require('object-hash');
 const {liq, baseUri} = require('../config');
 const moment = require('moment');
+const crypto = require('crypto');
 const liqPayUri = 'https://www.liqpay.ua/api/request';
 const version = 3,
     currency = 'USD';
@@ -11,9 +12,8 @@ const server_uri = `${baseUri}/api/users/balance/callback`;
 
 const template = async (opt) => {
     const data = (new Buffer(JSON.stringify(opt))).toString('base64');
-    const sha = parseInt(sha1(liq.privateKey + data + liq.privateKey), 16).toString(2);
-    const buf = new Buffer(sha);
-    const signature = buf.toString('base64');//hash(liq.privateKey + data + liq.privateKey, {algorithm: 'sha1', encoding: 'base64'});
+    const sha = crypto.createHash('sha1').update(liq.privateKey + data + liq.privateKey).digest();
+    const signature = sha.toString('base64');//hash(liq.privateKey + data + liq.privateKey, {algorithm: 'sha1', encoding: 'base64'});
     const options = {
         uri: liqPayUri,
         method: 'POST',
