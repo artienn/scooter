@@ -60,7 +60,6 @@ exports.subscribe = async (phone, amount, description, order_id, card, card_exp_
 //Двухстадийная оплата
 exports.hold = async (phone, amount, description, order_id, card, card_exp_month, card_exp_year, card_cvv) => {
     const action = 'hold',
-        version = '3',
         currency = 'USD',
         opt = {
             server_uri,
@@ -79,6 +78,17 @@ exports.hold = async (phone, amount, description, order_id, card, card_exp_month
         };
     console.log(opt, JSON.stringify(opt));
     return template(opt);
+};
+
+exports.holdCompletion = async (order_id) => {
+    const action = 'hold_completion',
+        options = {
+            action,
+            version,
+            order_id
+        };
+    console.log(options);
+    return template(options);
 };
 
 //Отмена платежа

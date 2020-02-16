@@ -46,7 +46,7 @@ exports.subscribe = async (user, data) => {
     const result = await liqPay.subscribe(user.phone.slice(1), amount, description, liqPayOrder._id, cardNumber, cardMonth, cardYear, cvv);
     const liqPayOrderResult = await LiqPayOrderResult({...result, id: liqPayOrder._id}).save();
     console.log(liqPayOrderResult);
-    return {status: liqPayOrderResult.status};
+    return result;
 };
 
 exports.hold = async (user, data) => {
@@ -58,7 +58,20 @@ exports.hold = async (user, data) => {
     const result = await liqPay.hold(user.phone.slice(1), amount, description, liqPayOrder._id, cardNumber, cardMonth, cardYear, cvv);
     const liqPayOrderResult = await LiqPayOrderResult({...result, id: liqPayOrder._id}).save();
     console.log(liqPayOrderResult);
-    return {status: liqPayOrderResult.status};
+    return result;
+};
+
+exports.holdCompletion = async (user, data) => {
+    const LiqPayOrderResult = mongoose.model('liq_pay_order_result');
+    const LiqPayOrder = mongoose.model('liq_pay_order');
+    const {orderId} = data;
+    const liqPayOrderResult = await LiqPayOrderResult.findOne({order_id: orderId});
+    if (!liqPayOrderResult) throw notFound('Order not found');
+    if (liqPayOrderResult.status !== 'hold_wait') throw badRequest('Action is not the hold');
+    await LiqPayOrder({user: user._id, type: 'hold_completion'});
+    const result = await liqPay.holdCompletion(orderId);
+    await LiqPayOrderResult(result).save();
+    return result;
 };
 
 exports.status = async (user, data) => {
@@ -69,7 +82,7 @@ exports.status = async (user, data) => {
     if (!liqPayOrder) throw notFound('Order is not found');
     const result = await liqPay.status(orderId);
     console.log(result);
-    return {status: result.status};
+    return result;
 };
 
 exports.cancelPayment = async (user, data) => {
@@ -83,7 +96,7 @@ exports.cancelPayment = async (user, data) => {
     const liqPayOrderResult = await LiqPayOrderResult(result).save();
     if (result.status === 'success') await liqPayOrder.updateOne({_id: orderId}, {$set: {cancelled: {value: true, ref: liqPayOrderResult._id}}}).save();
     console.log(result);
-    return {status: liqPayOrderResult.status};
+    return result;
 };
 
 exports.cancelSubscribe = async (user, data) => {
@@ -97,5 +110,5 @@ exports.cancelSubscribe = async (user, data) => {
     const liqPayOrderResult = await LiqPayOrderResult(result).save();
     if (result.status === 'success') await liqPayOrder.updateOne({_id: orderId}, {$set: {cancelled: {value: true, ref: liqPayOrderResult._id}}});
     console.log(result);
-    return {status: liqPayOrderResult.status};
+    return result;
 };
