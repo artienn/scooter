@@ -132,7 +132,7 @@ paths:
     put:
       tags:
       - Users
-      summary: Reset password
+      summary: Reset password after sending code on your phone
       parameters:
       - in: body
         name: body

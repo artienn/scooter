@@ -1,4 +1,6 @@
 module.exports = {
     User: require('./User'),
-    Balance: require('./Balance')
+    Balance: require('./Balance'),
+    Contract: require('./Contract'),
+    Scooter: require('./Scooter')
 };

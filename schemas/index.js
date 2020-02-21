@@ -4,5 +4,7 @@ module.exports = {
     BonusCode: require('./BonusCode'),
     UserBonusHistory: require('./UserBonusHistory'),
     LiqPayOrder: require('./LiqPayOrder'),
-    LiqPayOrderResult: require('./LiqPayOrderResult')
+    LiqPayOrderResult: require('./LiqPayOrderResult'),
+    Scooter: require('./Scooter'),
+    Contract: require('./Contract')
 };
