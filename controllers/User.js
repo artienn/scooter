@@ -179,6 +179,16 @@ class User {
         await this.login({phone, password});
         return this.sendCode({phone});
     }
+
+    static async createProblemRequest (userId, description, scooterId) {
+        const request = await mongoose.model('problem_request')({
+            user: userId,
+            description,
+            scooter: scooterId
+        }).save();
+
+        return request;
+    }
 }
 
 module.exports = User;

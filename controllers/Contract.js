@@ -8,7 +8,7 @@ exports.getUserContract = async (user) => {
     return contract;
 };
 
-exports.create = async (user, body) => {
+exports.createContract = async (user, body) => {
     const existsContract = await this.getUserContract(user);
     if (existsContract) throw badRequest('User already created contract');
     const {scooterId, userCoords} = body;
@@ -16,14 +16,17 @@ exports.create = async (user, body) => {
     const {coords} = scooter;
     const distance = Distance.between(userCoords, coords);
     if (distance > Distance('5 m')) throw conflict('Distance is too big');
-    const contract = new Contract({
-        scooter: scooter._id,
-        user: user._id,
-        active: true,
-        rate: {
-            value: 'start',
-            updatedAt: new Date()
-        }
-    }).save();
+    const [contract, _updateScooter] = await Promise.all([
+        new Contract({
+            scooter: scooter._id,
+            user: user._id,
+            active: true,
+            rate: {
+                value: 'start',
+                updatedAt: new Date()
+            }
+        }).save(),
+        Scooter.closeFreeFlagOfScooter(scooter._id)
+    ]);
     return contract;
 };

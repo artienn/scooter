@@ -52,6 +52,16 @@ router.put('/check_code', async (req, res, next) => {
     }
 });
 
+router.post('/problem_request', async (req, res, next) => {
+    try {
+        const {description, scooterId} = req.body;
+        const result = await User.createProblemRequest(req.user._id, description, scooterId);
+        res.send(result);
+    } catch (err) {
+        next(err);
+    }
+});
+
 router.post('/login', async (req, res, next) => {
     try {
         const result = await User.loginAndSendCode(req.body);

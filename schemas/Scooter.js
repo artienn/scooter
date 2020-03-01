@@ -8,6 +8,11 @@ const Scooter = new Schema({
         lat: Number,
         lon: Number,
         updatedAt: Date
+    },
+    battery: {
+        type: Number,
+        min: 0,
+        max: 100
     }
 }, {
     timestamps: true
