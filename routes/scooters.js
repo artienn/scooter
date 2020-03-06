@@ -13,4 +13,14 @@ router.get('/', checkUser, async (req, res, next) => {
     }
 });
 
+router.put('/:id', checkUser, async (req, res, next) => {
+    try {
+        const {lat, lon} = req.body;
+        const result = await Scooter.updateScooterCoords(req.user, lat, lon);
+        res.send(result);
+    } catch (err) {
+        next(err);
+    }
+});
+
 module.exports = router;

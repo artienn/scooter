@@ -5,9 +5,12 @@ const Tariff = new Schema({
     type: {
         type: String,
         enum: [
-            'normal'
+            'normal',
+            'pause',
+            'start'
         ]
     },
+    name: String,
     price: Number
 }, {
     timestamps: true

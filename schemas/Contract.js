@@ -10,8 +10,13 @@ const Contract = new Schema({
         type: Schema.Types.ObjectId,
         ref: 'user'
     },
+    period: Number, //seconds
+    tariff: {
+        type: Schema.Types.ObjectId,
+        ref: 'tariff'
+    },
     active: Boolean,
-    rate: {
+    status: {
         updatedAt: Date,
         value: {
             type: String,

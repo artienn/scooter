@@ -7,5 +7,8 @@ module.exports = {
     LiqPayOrderResult: require('./LiqPayOrderResult'),
     Scooter: require('./Scooter'),
     Contract: require('./Contract'),
-    Tariff: require('./Tariff')
+    Tariff: require('./Tariff'),
+    ContractHistory: require('./ContractHistory'),
+    Zone: require('./Zone'),
+    ScooterCoordsHistory: require('./ScooterCoordsHistory')
 };

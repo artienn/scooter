@@ -1,32 +1,98 @@
-const {Contract} = require('../schemas');
-const {conflict, badRequest} = require('boom');
+const {Contract, Tariff, ContractHistory} = require('../schemas');
+const {conflict, badRequest, notFound} = require('boom');
 const Scooter = require('./Scooter');
 const Distance = require('geo-distance');
+const moment = require('moment');
+const DISTANCE_BETWEEN_USER_AND_SCOOTER = 5;
 
-exports.getUserContract = async (user) => {
-    const contract = await Contract.findOne({user: user._id}).populate('scooter');
+exports.getUserActiveContract = async (user) => {
+    const contract = await Contract.findOne({user: user._id, active: true}).populate('scooter').lean();
+    if (!contract) throw notFound('Contract nor found');
+    contract.period = moment().diff(contract.createdAt, 'seconds');
     return contract;
 };
 
 exports.createContract = async (user, body) => {
-    const existsContract = await this.getUserContract(user);
+    const existsContract = await this.getUserActiveContract(user);
     if (existsContract) throw badRequest('User already created contract');
     const {scooterId, userCoords} = body;
-    const scooter = await Scooter.getFreeScooterById(scooterId);
+    const [scooter, tariff] = await Promise.all([
+        Scooter.getFreeScooterById(scooterId),
+        Tariff.findOne()
+    ]);
+    if (!tariff) throw notFound('Tariff not found');
     const {coords} = scooter;
     const distance = Distance.between(userCoords, coords);
-    if (distance > Distance('5 m')) throw conflict('Distance is too big');
-    const [contract, _updateScooter] = await Promise.all([
+    if (distance > Distance(`${DISTANCE_BETWEEN_USER_AND_SCOOTER} m`)) throw conflict('Distance is too big');
+    const now = new Date();
+    const [contract, updateScooter] = await Promise.all([
         new Contract({
             scooter: scooter._id,
             user: user._id,
             active: true,
-            rate: {
+            period: 0,
+            tariff: tariff._id,
+            status: {
                 value: 'start',
-                updatedAt: new Date()
+                updatedAt: now
             }
         }).save(),
         Scooter.closeFreeFlagOfScooter(scooter._id)
     ]);
+    await ContractHistory({contract: contract._id, start: [{from: now, price: tariff.price || 0}]}).save();
     return contract;
 };
+
+exports.updateStatusOfContractToNormal = async (user) => {
+    const [contract, tariff] = await Promise.all([
+        this.getUserActiveContract(user),
+        Tariff.findOne({type: 'normal'})
+    ]);
+    if (contract.status.value !== 'start' && contract.status.value !== 'pause' && contract.status.value !== 'stop') throw conflict('impossible');
+    if (!tariff || !tariff.price) throw notFound('Tariff not found');
+    contract.status.value = 'normal';
+
+    await Promise.all([
+        contract.save(),
+        this.startStatus(contract._id, tariff.price, 'normal')
+    ]);
+};
+
+exports.updateStatusOfContractToPause = async (user) => {
+    const [contract, tariff] = await Promise.all([
+        this.getUserActiveContract(user),
+        Tariff.findOne({type: 'pause'})
+    ]);
+    if (contract.status.value !== 'normal') throw conflict('Impossible');
+    if (!tariff) throw notFound('Tariff not found');
+    const oldStatus = contract.status.value;
+    contract.status.value = 'pause';
+
+    await Promise.all([
+        contract.save(),
+        this.startStatus(contract._id, tariff.price, 'pause'),
+        this.endStatus(contract._id, oldStatus)
+    ]);
+};
+
+exports.startStatus = async (contractId, tariffPrice, type) => {
+    const now = new Date();
+    return ContractHistory({contract: contractId, type, start: now, price: tariffPrice}).save();
+};
+
+exports.endStatus = async (contractId, type) => {
+    return ContractHistory.updateOne({contract: contractId, type, end: {$exists: false}}, {$set: {end: new Date()}});
+};
+
+exports.checkSumOfContract = async (user) => {
+    const contract = await this.getUserActiveContract(user);
+    const histories = await ContractHistory.find({contract: contract._id});
+    let sum = 0;
+    for (const history of histories) {
+        if (!history.end) history.end = new Date();
+        const minutes = moment(history.end).diff(history.start, 'minutes');
+        sum += minutes * history.price;
+    }
+    return {sum};
+};
+
