@@ -7,11 +7,14 @@ const Tariff = new Schema({
         enum: [
             'normal',
             'pause',
-            'start'
+            'start',
+            'exit',
+            'stop'
         ]
     },
     name: String,
-    price: Number
+    price: Number,
+    maxTime: Number
 }, {
     timestamps: true
 });

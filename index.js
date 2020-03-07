@@ -8,7 +8,6 @@ const {notFound} = require('boom');
 const mongooseValidationErrors = require('./libs/mongooseValidationErrors');
 
 require('./db')();
-
 const {checkUser} = require('./libs/jwt');
 
 app.use(express.urlencoded({extended:true}));

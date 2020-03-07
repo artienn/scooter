@@ -2,7 +2,7 @@ const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
 const Scooter = new Schema({
-    blockId: String,
+    lockId: String,
     free: Boolean,
     coords: {
         lat: Number,
@@ -13,6 +13,11 @@ const Scooter = new Schema({
         type: Number,
         min: 0,
         max: 100
+    },
+    batteryFlag: {
+        type: Number,
+        min: 1,
+        max: 3
     }
 }, {
     timestamps: true

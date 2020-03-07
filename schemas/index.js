@@ -1,14 +1,12 @@
-module.exports = {
-    User: require('./User'),
-    ConfirmCode: require('./ConfirmCode'),
-    BonusCode: require('./BonusCode'),
-    UserBonusHistory: require('./UserBonusHistory'),
-    LiqPayOrder: require('./LiqPayOrder'),
-    LiqPayOrderResult: require('./LiqPayOrderResult'),
-    Scooter: require('./Scooter'),
-    Contract: require('./Contract'),
-    Tariff: require('./Tariff'),
-    ContractHistory: require('./ContractHistory'),
-    Zone: require('./Zone'),
-    ScooterCoordsHistory: require('./ScooterCoordsHistory')
-};
+exports.Contract = require('./Contract');
+exports.ConfirmCode = require('./ConfirmCode');
+exports.BonusCode = require('./BonusCode');
+exports.UserBonusHistory = require('./UserBonusHistory');
+exports.LiqPayOrder = require('./LiqPayOrder');
+exports.LiqPayOrderResult = require('./LiqPayOrderResult');
+exports.Scooter = require('./Scooter');
+exports.Tariff = require('./Tariff');
+exports.ContractHistory = require('./ContractHistory');
+exports.Zone = require('./Zone');
+exports.ScooterCoordsHistory = require('./ScooterCoordsHistory');
+exports.User = require('./User');

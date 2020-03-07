@@ -3,8 +3,13 @@ const {notFound} = require('boom');
 const Contract = require('./Contract');
 
 exports.listOfFreeScooters = async () => {
-    const scooters = await Scooter.find({free: true});
-    
+    const scooters = await Scooter.find({free: true}).sort({battery: 1});
+    for (const scooter of scooters) {
+        const {battery} = scooter;
+        if (battery < 15) scooter.batteryFlag = 1;
+        else if (battery < 50) scooter.batteryFlag = 2;
+        else scooter.batteryFlag = 3;
+    }
     return scooters;
 };
 
