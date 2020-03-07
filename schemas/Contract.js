@@ -16,6 +16,8 @@ const Contract = new Schema({
         ref: 'tariff'
     },
     active: Boolean,
+    cableImg: String,
+    closedLockImg: String,
     status: {
         updatedAt: Date,
         value: {

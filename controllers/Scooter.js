@@ -20,8 +20,8 @@ exports.getFreeScooterById = async (_id) => {
     return scooter;
 };
 
-exports.closeFreeFlagOfScooter = async (scooterId) => {
-    await Scooter.updateOne({_id: scooterId}, {$set: {free: false}});
+exports.updateFreeFlagOfScooter = async (scooterId, free) => {
+    await Scooter.updateOne({_id: scooterId}, {$set: {free}});
 };
 
 exports.getUsedScooters = async () => {

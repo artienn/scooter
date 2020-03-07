@@ -13,9 +13,45 @@ router.post('/', checkUser, async (req, res, next) => {
     }
 });
 
+router.put('/pause', checkUser, async (req, res, next) => {
+    try {
+        const result = await Contract.updateStatusOfContractToPause(req.user, req.body.contractId);
+        res.send(result);
+    } catch (err) {
+        next(err);
+    }
+});
+
+router.put('/normal', checkUser, async (req, res, next) => {
+    try {
+        const result = await Contract.updateStatusOfContractToNormal(req.user, req.body.contractId);
+        res.send(result);
+    } catch (err) {
+        next(err);
+    }
+});
+
+router.put('/stop', checkUser, async (req, res, next) => {
+    try {
+        const result = await Contract.updateStatusOfContractToStop(req.user, req.body.contractId);
+        res.send(result);
+    } catch (err) {
+        next(err);
+    }
+});
+
+router.put('/exit', checkUser, async (req, res, next) => {
+    try {
+        const result = await Contract.updateStatusOfContractToExit(req.user, req.body.contractId, req.body.cableImg, req.body.closedLockImg);
+        res.send(result);
+    } catch (err) {
+        next(err);
+    }
+});
+
 router.get('/sum', checkUser, async (req, res, next) => {
     try {
-        const result = await Contract.checkSumOfContract(req.user);
+        const result = await Contract.checkSumOfContract(req.user, req.body.contractId);
         res.send(result);
     } catch (err) {
         next(err);

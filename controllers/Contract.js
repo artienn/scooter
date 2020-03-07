@@ -12,6 +12,13 @@ exports.getUserActiveContract = async (user) => {
     return contract;
 };
 
+exports.getUserActiveContractByContractId = async (userId, contractId) => {
+    const contract = await Contract.findOne({user: userId, _id: contractId, active: true}).populate('scooter').lean();
+    if (!contract) throw notFound('Contract nor found');
+    
+    return contract;
+};
+
 exports.createContract = async (user, body) => {
     const existsContract = await this.getUserActiveContract(user);
     if (existsContract) throw badRequest('User already created contract');
@@ -37,7 +44,7 @@ exports.createContract = async (user, body) => {
                 updatedAt: now
             }
         }).save(),
-        Scooter.closeFreeFlagOfScooter(scooter._id)
+        Scooter.updateFreeFlagOfScooter(scooter._id, false)
     ]);
     await ContractHistory({contract: contract._id, start: [{from: now, price: tariff.price || 0}]}).save();
     return contract;
@@ -74,6 +81,39 @@ exports.updateStatusOfContractToPause = async (user) => {
         this.endStatus(contract._id, oldStatus)
     ]);
 };
+
+exports.updateStatusOfContractToStop = async (userId, contractId) => {
+    const [contract, tariff] = await Promise.all([
+        this.getUserActiveContractByContractId(userId, contractId),
+        Tariff.findOne({type: 'stop'})
+    ]);
+    if (!['normal', 'pause', 'start'].includes(contract.status.value)) throw conflict('Impossible');
+    if (!tariff) throw notFound('Tariff not found');
+    const oldStatus = contract.status.value;
+    contract.status.value = 'stop';
+
+    await Promise.all([
+        contract.save(),
+        this.startStatus(contract._id, tariff.price, 'stop'),
+        this.endStatus(contract._id, oldStatus)
+    ]);
+};
+
+exports.updateStatusOfContractToExit = async (userId, contractId, cableImg, closedLockImg) => {
+    const contract = await this.getUserActiveContractByContractId(userId, contractId);
+    if (!cableImg || !closedLockImg) throw badRequest('Enter imgs names');
+    contract.cableImg = cableImg;
+    contract.closedLockImg = closedLockImg;
+    contract.status.value = 'exit';
+
+    await Promise.all([
+        this.endStatus(contractId, 'stop'),
+        Scooter.updateFreeFlagOfScooter(contract.scooter, true),
+        contract.save(),
+        ContractHistory({contract: contractId, type: 'exit', start: new Date()}).save()
+    ]);
+    return {message: 'ok'};
+};  
 
 exports.startStatus = async (contractId, tariffPrice, type) => {
     const now = new Date();
