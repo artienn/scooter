@@ -432,7 +432,186 @@ paths:
           description: Error on liqpay
         500:
           description: server error
+  /scooters:
+    get:
+      tags:
+      - Scooters
+      summary: free scooters list
+      responses:
+        200:
+          description: OK
+        500:
+          description: server error
+  /scooters/{id}:
+    put:
+      tags:
+      - Scooters
+      summary: update scooters coords
+      parameters:
+      - in: path
+        name: id
+        type: string
+        required: true
+      - in: body
+        name: body
+        schema:
+          type: object
+          properties:
+            lat: 
+              type: number
+            lon:
+              type: number
+      responses:
+        200:
+          description: ok
+        404:
+          description: not found
+        500:
+          description: server error
+  /contracts:
+    post:
+      tags:
+      - Contracts
+      summary: create contract
+      parameters:
+      - in: body
+        name: body
+        schema:
+          type: object
+          properties:
+            userCoords:
+              type: object
+              properties:
+                lat: 
+                  type: number
+                lon:
+                  type: number
+            scooterId:
+              type: string
+      responses:
+        200:
+          description: OK
+        400:
+          description: enter data
+        409:
+          description: get closer to the scooter
+        500:
+          description: server error
+  /contracts/pause:
+    put:
+      tags: 
+      - Contracts
+      summary: pause
+      parameters:
+      - in: body
+        name: body
+        schema:
+          $ref: '#/definitions/contractId'
+      responses:
+        200:
+          description: OK
+        409:
+          description: imposible
+        500:
+          description: server error
+  /contract/normal:
+    put:
+      tags: 
+      - Contracts
+      summary: normal
+      parameters:
+      - in: body
+        name: body
+        schema:
+          $ref: '#/definitions/contractId'
+      responses:
+        200:
+          description: OK
+        409:
+          description: imposible
+        500:
+          description: server error
+  /contract/stop:
+    put:
+      tags: 
+      - Contracts
+      summary: stop
+      parameters:
+      - in: body
+        name: body
+        schema:
+          $ref: '#/definitions/contractId'
+      responses:
+        200:
+          description: OK
+        409:
+          description: imposible
+        500:
+          description: server error
+  /contract/exit:
+    put:
+      tags: 
+      - Contracts
+      summary: exit
+      parameters:
+      - in: body
+        name: body
+        schema:
+          type: object
+          properties:
+            contractId:
+              type: string
+            cableImg:
+              type: string
+            closedLockImg:
+              type: string
+      responses:
+        200:
+          description: OK
+        409:
+          description: imposible
+        500:
+          description: server error
+  /contracts/sum:
+    get:
+      tags:
+      - Contracts
+      summary: get sum and period of this contract
+      parameters:
+      - in: query
+        name: contract_id
+        type: string
+      responses:
+        200:
+          description: ok
+        404:
+          description: contract not found
+        500:
+          description: server error
+  files:
+    post:
+      tags:
+      - Files
+      summary: upload file on server
+      consumes:
+      - multipart/form-data
+      parameters:
+      - in: formData
+        name: file
+      responses:
+        200:
+          description: file name on server
+        404:
+          dscription: file not found
+        500:
+          description: server error
+        
 definitions:
+  contractId:
+    type: object
+    properties:
+      contractId:
+        type: string
   token:
     type: object
     properties:
