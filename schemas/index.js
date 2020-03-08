@@ -9,4 +9,5 @@ exports.Tariff = require('./Tariff');
 exports.ContractHistory = require('./ContractHistory');
 exports.Zone = require('./Zone');
 exports.ScooterCoordsHistory = require('./ScooterCoordsHistory');
+exports.File = require('./File');
 exports.User = require('./User');

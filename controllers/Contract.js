@@ -25,6 +25,7 @@ exports.createContract = async (user, body) => {
     const existsContract = await Contract.findOne({user: user._id, active: true});
     if (existsContract) throw badRequest('User already created contract');
     const {scooterId, userCoords} = body;
+    if (!scooterId || !userCoords) throw badRequest('Enter data');
     const [scooter, tariff] = await Promise.all([
         Scooter.getFreeScooterById(scooterId),
         Tariff.findOne({type: 'start'})

@@ -51,7 +51,7 @@ router.put('/exit', checkUser, async (req, res, next) => {
 
 router.get('/sum', checkUser, async (req, res, next) => {
     try {
-        const result = await Contract.checkSumOfContract(req.user, req.body.contractId);
+        const result = await Contract.checkSumOfContract(req.user, req.query.contract_id);
         res.send(result);
     } catch (err) {
         next(err);
