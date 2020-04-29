@@ -9,7 +9,7 @@ basePath: /api
 produces:
   - application/json
 paths:
-  /users/confirm_code:
+  /users/code:
     post:
       tags:
       - Users
@@ -588,7 +588,7 @@ paths:
           description: contract not found
         500:
           description: server error
-  files:
+  /files:
     post:
       tags:
       - Files
@@ -598,11 +598,12 @@ paths:
       parameters:
       - in: formData
         name: file
+        type: file
       responses:
         200:
           description: file name on server
         404:
-          dscription: file not found
+          description: file not found
         500:
           description: server error
         

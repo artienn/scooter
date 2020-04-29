@@ -13,6 +13,15 @@ router.post('/', checkUser, async (req, res, next) => {
     }
 });
 
+router.post('/', checkUser, async (req, res, next) => {
+    try {
+        const result = await Contract.getUserContracts(req.user);
+        res.send(result);
+    } catch (err) {
+        next(err);
+    }
+});
+
 router.put('/pause', checkUser, async (req, res, next) => {
     try {
         const result = await Contract.updateStatusOfContractToPause(req.user, req.body.contractId);

@@ -6,11 +6,15 @@ const moment = require('moment');
 const DISTANCE_BETWEEN_USER_AND_SCOOTER = 5;
 
 exports.getUserActiveContract = async (user) => {
-    console.log(Contract);
     const contract = await Contract.findOne({user: user._id, active: true});
     if (!contract) throw notFound('Contract nor found');
     contract.period = moment().diff(contract.createdAt, 'seconds');
     return contract;
+};
+
+exports.getUserContracts = async (user) => {
+    const contracts = await Contract.find({user: user._id});
+    return contracts;
 };
 
 exports.getUserActiveContractByContractId = async (userId, contractId) => {
