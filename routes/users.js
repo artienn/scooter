@@ -104,7 +104,7 @@ router.get('/info', checkUser, async (req, res, next) => {
         const result = {};
         for (const f of fields)
             result[f] = req.user[f];
-        res.send({user: result});
+        res.send({...req.user, ...result});
     } catch (err) {
         next(err);
     }
@@ -114,7 +114,7 @@ router.put('/info', checkUser, async (req, res, next) => {
     try {
         const {firstName, lastName, middleName, email, birthday} = req.body;
         const result = await User.updateInfo(req.user, firstName, lastName, middleName, email, birthday);
-        res.send({user: result});
+        res.send(result);
     } catch (err) {
         next(err);
     }
