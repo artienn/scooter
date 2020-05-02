@@ -104,7 +104,7 @@ router.get('/info', checkUser, async (req, res, next) => {
         const result = {};
         for (const f of fields)
             result[f] = req.user[f];
-        res.send({...req.user, ...result});
+        res.send({user: {...req.user, ...result}});
     } catch (err) {
         next(err);
     }
