@@ -203,7 +203,7 @@ class User {
             data.email = email;
         }
         if (birthday) data.birthday = birthday;
-        await User.updateOne({_id: user._id}, {$set: data});
+        await this.updateOne({_id: user._id}, {$set: data});
         return {message: 'ok'};
     }
 }
