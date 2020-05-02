@@ -18,7 +18,12 @@ const User = new Schema({
         firstName: String,
         lastName: String,
         email: String
-    }
+    },
+    firstName: String,
+    lastName: String,
+    middleName: String,
+    email: String,
+    birthday: Date
 }, {
     timestamps: true
 });

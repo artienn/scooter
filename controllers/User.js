@@ -5,6 +5,7 @@ const moment = require('moment');
 const jwt = require('../libs/jwt');
 const auth = require('vvdev-auth');
 const facebook = require('../libs/facebook');
+const {validate} = require('email-validator');
 
 const checkPhoneNumber = (phone) => {
     if (!phone || phone.length !== 13 || phone.slice(0, 4) !== '+380' ) return true;
@@ -188,6 +189,22 @@ class User {
         }).save();
 
         return request;
+    }
+
+    static async updateInfo(user, firstName, lastName, middleName, email, birthday) {
+        const data = {};
+        const queries = [];
+        if ((firstName || firstName === '') && user.firstName !== firstName) data.firstName = firstName;
+        if ((lastName || lastName === '') && user.lastName !== lastName) data.lastName = lastName;
+        if ((middleName || middleName === '') && user.middleName !== middleName) data.middleName = middleName;
+        if ((email || email === '') && user.email !== email) {
+            if (email && !validate(email)) throw badRequest('Incorrect email');
+            queries.push({email});
+            data.email = email;
+        }
+        if (birthday) data.birthday = birthday;
+        await User.updateOne({_id: user._id}, {$set: data});
+        return {message: 'ok'};
     }
 }
 
