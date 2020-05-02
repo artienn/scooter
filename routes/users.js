@@ -110,4 +110,14 @@ router.get('/info', checkUser, async (req, res, next) => {
     }
 });
 
+router.put('/info', checkUser, async (req, res, next) => {
+    try {
+        const {firstName, lastName, middleName, email, birthday} = req.body;
+        const result = await User.updateInfo(req.user, firstName, lastName, middleName, email, birthday);
+        res.send({user: result});
+    } catch (err) {
+        next(err);
+    }
+});
+
 module.exports = router;
