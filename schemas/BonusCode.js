@@ -4,7 +4,9 @@ const Schema = mongoose.Schema;
 const BonusCode = new Schema({
     code: String,
     amount: Number,
-    active: Boolean
+    active: Boolean,
+    percentSale: Number,
+    stateScooter: String
 }, {
     timestamps: true
 });

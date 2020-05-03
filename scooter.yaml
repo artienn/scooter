@@ -523,6 +523,21 @@ paths:
           description: get closer to the scooter
         500:
           description: server error
+    get:
+      tags:
+      - Contracts
+      summary: create contract
+      responses:
+        200:
+          description: ok
+  /contracts/active:
+    get:
+      tags:
+      - Contracts
+      summary: get active contract
+      responses:
+        200:
+          description: ok
   /contracts/pause:
     put:
       tags: 

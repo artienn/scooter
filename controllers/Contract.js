@@ -5,10 +5,10 @@ const Distance = require('geo-distance');
 const moment = require('moment');
 const DISTANCE_BETWEEN_USER_AND_SCOOTER = 5;
 
-exports.getUserActiveContract = async (user) => {
+exports.getUserActiveContract = async (user, catchFlag = true) => {
     const contract = await Contract.findOne({user: user._id, active: true});
-    if (!contract) throw notFound('Contract nor found');
-    contract.period = moment().diff(contract.createdAt, 'seconds');
+    if (!contract && catchFlag) throw notFound('Contract nor found');
+    if (contract) contract.period = moment().diff(contract.createdAt, 'seconds');
     return contract;
 };
 
