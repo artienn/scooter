@@ -1,0 +1,674 @@
+swagger: '2.0'
+info:
+  title: scooter
+  version: 1.0.0
+host: 'school.vvdev.ru'
+schemes:
+  - https
+basePath: /api
+produces:
+  - application/json
+paths:
+  /users/code:
+    post:
+      tags:
+      - Users
+      summary: Send code method for register of user
+      parameters:
+      - in: body
+        name: body
+        schema:
+          type: object
+          properties:
+            phone:
+              type: string
+              description: 'format +380XXXXXXXXX'
+      responses:
+        200:
+          description: Send code on phone number to user
+          schema:
+            type: object
+            properties:
+              message:
+                type: string
+              code:
+                type: string
+                description: Code sent on client only in test-version
+        400:
+          description: Incorrect phone number
+        422:
+          description: too many requests on send code(only one request in two minutes)
+        500:
+          description: server error
+  /users/register:
+    post:
+      tags:
+        - Users
+      summary: Register to user after sent code
+      parameters:
+      - in: body
+        name: body
+        schema:
+          type: object
+          properties:
+            phone:
+              type: string
+            code:
+              type: string
+            password:
+              type: string
+            repeatPassword:
+              type: string
+      responses:
+        200:
+          description: OK
+          schema:
+            $ref: '#/definitions/token'
+        400:
+          description: Enter correct data(password=repeatPassword, phone number correct, password more 8 symbols and include lower case, upper case and number symbol)
+        401:
+          description: Code incorrect
+        409:
+          description: User already exists
+        500:
+          description: server error
+  /users/login:
+    post:
+      tags:
+        - Users
+      summary: Login user
+      parameters:
+      - in: body
+        name: body
+        schema:
+          type: object
+          properties:
+            password:
+              type: string
+            phone:
+              type: string
+      responses:
+        200:
+          description: OK
+          schema:
+            type: object
+            properties:
+              message: 
+                type: string
+                description: code sent to your phone number
+              code:
+                type: string
+        400:
+          description: Incorrect phone number/enter password
+        401:
+          description: Auth error(password wrong, user is undefined)
+        500:
+          description: server error
+  /users/check_code:
+    put:
+      tags:
+      - Users
+      summary: Check code before register or reset password
+      parameters:
+      - in: body
+        name: body
+        schema:
+          type: object
+          properties:
+            phone:
+              type: string
+            code:
+              type: string
+      responses:
+        200:
+          description: OK
+        400:
+          description: Enter data
+        401:
+          description: Auth error
+        500:
+          description: Server error
+  /users/reset_password:
+    put:
+      tags:
+      - Users
+      summary: Reset password after sending code on your phone
+      parameters:
+      - in: body
+        name: body
+        schema:
+          type: object
+          properties:
+            phone:
+              type: string
+            code:
+              type: string
+            password:
+              type: string
+            repeatPassword:
+              type: string
+      responses:
+        200:
+          description: OK
+          schema:
+            $ref: '#/definitions/token'
+        401:
+          description: Auth error
+        500:
+          description: Server error
+  /users/confirm_login:
+    post:
+      tags:
+      - Users
+      summary: enter code to confirm login user
+      parameters:
+      - in: body
+        name: body
+        schema:
+          type: object
+          properties:
+            phone:
+              type: string
+            code:
+              type: string
+      responses:
+        200:
+          description: OK
+          schema:
+            $ref: '#/definitions/token'
+        400:
+          description: Enter phone/code
+        401:
+          description: Auth error
+        500:
+          description: server error
+  /users/login/facebook:
+    get:
+      tags:
+      - Users
+      summary: This method redirect to facebook auth page
+      responses:
+        200:
+          description: ok
+        500:
+          description: server error
+  /users/login/facebook/callback:
+    get:
+      tags:
+      - Users
+      summary: After auth on facebook, code sent on method
+      parameters:
+      - in: query
+        name: code
+        type: string
+        required: true
+      responses:
+        200:
+          description: If this first login with facebook auth, next method send phone number for confrim phone number
+          schema:
+            $ref: '#/definitions/token'
+        400:
+          description: enter data
+        500:
+          description: server error
+  /users/login/facebook/phone:
+    put:
+      tags:
+      - Users
+      summary: put phone number to user 
+      parameters:
+      - in: body
+        name: body
+        schema:
+          type: object
+          properties:
+            phone:
+              type: string
+      responses:
+        200:
+          description: OK
+          schema:
+            type: object
+            properties:
+              code:
+                type: string
+              message:
+                type: string
+        500:
+          description: server error
+  /users/login/facebook/phone_confirm:
+    put:
+      tags:
+      - Users
+      summary: Confrim phone after first facebook auth
+      parameters:
+      - in: body
+        name: body
+        schema:
+          type: object
+          properties:
+            code:
+              type: string
+            phone:
+              type: string
+      responses:
+        200:
+          description: OK
+          schema:
+            $ref: '#/definitions/token'
+        401:
+          description: Auth error
+        500:
+          description: server error
+  /users/info:
+    get:
+      tags:
+      - Users
+      summary: Get private information
+      responses:
+        200:
+          description: OK
+          schema:
+            $ref: '#/definitions/user'
+        500:
+          description: server error
+    put:
+      tags:
+      - Users
+      summary: update private information
+      parameters:
+      - in: body
+        name: body
+        schema:
+          type: object
+          properties:
+            firstName:
+              type: string
+            lastName:
+              type: string
+            middleName:
+              type: string
+            email:
+              type: string
+            birthday:
+              type: string
+              description: ISOstring
+      responses:
+        200:
+          description: OK
+        500:
+          description: server error
+  /balance/hold:
+    post:
+      tags:
+      - Balance
+      summary: Payment with hold action(first part)
+      parameters:
+      - in: body
+        name: body
+        schema:
+          type: object
+          properties:
+            amount:
+              type: number
+            description:
+              type: string
+            cardNumber:
+              type: string
+            cardMonth:
+              type: string
+            cardYear:
+              type: string
+            cvv:
+              type: string
+      responses:
+        200:
+          description: hold wait (go to second part)
+        402:
+          description: Error on liqpay
+        500:
+          description: server error
+  /balance/hold_completion:
+    put:
+      tags:
+      - Balance
+      summary: Confirm payment with action the hold
+      parameters:
+      - in: body
+        name: body
+        schema:
+          type: object
+          properties:
+            orderId:
+              type: string
+      responses:
+        200:
+          description: success
+        402:
+          description: Error on liqpay
+        500:
+          description: server error
+  /balance/subscribe:
+    post:
+      tags:
+      - Balance
+      summary: create subscribe
+      parameters:
+      - in: body
+        name: body
+        schema:
+          type: object
+          properties:
+            amount:
+              type: number
+            description:
+              type: string
+            cardNumber:
+              type: string
+            cardMonth:
+              type: string
+            cardYear:
+              type: string
+            cvv:
+              type: string
+      responses:
+        200:
+          description: success
+        402:
+          description: Error on liqpay
+        500:
+          description: server error
+  /balance/cancel_hold:
+    put:
+      tags:
+      - Balance
+      summary: cancel hold
+      parameters:
+      - in: body
+        name: body
+        schema:
+          type: object
+          properties:
+            orderId:
+              type: string
+      responses:
+        200:
+          description: success
+        402:
+          description: Error on liqpay
+        500:
+          description: server error
+  /balance/cancel_subscribe:
+    put:
+      tags:
+      - Balance
+      summary: cancel subscribe
+      parameters:
+      - in: body
+        name: body
+        schema:
+          type: object
+          properties:
+            orderId:
+              type: string
+      responses:
+        200:
+          description: success
+        402:
+          description: Error on liqpay
+        500:
+          description: server error
+  /balance/status:
+    get:
+      tags:
+      - Balance
+      summary: status payment
+      parameters:
+      - in: body
+        name: body
+        schema:
+          type: object
+          properties:
+            orderId:
+              type: string
+      responses:
+        200:
+          description: success
+        404:
+          description: Bonus code not found
+        500:
+          description: server error
+  /balance/bonus_code:
+    post:
+      tags:
+      - Balance
+      summary: bonus code bonuses
+      parameters:
+      - in: body
+        name: body
+        schema:
+          type: object
+          properties:
+            bonusCode:
+              type: string
+      responses:
+        200:
+          description: success
+        402:
+          description: Error on liqpay
+        500:
+          description: server error
+  /scooters:
+    get:
+      tags:
+      - Scooters
+      summary: free scooters list
+      responses:
+        200:
+          description: OK
+        500:
+          description: server error
+  /scooters/{id}:
+    put:
+      tags:
+      - Scooters
+      summary: update scooters coords
+      parameters:
+      - in: path
+        name: id
+        type: string
+        required: true
+      - in: body
+        name: body
+        schema:
+          type: object
+          properties:
+            lat: 
+              type: number
+            lon:
+              type: number
+      responses:
+        200:
+          description: ok
+        404:
+          description: not found
+        500:
+          description: server error
+  /contracts:
+    post:
+      tags:
+      - Contracts
+      summary: create contract
+      parameters:
+      - in: body
+        name: body
+        schema:
+          type: object
+          properties:
+            userCoords:
+              type: object
+              properties:
+                lat: 
+                  type: number
+                lon:
+                  type: number
+            scooterId:
+              type: string
+      responses:
+        200:
+          description: OK
+        400:
+          description: enter data
+        409:
+          description: get closer to the scooter
+        500:
+          description: server error
+    get:
+      tags:
+      - Contracts
+      summary: create contract
+      responses:
+        200:
+          description: ok
+  /contracts/active:
+    get:
+      tags:
+      - Contracts
+      summary: get active contract
+      responses:
+        200:
+          description: ok
+  /contracts/pause:
+    put:
+      tags: 
+      - Contracts
+      summary: pause
+      parameters:
+      - in: body
+        name: body
+        schema:
+          $ref: '#/definitions/contractId'
+      responses:
+        200:
+          description: OK
+        409:
+          description: imposible
+        500:
+          description: server error
+  /contract/normal:
+    put:
+      tags: 
+      - Contracts
+      summary: normal
+      parameters:
+      - in: body
+        name: body
+        schema:
+          $ref: '#/definitions/contractId'
+      responses:
+        200:
+          description: OK
+        409:
+          description: imposible
+        500:
+          description: server error
+  /contract/stop:
+    put:
+      tags: 
+      - Contracts
+      summary: stop
+      parameters:
+      - in: body
+        name: body
+        schema:
+          $ref: '#/definitions/contractId'
+      responses:
+        200:
+          description: OK
+        409:
+          description: imposible
+        500:
+          description: server error
+  /contract/exit:
+    put:
+      tags: 
+      - Contracts
+      summary: exit
+      parameters:
+      - in: body
+        name: body
+        schema:
+          type: object
+          properties:
+            contractId:
+              type: string
+            cableImg:
+              type: string
+            closedLockImg:
+              type: string
+      responses:
+        200:
+          description: OK
+        409:
+          description: imposible
+        500:
+          description: server error
+  /contracts/sum:
+    get:
+      tags:
+      - Contracts
+      summary: get sum and period of this contract
+      parameters:
+      - in: query
+        name: contract_id
+        type: string
+      responses:
+        200:
+          description: ok
+        404:
+          description: contract not found
+        500:
+          description: server error
+  /files:
+    post:
+      tags:
+      - Files
+      summary: upload file on server
+      consumes:
+      - multipart/form-data
+      parameters:
+      - in: formData
+        name: file
+        type: file
+      responses:
+        200:
+          description: file name on server
+        404:
+          description: file not found
+        500:
+          description: server error
+        
+definitions:
+  contractId:
+    type: object
+    properties:
+      contractId:
+        type: string
+  token:
+    type: object
+    properties:
+      token:
+        type: string
+        description: 'send this token in headers x-access-token' 
+      _id:
+        type: string
+        description: user ID
+  user:
+    type: object
+    properties:
+      _id: 
+        type: string
+      phone:
+        type: string
+      balance:
+        type: number
