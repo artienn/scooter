@@ -36,6 +36,7 @@ exports.callbackPayment = async (query) => {
     if (typeof data === 'string')
         json = JSON.parse(data);
     console.log(json);
+    const {token} = json;
     return json;
 };  
 
@@ -68,9 +69,10 @@ exports.holdCompletion = async (user, data) => {
     const LiqPayOrderResult = mongoose.model('liq_pay_order_result');
     const LiqPayOrder = mongoose.model('liq_pay_order');
     const {orderId} = data;
-    const liqPayOrderResult = await LiqPayOrderResult.findOne({order_id: orderId});
+    const liqPayOrderResult = await LiqPayOrderResult.findOne({order_id: orderId}).lean();
     console.log(liqPayOrderResult);
     if (!liqPayOrderResult) throw notFound('Order not found');
+    console.log(liqPayOrderResult.status)
     if (liqPayOrderResult.status !== 'hold_wait') throw badRequest('Action is not the hold');
     await LiqPayOrder({user: user._id, type: 'hold_completion'});
     const result = await liqPay.holdCompletion(orderId);
@@ -119,4 +121,17 @@ exports.cancelSubscribe = async (user, data) => {
     console.log(result);
     if (result.result !== 'ok') throw paymentRequired(result.err_description);
     return result;
+};
+
+exports.createUserCard = async (user, amount, description, cardNumber, cardMonth, cardYear, cvv) => {
+    const data = {
+        amount, 
+        description, 
+        cardNumber, 
+        cardMonth, 
+        cardYear, 
+        cvv
+    };
+    const result = await exports.hold(user, data);
+    console.log(result);
 };

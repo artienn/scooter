@@ -3,6 +3,16 @@ const router = express.Router();
 const Balance = require('../controllers').Balance;
 const {checkUser} = require('../libs/jwt');
 
+router.post('/hold_card', checkUser, async (req, res, next) => {
+    try {
+        const {amount, description, cardNumber, cardMonth, cardYear, cvv} = req.body;
+        const result = await Balance.createUserCard(req.user, amount, description, cardNumber, cardMonth, cardYear, cvv);
+        res.send(result);
+    } catch (err) {
+        next(err);
+    }
+});
+
 router.post('/hold', checkUser, async (req, res, next) => {
     try {
         const result = await Balance.hold(req.user, req.body);
@@ -47,6 +57,8 @@ router.put('/cancel_subscribe', checkUser, async (req, res, next) => {
         next(err);
     }
 });
+
+
 
 router.get('/status', checkUser, async (req, res, next) => {
     try {
