@@ -6,7 +6,7 @@ const liqPayUri = 'https://www.liqpay.ua/api/request';
 const version = 3,
     currency = 'USD';
     
-const server_uri = `${baseUri}/api/users/balance/callback`;
+const server_uri = `${baseUri}/api/balance/callback`;
 
 const template = async (opt) => {
     if (!opt.public_key) opt.public_key = liq.publicKey;
