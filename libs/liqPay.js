@@ -6,7 +6,7 @@ const liqPayUri = 'https://www.liqpay.ua/api/request';
 const version = 3,
     currency = 'USD';
     
-const server_uri = `${baseUri}/api/users/balance/callback`;
+const server_uri = `${baseUri}/api/balance/callback`;
 
 const template = async (opt) => {
     if (!opt.public_key) opt.public_key = liq.publicKey;
@@ -33,12 +33,12 @@ const template = async (opt) => {
 };
 
 //Подписка
-exports.subscribe = async (phone, amount, description, order_id, card, card_exp_month, card_exp_year, card_cvv) => {
+exports.subscribe = async (phone, amount, description, order_id, card, card_exp_month, card_exp_year, card_cvv, card_token) => {
     const action = 'subscribe',
         subscribe = '1',
         subscribe_periodicity = 'month',
         subscribe_date_start = moment().format('YYYY-MM-DD HH:MM:SS'),
-        options = {
+        opt = {
             server_uri,
             action,
             version,
@@ -49,16 +49,20 @@ exports.subscribe = async (phone, amount, description, order_id, card, card_exp_
             order_id,
             subscribe,
             subscribe_date_start,
-            subscribe_periodicity,
-            card,
-            card_exp_month,
-            card_exp_year,
-            card_cvv
+            subscribe_periodicity
         };
-    return template(options);
+    if (card_token) {
+        opt.card_token = card_token;
+    } else {
+        opt.card_exp_month = card_exp_month;
+        opt.card_exp_year = card_exp_year;
+        opt.card_cvv = card_cvv;
+        opt.card = card;
+    }
+    return template(opt);
 };
 //Двухстадийная оплата
-exports.hold = async (phone, amount, description, order_id, card, card_exp_month, card_exp_year, card_cvv) => {
+exports.hold = async (phone, amount, description, order_id, card, card_exp_month, card_exp_year, card_cvv, card_token) => {
     const action = 'hold',
         currency = 'USD',
         opt = {
@@ -70,12 +74,16 @@ exports.hold = async (phone, amount, description, order_id, card, card_exp_month
             amount,
             currency,
             description,
-            order_id,
-            card,
-            card_exp_month,
-            card_exp_year,
-            card_cvv
+            order_id
         };
+    if (card_token) {
+        opt.card_token = card_token;
+    } else {
+        opt.card_exp_month = card_exp_month;
+        opt.card_exp_year = card_exp_year;
+        opt.card_cvv = card_cvv;
+        opt.card = card;
+    }
     console.log(opt, JSON.stringify(opt));
     return template(opt);
 };
