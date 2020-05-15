@@ -33,12 +33,12 @@ const template = async (opt) => {
 };
 
 //Подписка
-exports.subscribe = async (phone, amount, description, order_id, card, card_exp_month, card_exp_year, card_cvv) => {
+exports.subscribe = async (phone, amount, description, order_id, card, card_exp_month, card_exp_year, card_cvv, card_token) => {
     const action = 'subscribe',
         subscribe = '1',
         subscribe_periodicity = 'month',
         subscribe_date_start = moment().format('YYYY-MM-DD HH:MM:SS'),
-        options = {
+        opt = {
             server_uri,
             action,
             version,
@@ -49,13 +49,17 @@ exports.subscribe = async (phone, amount, description, order_id, card, card_exp_
             order_id,
             subscribe,
             subscribe_date_start,
-            subscribe_periodicity,
-            card,
-            card_exp_month,
-            card_exp_year,
-            card_cvv
+            subscribe_periodicity
         };
-    return template(options);
+    if (card_token) {
+        opt.card_token = card_token;
+    } else {
+        opt.card_exp_month = card_exp_month;
+        opt.card_exp_year = card_exp_year;
+        opt.card_cvv = card_cvv;
+        opt.card = card;
+    }
+    return template(opt);
 };
 //Двухстадийная оплата
 exports.hold = async (phone, amount, description, order_id, card, card_exp_month, card_exp_year, card_cvv, card_token) => {

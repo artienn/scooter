@@ -3,10 +3,28 @@ const router = express.Router();
 const Balance = require('../controllers').Balance;
 const {checkUser} = require('../libs/jwt');
 
-router.post('/hold_card', checkUser, async (req, res, next) => {
+router.post('/cards', checkUser, async (req, res, next) => {
     try {
         const {amount, description, cardNumber, cardMonth, cardYear, cvv} = req.body;
         const result = await Balance.createUserCard(req.user, amount, description, cardNumber, cardMonth, cardYear, cvv);
+        res.send(result);
+    } catch (err) {
+        next(err);
+    }
+});
+
+router.get('/cards', checkUser, async (req, res, next) => {
+    try {
+        const result = await Balance.getUserCards(req.user);
+        res.send(result);
+    } catch (err) {
+        next(err);
+    }
+});
+
+router.delete('/cards/:cardId', checkUser, async (req, res, next) => {
+    try {
+        const result = await Balance.deleteCard(req.user, req.params.cardId);
         res.send(result);
     } catch (err) {
         next(err);
