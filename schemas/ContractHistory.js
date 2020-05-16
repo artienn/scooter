@@ -9,7 +9,8 @@ const ContractHistory = new Schema({
     type: String,
     start: Date,
     end: Date,
-    price: Number
+    price: Number,
+    salePercent: Number
 }, {
     timestamps: true
 });

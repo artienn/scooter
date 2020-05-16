@@ -71,6 +71,26 @@ router.post('/login', async (req, res, next) => {
     }
 });
 
+router.post('/firebase_id', checkUser, async (req, res, next) => {
+    try {
+        const {firebaseId} = req.body;
+        const result = await User.putFirebaseId(req.user, firebaseId);
+        res.send(result);
+    } catch (err) {
+        next(err);
+    }
+});
+
+router.delete('/firebase_id', checkUser, async (req, res, next) => {
+    try {
+        const {firebaseId} = req.body;
+        const result = await User.deleteFirebaseId(req.user, firebaseId);
+        res.send(result);
+    } catch (err) {
+        next(err);
+    }
+});
+
 router.post('/confirm_login', async (req, res, next) => {
     try {
         const result = await User.confirmCode(req.body);

@@ -1,15 +1,25 @@
 const {Tariff, Contract, ContractHistory} = require('../schemas');
 const {conflict, badRequest, notFound} = require('boom');
 const Scooter = require('./Scooter');
+const Balance = require('./Balance');
 const Distance = require('geo-distance');
 const moment = require('moment');
 const DISTANCE_BETWEEN_USER_AND_SCOOTER = 5;
+const STOP = 'stop';
+const NORMAL = 'normal';
+const PAUSE = 'pause';
+const START = 'start';
+const EXIT = 'exit';
 
-exports.getUserActiveContract = async (user, catchFlag = true) => {
-    const contract = await Contract.findOne({user: user._id, active: true});
-    if (!contract && catchFlag) throw notFound('Contract nor found');
-    if (contract) contract.period = moment().diff(contract.createdAt, 'seconds');
-    return contract;
+exports.getUserActiveContracts = async (user) => {
+    const contracts = await Contract.find({user: user._id, active: true}).lean();
+    return {
+        contracts: contracts.map(c => {
+            c.period = moment().diff(c.createdAt, 'seconds');
+            return c;
+        }), 
+        contractsCount: contracts.length
+    };
 };
 
 exports.getUserContracts = async (user) => {
@@ -26,20 +36,21 @@ exports.getUserActiveContractByContractId = async (userId, contractId) => {
 };
 
 exports.createContract = async (user, body) => {
-    const existsContract = await Contract.findOne({user: user._id, active: true});
-    if (existsContract) throw badRequest('User already created contract');
-    const {scooterId, userCoords} = body;
+    const existsContracts = await exports.getUserActiveContracts(user);
+    if (existsContracts.contractsCount >= 3) throw badRequest('User already created 3 contracts');
+    const {scooterId, userCoords, code} = body;
     if (!scooterId || !userCoords) throw badRequest('Enter data');
-    const [scooter, tariff] = await Promise.all([
+    const [scooter, tariff, promocode] = await Promise.all([
         Scooter.getFreeScooterById(scooterId),
-        Tariff.findOne({type: 'start'})
+        Tariff.findOne({type: START}),
+        Balance.getActivePromocode(code, false)
     ]);
     if (!tariff) throw notFound('Tariff not found');
     const {coords} = scooter;
     const distance = Distance.between(userCoords, coords);
     if (distance > Distance(`${DISTANCE_BETWEEN_USER_AND_SCOOTER} m`)) throw conflict('Distance is too big');
     const now = new Date();
-    const [contract, updateScooter] = await Promise.all([
+    const [contract] = await Promise.all([
         new Contract({
             scooter: scooter._id,
             user: user._id,
@@ -47,9 +58,12 @@ exports.createContract = async (user, body) => {
             period: 0,
             tariff: tariff._id,
             status: {
-                value: 'start',
+                value: START,
                 updatedAt: now
-            }
+            },
+            promocode: code,
+            contractStatusPromocode: promocode ? promocode.contractStatus : null,
+            salePercentPromocode: promocode ? promocode.salePercent : null,
         }).save(),
         Scooter.updateFreeFlagOfScooter(scooter._id, false)
     ]);
@@ -57,94 +71,104 @@ exports.createContract = async (user, body) => {
     return contract;
 };
 
-exports.updateStatusOfContractToNormal = async (user) => {
+exports.updateStatusOfContractToNormal = async (user, contractId) => {
     const [contract, tariff] = await Promise.all([
-        this.getUserActiveContract(user),
-        Tariff.findOne({type: 'normal'})
+        exports.getUserActiveContractByContractId(user._id, contractId),
+        Tariff.findOne({type: NORMAL})
     ]);
-    if (contract.status.value !== 'start' && contract.status.value !== 'pause' && contract.status.value !== 'stop') throw conflict('impossible');
+    if (contract.status.value !== START && contract.status.value !== PAUSE && contract.status.value !== STOP) throw conflict('impossible');
     if (!tariff || !tariff.price) throw notFound('Tariff not found');
-    contract.status.value = 'normal';
-
+    contract.status.value = NORMAL;
+    const salePercentPromocode = contract.contractStatusPromocode === NORMAL ? contract.salePercentPromocode : null;
     await Promise.all([
         contract.save(),
-        this.startStatus(contract._id, tariff.price, 'normal')
+        exports.startStatus(contract._id, tariff.price, NORMAL, salePercentPromocode)
     ]);
-    return this.checkSumAndPeriodOfContract(user, contract);
+    return exports.checkSumAndPeriodOfContract(user, contract);
 };
 
-exports.updateStatusOfContractToPause = async (user) => {
+exports.updateStatusOfContractToPause = async (user, contractId) => {
     const [contract, tariff] = await Promise.all([
-        this.getUserActiveContract(user),
-        Tariff.findOne({type: 'pause'})
+        exports.getUserActiveContractByContractId(user._id, contractId),
+        Tariff.findOne({type: PAUSE})
     ]);
-    if (contract.status.value !== 'normal') throw conflict('Impossible');
+    if (contract.status.value !== NORMAL) throw conflict('Impossible');
     if (!tariff) throw notFound('Tariff not found');
     const oldStatus = contract.status.value;
-    contract.status.value = 'pause';
-
+    contract.status.value = PAUSE;
+    const salePercentPromocode = contract.contractStatusPromocode === PAUSE ? contract.salePercentPromocode : null;
     await Promise.all([
         contract.save(),
-        this.startStatus(contract._id, tariff.price, 'pause'),
-        this.endStatus(contract._id, oldStatus)
+        exports.startStatus(contract._id, tariff.price, PAUSE, salePercentPromocode),
+        exports.endStatus(contract._id, oldStatus)
     ]);
-    return this.checkSumAndPeriodOfContract(user, contract);
+    return exports.checkSumAndPeriodOfContract(user, contract);
 };
 
 exports.updateStatusOfContractToStop = async (user, contractId) => {
     const [contract, tariff] = await Promise.all([
-        this.getUserActiveContractByContractId(user._id, contractId),
-        Tariff.findOne({type: 'stop'})
+        exports.getUserActiveContractByContractId(user._id, contractId),
+        Tariff.findOne({type: STOP})
     ]);
-    if (!['normal', 'pause', 'start'].includes(contract.status.value)) throw conflict('Impossible');
+    if (![NORMAL, PAUSE, START].includes(contract.status.value)) throw conflict('Impossible');
     if (!tariff) throw notFound('Tariff not found');
     const oldStatus = contract.status.value;
-    contract.status.value = 'stop';
-
+    contract.status.value = STOP;
+    const salePercentPromocode = contract.contractStatusPromocode === STOP ? contract.salePercentPromocode : null;
     await Promise.all([
         contract.save(),
-        this.startStatus(contract._id, tariff.price, 'stop'),
-        this.endStatus(contract._id, oldStatus)
+        exports.startStatus(contract._id, tariff.price, STOP, salePercentPromocode),
+        exports.endStatus(contract._id, oldStatus)
     ]);
-    return this.checkSumAndPeriodOfContract(user, contract);
+    return exports.checkSumAndPeriodOfContract(user, contract);
 };
 
 exports.updateStatusOfContractToExit = async (user, contractId, cableImg, closedLockImg) => {
-    const contract = await this.getUserActiveContractByContractId(user._id, contractId);
+    const contract = await exports.getUserActiveContractByContractId(user._id, contractId);
     if (!cableImg || !closedLockImg) throw badRequest('Enter imgs names');
     contract.cableImg = cableImg;
     contract.closedLockImg = closedLockImg;
-    contract.status.value = 'exit';
+    contract.status.value = EXIT;
     contract.active = false;
 
     await Promise.all([
-        this.endStatus(contractId, 'stop'),
+        exports.endStatus(contractId, STOP),
         Scooter.updateFreeFlagOfScooter(contract.scooter, true),
         contract.save(),
-        ContractHistory({contract: contractId, type: 'exit', start: new Date()}).save()
+        ContractHistory({contract: contractId, type: EXIT, start: new Date()}).save()
     ]);
-    return this.checkSumAndPeriodOfContract(user, contract);
+    return exports.checkSumAndPeriodOfContract(user, contract);
 };  
 
-exports.startStatus = async (contractId, tariffPrice, type) => {
+exports.startStatus = async (contractId, tariffPrice, type, salePercent = null) => {
     const now = new Date();
-    return ContractHistory({contract: contractId, type, start: now, price: tariffPrice}).save();
+    // tariffPrice = salePercent && salePercent < 100 ? (tariffPrice / 100) * (100 - salePercent) : tariffPrice;
+    return ContractHistory({contract: contractId, type, start: now, price: tariffPrice, salePercent}).save();
 };
 
 exports.endStatus = async (contractId, type) => {
     return ContractHistory.updateOne({contract: contractId, type, end: {$exists: false}}, {$set: {end: new Date()}});
 };
 
-exports.checkSumAndPeriodOfContract = async (user, contract = null) => {
-    if (!contract) contract = await this.getUserActiveContract(user);
-    const histories = await ContractHistory.find({contract: contract._id, type: {$ne: 'exit'}});
+exports.checkSumAndPeriodOfContract = async (contract = null) => {
+    if (!contract) return;
+    const histories = await ContractHistory.find({contract: contract._id, type: {$ne: EXIT}});
     let sum = 0;
     let period = 0;
+    let saleAmount = 0;
     for (const history of histories) {
         if (!history.end) history.end = new Date();
+        let periodSum = 0;
+        let saleSum = 0;
         const minutes = Math.ceil(moment(history.end).diff(history.start, 'minutes', true));
-        sum += minutes * history.price;
+        history.price = history.salePercent && history.salePercent <= 100 ? (history.price / 100) * (100 - history.salePercent) : history.price;
+        periodSum += minutes * history.price;
+        saleSum += minutes * ((history.price / 100) * (100 - (history.salePercent || 0)));
+        if (saleSum > periodSum) saleSum = periodSum;
+        periodSum -= saleSum;
         period += minutes;
+        sum += periodSum;
+        saleAmount += saleSum;
     }
-    return {sum, period};
+    return {sum, period, saleAmount};
 };

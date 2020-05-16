@@ -23,7 +23,8 @@ const User = new Schema({
     lastName: String,
     middleName: String,
     email: String,
-    birthday: Date
+    birthday: Date,
+    firebaseIds: [String]
 }, {
     timestamps: true
 });

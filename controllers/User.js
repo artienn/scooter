@@ -142,13 +142,22 @@ class User {
     }
 
     static async login(data) {
-        const {phone, password} = data;
+        const {phone, password, firebaseId} = data;
         if (!password) throw badRequest('Enter password');
         if (checkPhoneNumber(phone)) throw badRequest('Enter correct phone number');
         const user = await this.findOne({phone});
         const result = await auth.checkPassword(password, user.password);
         if (!result) throw unauthorized('Auth error');
+        if (firebaseId) await this.putFirebaseId(user, firebaseId);
         return {phone, email: user.email, _id: user._id};
+    }
+
+    static async putFirebaseId(user, firebaseId) {
+        return this.updateOne({_id: user._id}, {addToSet: {firebaseIds: firebaseId}});
+    } 
+
+    static async deleteFirebaseId(user, firebaseId) {
+        return this.updateOne({_id: user._id}, {pull: {firebaseIds: firebaseId}});
     }
 
     static async resetPassword(data) {
