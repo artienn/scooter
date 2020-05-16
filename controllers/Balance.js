@@ -1,31 +1,36 @@
-const {BonusCode, UserBonusHistory, UserCard} = require('../schemas');
+const {BonusCode, UserBonusHistory, UserCard, Promocode} = require('../schemas');
 const {notFound, badImplementation, badRequest, paymentRequired} = require('boom');
 const mongoose = require('mongoose');
 const liqPay = require('../libs/liqPay');
 
-
-exports.replenishmentByBonusCode = async (user, data) => {
-    const {bonusCode} = data;
-    const bonusCodeObject = await BonusCode.findOne({code: bonusCode, active: true});
-    if (!bonusCodeObject) throw notFound('Bonus code not found');
-    await this.createUserBonusHistory(user, {type: 'bonus_code', amount: bonusCodeObject.amount});
-    await BonusCode.updateOne({code: bonusCode}, {$set: {active: false}});
-    return {message: 'Ok'};
+exports.getActivePromocode = async (code, catchFlag = true) => {
+    const promocode = await Promocode.findOne({code, active: true});
+    if (!promocode && catchFlag) throw notFound('Promocode not found');
+    return {promocode};
 };
 
-exports.createUserBonusHistory = async (user, data) => {
-    const User = mongoose.model('user');
-    const {type, amount} = data;
-    const [userBonusHistory] = await Promise.all([
-        UserBonusHistory({
-            type,
-            amount,
-            user: user._id
-        }).save(),
-        User.updateOne({_id: user._id}, {$inc: {balance: amount}})
-    ]);
-    return userBonusHistory;
-};
+// exports.replenishmentByBonusCode = async (user, data) => {
+//     const {bonusCode} = data;
+//     const bonusCodeObject = await BonusCode.findOne({code: bonusCode, active: true});
+//     if (!bonusCodeObject) throw notFound('Bonus code not found');
+//     await this.createUserBonusHistory(user, {type: 'bonus_code', amount: bonusCodeObject.amount});
+//     await BonusCode.updateOne({code: bonusCode}, {$set: {active: false}});
+//     return {message: 'Ok'};
+// };
+
+// exports.createUserBonusHistory = async (user, data) => {
+//     const User = mongoose.model('user');
+//     const {type, amount} = data;
+//     const [userBonusHistory] = await Promise.all([
+//         UserBonusHistory({
+//             type,
+//             amount,
+//             user: user._id
+//         }).save(),
+//         User.updateOne({_id: user._id}, {$inc: {balance: amount}})
+//     ]);
+//     return userBonusHistory;
+// };
 
 exports.callbackPayment = async (query) => {
     const {data, signature} = query;

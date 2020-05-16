@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
+const {enumStatuses} = require('../config');
 
 const Contract = new Schema({
     scooter: {
@@ -22,15 +23,12 @@ const Contract = new Schema({
         updatedAt: Date,
         value: {
             type: String,
-            enum: [
-                'start',
-                'normal',
-                'pause',
-                'stop',
-                'exit'
-            ]
+            enum: enumStatuses
         }
-    }
+    },
+    promocode: String,
+    contractStatusPromocode: String,
+    salePercentPromocode: Number
 }, {
     timestamps: true
 });

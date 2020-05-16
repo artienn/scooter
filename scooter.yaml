@@ -87,6 +87,8 @@ paths:
               type: string
             phone:
               type: string
+            firebaseId:
+              type: string
       responses:
         200:
           description: OK
@@ -104,6 +106,37 @@ paths:
           description: Auth error(password wrong, user is undefined)
         500:
           description: server error
+  /users/firebase_id:
+    post:
+      tags:
+      - Users
+      summary: добавить firebaseId
+      parameters:
+      - in: body
+        name: bod
+        schema:
+          type: object
+          properties:
+            firebaseId:
+              type: string
+      responses:
+        200:
+          description: ok
+    delete:
+      tags:
+      - Users
+      summary: добавить firebaseId
+      parameters:
+      - in: body
+        name: bod
+        schema:
+          type: object
+          properties:
+            firebaseId:
+              type: string
+      responses:
+        200:
+          description: ok
   /users/check_code:
     put:
       tags:
@@ -298,6 +331,39 @@ paths:
           description: OK
         500:
           description: server error
+  /balance/cards:
+    post:
+      tags:
+      - Balance
+      summary: Привязать карту
+      parameters:
+      - in: body
+        name: body
+        schema:
+          $ref: '#/definitions/card'
+      responses:
+        200:
+          description: OK
+    get:
+      tags:
+      - Balance
+      summary: Список карт
+      responses:
+        200:
+          description: OK
+  /balance/cards/{id}:
+    delete:
+      tags:
+      - Balance
+      summary: Удаление карты
+      parameters:
+      - in: path
+        name: id
+        type: string
+        required: true
+      responses:
+        200:
+          description: ok
   /balance/hold:
     post:
       tags:
@@ -514,6 +580,9 @@ paths:
                   type: number
             scooterId:
               type: string
+            code:
+              type: string
+              description: Промокод для скидки по какому либо статусу
       responses:
         200:
           description: OK
@@ -649,6 +718,21 @@ paths:
           description: server error
         
 definitions:
+  card:
+    type: object
+    properties:
+      amount:
+        type: number
+      description:
+        type: string
+      cardNumber:
+        type: string
+      cardMonth:
+        type: string
+      cardYear:
+        type: string
+      cvv:
+        type: string
   contractId:
     type: object
     properties:

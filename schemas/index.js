@@ -12,3 +12,4 @@ exports.ScooterCoordsHistory = require('./ScooterCoordsHistory');
 exports.File = require('./File');
 exports.User = require('./User');
 exports.UserCard = require('./UserCard');
+exports.Promocode = require('./Promocode');
