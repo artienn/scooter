@@ -8,7 +8,7 @@ const version = 3,
     
 const server_uri = `${baseUri}/api/balance/callback`;
 
-const template = async (opt) => {
+const template = (opt) => {
     if (!opt.public_key) opt.public_key = liq.publicKey;
     const data = (new Buffer(JSON.stringify(opt))).toString('base64');
     const sha = crypto.createHash('sha1').update(liq.privateKey + data + liq.privateKey).digest();
@@ -58,7 +58,7 @@ exports.subscribe = async (phone, amount, description, order_id, card, card_exp_
     return template(opt);
 };
 //Двухстадийная оплата
-exports.hold = async (phone, amount, description, order_id, card, card_exp_month, card_exp_year, card_cvv, card_token) => {
+exports.hold = (phone, amount, description, order_id, card, card_exp_month, card_exp_year, card_cvv, card_token) => {
     const action = 'hold',
         currency = 'USD',
         opt = {

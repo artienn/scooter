@@ -85,7 +85,7 @@ exports.hold = async (user, data) => {
         token = card.token;
     }
     const liqPayOrder = await LiqPayOrder({description, amount, user: user._id, type: 'hold'}).save();
-    const result = await liqPay.hold(user.phone.slice(1), amount, description, liqPayOrder._id, cardNumber, cardMonth, cardYear, cvv, token);
+    const result = liqPay.hold(user.phone.slice(1), amount, description, liqPayOrder._id, cardNumber, cardMonth, cardYear, cvv, token);
     return result;
 };
 
