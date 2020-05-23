@@ -9,23 +9,12 @@ const version = 3,
 const server_uri = `${baseUri}/api/balance/callback`;
 
 const template = (opt) => {
-    if (!opt.public_key) opt.public_key = liq.publicKey;
+    opt.server_uri = server_uri;
+    opt.public_key = liq.publicKey;
     const data = (new Buffer(JSON.stringify(opt))).toString('base64');
     const sha = crypto.createHash('sha1').update(liq.privateKey + data + liq.privateKey).digest();
     const signature = sha.toString('base64');
-    const options = {
-        uri: liqPayUri,
-        method: 'POST',
-        form: {
-            data,
-            signature
-        },
-        headers: {
-            'content-type': 'application/x-www-form-urlencoded'
-        },
-        json: true
-    };
-    return options;
+    return {data, signature};
 };
 
 //Подписка
