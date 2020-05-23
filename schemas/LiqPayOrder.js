@@ -9,6 +9,8 @@ const LiqPayOrder = new Schema({
         type: Schema.Types.ObjectId,
         ref: 'user'
     },
+    cardNumberLastSymbols: String,
+    result_url: String,
     cancelled: {
         value: {
             type: Boolean,

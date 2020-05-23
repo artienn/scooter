@@ -53,7 +53,7 @@ exports.callbackPayment = async (query) => {
     if (typeof data === 'string')
         json = JSON.parse(data);
     console.log(json);
-    const {token} = json;
+    const {token, order_id} = json;
     return json;
 };  
 
@@ -74,14 +74,16 @@ exports.subscribe = async (user, data) => {
     return result;
 };
 
-exports.pay = async (user, amount, description) => {
+exports.pay = async (user, amount, description, cardNumberLastSymbols, result_url) => {
     const order = await mongoose.model('liq_pay_order')({
         user: user._id,
         amount, 
         description,
-        type: 'pay'
+        type: 'pay',
+        cardNumberLastSymbols,
+        result_url
     }).save();
-    const result = await liqPay.pay(user.phone.slice(1), amount, description, order._id);
+    const result = await liqPay.pay(user.phone.slice(1), amount, description, order._id, result_url);
     return result;
 };
 
@@ -158,24 +160,9 @@ exports.cancelSubscribe = async (user, data) => {
     return result;
 };
 
-exports.createUserCard = async (user, amount, description, cardNumber, cardMonth, cardYear, cvv) => {
-    const data = {
-        amount, 
-        description, 
-        cardNumber, 
-        cardMonth, 
-        cardYear, 
-        cvv
-    };
-    const result = await exports.hold(user, data);
-    await exports.cancelHold(user, {orderId: result.order_id});
-    const {card_token} = result;
-    if (!card_token) {
-        console.error('Не удалось привязать карту', result);
-        throw badRequest('Не удалось привязать карту');
-    }
+exports.createUserCard = async (user, card_token, cardNumberLastSymbols) => {
     const userCard = await UserCard({
-        cardNumberLastSymbols: cardNumber.slice(-4),
+        cardNumberLastSymbols,
         user: user._id,
         token: card_token
     }).save();

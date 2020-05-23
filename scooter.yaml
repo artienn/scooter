@@ -364,6 +364,30 @@ paths:
       responses:
         200:
           description: ok
+  /balance/pay:
+    post:
+      tags:
+      - Balance
+      summary: Payment with hold action(first part)
+      parameters:
+      - in: body
+        name: body
+        schema:
+          type: object
+          properties:
+            amount:
+              type: number
+            description:
+              type: string
+            cardNumberLastSymbols:
+              type: string
+              description: '5469'
+            result_url:
+              type: string
+              description: redirect to this url after pay
+      responses:
+        200:
+          description: hold wait (go to second part)
   /balance/hold:
     post:
       tags:

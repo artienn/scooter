@@ -18,10 +18,11 @@ const template = (opt) => {
 };
 
 
-exports.pay = (phone, amount, description, order_id) => {
+exports.pay = (phone, amount, description, order_id, result_url) => {
     const opt = {
         server_uri,
         public_key: liq.publicKey,
+        result_url,
         action: 'pay',
         version,
         phone,
