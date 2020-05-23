@@ -86,9 +86,6 @@ exports.hold = async (user, data) => {
     }
     const liqPayOrder = await LiqPayOrder({description, amount, user: user._id, type: 'hold'}).save();
     const result = await liqPay.hold(user.phone.slice(1), amount, description, liqPayOrder._id, cardNumber, cardMonth, cardYear, cvv, token);
-    const liqPayOrderResult = await LiqPayOrderResult({...result, id: liqPayOrder._id}).save();
-    console.log(liqPayOrderResult);
-    if (result.result !== 'ok') throw paymentRequired(result.err_description);
     return result;
 };
 
