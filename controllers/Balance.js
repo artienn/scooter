@@ -1,5 +1,5 @@
 const {BonusCode, UserBonusHistory, UserCard, Promocode} = require('../schemas');
-const {notFound, badImplementation, badRequest, paymentRequired} = require('boom');
+const {notFound, badImplementation, badRequest, paymentRequired, conflict} = require('boom');
 const mongoose = require('mongoose');
 const liqPay = require('../libs/liqPay');
 
@@ -31,6 +31,18 @@ exports.getActivePromocode = async (code, catchFlag = true) => {
 //     ]);
 //     return userBonusHistory;
 // };
+
+exports.createOrder = async (user, order_id, saveToken = false, cardNumberLastSymbols) => {
+    let order = await mongoose.model('liq_pay_order_result').findOne({order_id});
+    if (!order) order = new mongoose.model('liq_pay_order_result')({
+        order_id,
+        saveToken,
+        cardNumberLastSymbols
+    });
+    order.user = user._id;
+    await order.save();
+    return {message: 'ok'};
+};
 
 exports.callbackPayment = async (query) => {
     const {data, signature} = query;
