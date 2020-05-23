@@ -102,7 +102,7 @@ exports.holdCompletion = async (order_id) => {
 };
 
 //Отмена платежа
-exports.cancelPayment = async (order_id) => {
+exports.cancelPayment = (order_id) => {
     const action = 'refund',
         options = {
             server_uri,

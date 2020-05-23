@@ -130,6 +130,15 @@ exports.status = async (user, data) => {
     return result;
 };
 
+exports.cancelPay = async (user, orderId) => {
+    const LiqPayOrder = mongoose.model('liq_pay_order');
+    if (!orderId) throw badRequest('Enter correct data');
+    const liqPayOrder = await LiqPayOrder.findOne({_id: orderId, user: user._id, type: 'hold'});
+    if (!liqPayOrder) throw notFound('Order is not found');
+    const result = await liqPay.cancelPayment(orderId);
+    return result;
+};  
+
 exports.cancelHold = async (user, data) => {
     const LiqPayOrderResult = mongoose.model('liq_pay_order_result');
     const LiqPayOrder = mongoose.model('liq_pay_order');
