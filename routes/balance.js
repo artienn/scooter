@@ -77,6 +77,16 @@ router.put('/cancel_hold', checkUser, async (req, res, next) => {
     }
 });
 
+router.put('/cancel_pay', checkUser, async (req, res, next) => {
+    try {
+        const {orderId} = req.body;
+        const result = await Balance.cancelPay(req.user, orderId);
+        res.send(result);
+    } catch (err) {
+        next(err);
+    }
+});
+
 router.put('/cancel_subscribe', checkUser, async (req, res, next) => {
     try {
         const result = await Balance.cancelSubscribe(req.user, req.body);
