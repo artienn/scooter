@@ -20,7 +20,8 @@ const LiqPayOrder = new Schema({
         }
     }
 }, {
-    timestamps: true
+    timestamps: true,
+    strict: false
 });
 
 module.exports = mongoose.model('liq_pay_order', LiqPayOrder);

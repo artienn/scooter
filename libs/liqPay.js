@@ -25,11 +25,7 @@ const template = async (opt) => {
         },
         json: true
     };
-    console.log(options);
-    return rpn(options)
-        .then(result => {
-            return result;
-        });
+    return options;
 };
 
 //Подписка
