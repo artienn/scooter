@@ -17,6 +17,22 @@ const template = (opt) => {
     return {data, signature};
 };
 
+
+exports.pay = (phone, amount, description, order_id) => {
+    const opt = {
+        server_uri,
+        public_key: liq.publicKey,
+        action: 'pay',
+        version,
+        phone,
+        amount,
+        currency,
+        description,
+        order_id
+    };
+    return template(opt);
+};
+
 //Подписка
 exports.subscribe = async (phone, amount, description, order_id, card, card_exp_month, card_exp_year, card_cvv, card_token) => {
     const action = 'subscribe',

@@ -31,6 +31,16 @@ router.delete('/cards/:cardId', checkUser, async (req, res, next) => {
     }
 });
 
+router.post('/pay', checkUser, async (req, res, next) => {
+    try {
+        const {amount, description} = req.body;
+        const result = await Balance.pay(req.user, amount, description);
+        res.send(result);
+    } catch (err) {
+        next(err);
+    }
+});
+
 router.post('/hold', checkUser, async (req, res, next) => {
     try {
         const result = await Balance.hold(req.user, req.body);

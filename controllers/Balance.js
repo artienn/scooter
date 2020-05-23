@@ -74,6 +74,17 @@ exports.subscribe = async (user, data) => {
     return result;
 };
 
+exports.pay = async (user, amount, description) => {
+    const order = await mongoose.model('liq_pay_order')({
+        user: user._id,
+        amount, 
+        description,
+        type: 'pay'
+    }).save();
+    const result = await liqPay.pay(user.phone.slice(1), amount, description, order._id);
+    return result;
+};
+
 exports.hold = async (user, data) => {
     const LiqPayOrderResult = mongoose.model('liq_pay_order_result');
     const LiqPayOrder = mongoose.model('liq_pay_order');
