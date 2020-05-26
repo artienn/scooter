@@ -4,7 +4,7 @@ const moment = require('moment');
 const crypto = require('crypto');
 const liqPayUri = 'https://www.liqpay.ua/api/request';
 const version = 3,
-    currency = 'USD';
+    currency = 'UAH';
     
 const server_uri = `${baseUri}/api/balance/callback`;
 
