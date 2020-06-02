@@ -129,7 +129,7 @@ router.get('/status', checkUser, async (req, res, next) => {
 router.post('/callback', async (req, res, next) => {
     try {
         console.log('CALLBACK');
-        const result = await Balance.callbackPayment(req.user, req.body);
+        const result = await Balance.callbackPayment(req.body);
         res.send(result);
     } catch (err) {
         next(err);
