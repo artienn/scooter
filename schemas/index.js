@@ -14,3 +14,4 @@ exports.User = require('./User');
 exports.UserCard = require('./UserCard');
 exports.Promocode = require('./Promocode');
 exports.Admin = require('./Admin');
+exports.UserCoords = require('./UserCoords');

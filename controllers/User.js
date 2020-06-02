@@ -2,6 +2,7 @@ const mongoose = require('mongoose');
 const generateCode = require('../libs/generateCode');
 const {conflict, tooManyRequests, badRequest, unauthorized} = require('boom');
 const moment = require('moment');
+const {UserCoords} = require('../schemas');
 const jwt = require('../libs/jwt');
 const auth = require('vvdev-auth');
 const facebook = require('../libs/facebook');
@@ -33,6 +34,18 @@ exports.facebookLogin = async (data) => {
         token,
         _id: user._id
     };   
+};
+
+exports.updateUserCoords = async (user, lat, lon) => {
+    if (!lat || !lon) throw badRequest('Enter coords');
+    lat = parseFloat(lat);
+    lon = parseFloat(lon);
+    await UserCoords({
+        user: user._id,
+        lat,
+        lon
+    }).save();
+    return {message: 'ok'};
 };
 
 exports.facebookLoginPhoneConfirm = async (user, data) => {

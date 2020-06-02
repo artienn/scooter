@@ -7,7 +7,9 @@ const UserCard = new Schema({
         type: Schema.Types.ObjectId,
         ref: 'user'
     },
-    cardNumberLastSymbols: String
+    cardNumberLastSymbols: String,
+    confirm: Boolean,
+    orderId: String,
 }, {
     timestamps: true
 });

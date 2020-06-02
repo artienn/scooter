@@ -331,6 +331,26 @@ paths:
           description: OK
         500:
           description: server error
+  /users/coords:
+    post:
+      tags:
+      - Users
+      summary: update coords of user
+      parameters:
+      - in: body
+        name: body
+        schema:
+          type: object
+          properties:
+            lat:
+              type: number
+            lon:
+              type: number
+      responses:
+        200:
+          description: OK
+        500:
+          description: server error
   /balance/cards:
     post:
       tags:

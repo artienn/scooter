@@ -52,6 +52,16 @@ router.put('/check_code', async (req, res, next) => {
     }
 });
 
+router.post('/coords', async (req, res, next) => {
+    try {
+        const {lat, lon} = req.body;
+        const result = await User.updateUserCoords(req.user, lat, lon);
+        res.send(result);
+    } catch (err) {
+        next(err);
+    }
+});
+
 router.post('/problem_request', async (req, res, next) => {
     try {
         const {description, scooterId} = req.body;
