@@ -29,6 +29,4 @@ const User = new Schema({
     timestamps: true
 });
 
-User.loadClass(require('../controllers').User);
-
 module.exports = mongoose.model('user', User);

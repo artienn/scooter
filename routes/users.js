@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const User = require('../schemas').User;
+const User = require('../controllers/User');
 const {checkUser, checkUserWithoutPhone} = require('../libs/jwt');
 const passport = require('passport');
 require('../libs/facebookAuth');
