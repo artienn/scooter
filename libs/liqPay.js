@@ -6,10 +6,10 @@ const liqPayUri = 'https://www.liqpay.ua/api/request';
 const version = 3,
     currency = 'UAH';
     
-const server_uri = `${baseUri}/api/balance/callback`;
+const server_url = `${baseUri}/api/balance/callback`;
 
 const template = (opt) => {
-    opt.server_uri = server_uri;
+    opt.server_url = server_url;
     opt.public_key = liq.publicKey;
     console.log(opt)
     const data = (new Buffer(JSON.stringify(opt))).toString('base64');
@@ -22,7 +22,7 @@ const template = (opt) => {
 
 exports.pay = (phone, amount, description, order_id, result_url) => {
     const opt = {
-        server_uri,
+        server_url,
         public_key: liq.publicKey,
         result_url,
         action: 'pay',
@@ -43,7 +43,7 @@ exports.subscribe = async (phone, amount, description, order_id, card, card_exp_
         subscribe_periodicity = 'month',
         subscribe_date_start = moment().format('YYYY-MM-DD HH:MM:SS'),
         opt = {
-            server_uri,
+            server_url,
             action,
             version,
             phone,
@@ -70,7 +70,7 @@ exports.hold = (phone, amount, description, order_id, card, card_exp_month, card
     const action = 'hold',
         currency = 'USD',
         opt = {
-            server_uri,
+            server_url,
             public_key: liq.publicKey,
             action,
             version,
@@ -107,7 +107,7 @@ exports.holdCompletion = async (order_id) => {
 exports.cancelPayment = (order_id) => {
     const action = 'refund',
         options = {
-            server_uri,
+            server_url,
             action,
             version,
             order_id
@@ -119,7 +119,7 @@ exports.cancelPayment = (order_id) => {
 exports.cancelSubscribe = async (order_id) => {
     const action = 'unsubscribe',
         options = {
-            server_uri,
+            server_url,
             action,
             version,
             order_id
@@ -130,7 +130,7 @@ exports.cancelSubscribe = async (order_id) => {
 exports.status = async (order_id) => {
     const action = 'status',
         options = {
-            server_uri,
+            server_url,
             action,
             version,
             order_id
