@@ -11,6 +11,7 @@ const server_uri = `${baseUri}/api/balance/callback`;
 const template = (opt) => {
     opt.server_uri = server_uri;
     opt.public_key = liq.publicKey;
+    console.log(opt)
     const data = (new Buffer(JSON.stringify(opt))).toString('base64');
     const sha = crypto.createHash('sha1').update(liq.privateKey + data + liq.privateKey).digest();
     const signature = sha.toString('base64');

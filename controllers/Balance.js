@@ -159,35 +159,35 @@ exports.cancelPay = async (user, orderId) => {
     return result;
 };  
 
-exports.cancelHold = async (user, data) => {
-    const LiqPayOrderResult = mongoose.model('liq_pay_order_result');
-    const LiqPayOrder = mongoose.model('liq_pay_order');
-    const {orderId} = data;
-    if (!orderId) throw badRequest('Enter correct data');
-    const liqPayOrder = await LiqPayOrder.findOne({_id: orderId, user: user._id, type: 'hold'});
-    if (!liqPayOrder) throw notFound('Order is not found');
-    const result = await liqPay.cancelPayment(orderId);
-    const liqPayOrderResult = await LiqPayOrderResult(result).save();
-    if (result.status === 'success') await liqPayOrder.updateOne({_id: orderId}, {$set: {cancelled: {value: true, ref: liqPayOrderResult._id}}}).save();
-    console.log(result);
-    if (result.result !== 'ok') throw paymentRequired(result.err_description);
-    return result;
-};
+// exports.cancelHold = async (user, data) => {
+//     const LiqPayOrderResult = mongoose.model('liq_pay_order_result');
+//     const LiqPayOrder = mongoose.model('liq_pay_order');
+//     const {orderId} = data;
+//     if (!orderId) throw badRequest('Enter correct data');
+//     const liqPayOrder = await LiqPayOrder.findOne({_id: orderId, user: user._id, type: 'hold'});
+//     if (!liqPayOrder) throw notFound('Order is not found');
+//     const result = await liqPay.cancelPayment(orderId);
+//     const liqPayOrderResult = await LiqPayOrderResult(result).save();
+//     if (result.status === 'success') await liqPayOrder.updateOne({_id: orderId}, {$set: {cancelled: {value: true, ref: liqPayOrderResult._id}}}).save();
+//     console.log(result);
+//     if (result.result !== 'ok') throw paymentRequired(result.err_description);
+//     return result;
+// };
 
-exports.cancelSubscribe = async (user, data) => {
-    const LiqPayOrderResult = mongoose.model('liq_pay_order_result');
-    const LiqPayOrder = mongoose.model('liq_pay_order');
-    const {orderId} = data;
-    if (!orderId) throw badRequest('Enter correct data');
-    const liqPayOrder = await LiqPayOrder.findOne({_id: orderId, user: user._id, type: 'subscribe'});
-    if (liqPayOrder) throw notFound('Order is not found');
-    const result = await liqPay.cancelSubscribe(orderId);
-    const liqPayOrderResult = await LiqPayOrderResult(result).save();
-    if (result.status === 'success') await liqPayOrder.updateOne({_id: orderId}, {$set: {cancelled: {value: true, ref: liqPayOrderResult._id}}});
-    console.log(result);
-    if (result.result !== 'ok') throw paymentRequired(result.err_description);
-    return result;
-};
+// exports.cancelSubscribe = async (user, data) => {
+//     const LiqPayOrderResult = mongoose.model('liq_pay_order_result');
+//     const LiqPayOrder = mongoose.model('liq_pay_order');
+//     const {orderId} = data;
+//     if (!orderId) throw badRequest('Enter correct data');
+//     const liqPayOrder = await LiqPayOrder.findOne({_id: orderId, user: user._id, type: 'subscribe'});
+//     if (liqPayOrder) throw notFound('Order is not found');
+//     const result = await liqPay.cancelSubscribe(orderId);
+//     const liqPayOrderResult = await LiqPayOrderResult(result).save();
+//     if (result.status === 'success') await liqPayOrder.updateOne({_id: orderId}, {$set: {cancelled: {value: true, ref: liqPayOrderResult._id}}});
+//     console.log(result);
+//     if (result.result !== 'ok') throw paymentRequired(result.err_description);
+//     return result;
+// };
 
 exports.createUserCard = async (user, card_token, cardNumberLastSymbols) => {
     const userCard = await UserCard({
