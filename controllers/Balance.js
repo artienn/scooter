@@ -70,8 +70,9 @@ exports.callbackPayment = async (query) => {
     if (!data || !signature) throw badRequest('');
     const check = liqPay.callbackPayment(data, signature);
     if (!check) throw badImplementation('Server error');
-    let json = new Buffer(data, 'base64').toString('ascii');
+    let json = new Buffer(data, 'base64').toString('utf8');
     console.log(json);
+    json = json.replace(' ', '');
     if (typeof json === 'string')
         json = JSON.parse(json);
     console.log(json);
