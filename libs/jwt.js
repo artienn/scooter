@@ -1,7 +1,7 @@
 /* eslint-disable require-atomic-updates */
 const jwt = require('jsonwebtoken');
 const jwtKey = require('../config').keys.jwt;
-const {User} = require('../schemas');
+const {User, Admin} = require('../schemas');
 const {unauthorized, notAcceptable} = require('boom');
 const mongoose = require('mongoose');
 
@@ -42,6 +42,28 @@ const checkUser = (req, _res, next) => {
     }
 };
 
+const checkAdmin = async (req, res, next) => {
+    try {
+        let jwtToken = req.headers['x-access-token'];
+        if (!jwtToken) return next(unauthorized('Ошибка авторизации'));
+        jwt.verify(jwtToken, jwtKey, async (error, data) => {
+            if(error)  return next(unauthorized('Ошибка авторизации'));
+            req.authData = data;
+            let admin = null;
+            try {
+                admin = await Admin.findById(req.authData._id, {password: 0, __v: 0}).lean();
+            } catch (err) {
+                return next(err);
+            }
+            req.admin = admin;
+            if (!req.admin) return next(unauthorized('Ошибка авторизации'));
+            next();
+        });
+    } catch (err) {
+        next(err);
+    }
+};
+
 const checkUserWithoutPhone = (req, res, next) => {
     try {
         let jwtToken = req.headers['x-access-token'];
@@ -65,5 +87,5 @@ const checkUserWithoutPhone = (req, res, next) => {
 };
 
 exports.checkUser = checkUser;
-
+exports.checkAdmin = checkAdmin;
 exports.checkUserWithoutPhone = checkUserWithoutPhone;

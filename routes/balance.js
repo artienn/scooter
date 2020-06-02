@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const Balance = require('../controllers').Balance;
-const {checkUser} = require('../libs/jwt');
+const {checkUser, checkAdmin} = require('../libs/jwt');
 
 router.post('/cards', checkUser, async (req, res, next) => {
     try {
@@ -16,6 +16,25 @@ router.post('/cards', checkUser, async (req, res, next) => {
 router.get('/cards', checkUser, async (req, res, next) => {
     try {
         const result = await Balance.getUserCards(req.user);
+        res.send(result);
+    } catch (err) {
+        next(err);
+    }
+});
+
+router.get('/tariffs', checkAdmin, async (_req, res, next) => {
+    try {
+        const result = await Balance.getTariffs();
+        res.send(result);
+    } catch (err) {
+        next(err);
+    }
+});
+
+router.put('/tariffs/:type', checkAdmin, async (req, res, next) => {
+    try {
+        const {name, price, maxTime} = req.body;
+        const result = await Balance.updateTariff(req.params.type, name, price, maxTime);
         res.send(result);
     } catch (err) {
         next(err);

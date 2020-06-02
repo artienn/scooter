@@ -1,4 +1,4 @@
-const {BonusCode, UserBonusHistory, UserCard, Promocode} = require('../schemas');
+const {BonusCode, UserBonusHistory, UserCard, Promocode, Tariff} = require('../schemas');
 const {notFound, badImplementation, badRequest, paymentRequired, conflict} = require('boom');
 const mongoose = require('mongoose');
 const liqPay = require('../libs/liqPay');
@@ -7,6 +7,26 @@ exports.getActivePromocode = async (code, catchFlag = true) => {
     const promocode = await Promocode.findOne({code, active: true});
     if (!promocode && catchFlag) throw notFound('Promocode not found');
     return {promocode};
+};
+
+exports.updateTariff = async (type, name = '', price = 1, maxTime = null) => {
+    if (!type) throw badRequest('Enter tariff type');
+    let tariff = await Tariff.findOne({type});
+    if (!tariff) {
+        tariff = new Tariff({
+            type
+        });
+    }
+    if (name) tariff.name = name;
+    if (price) tariff.price = price;
+    if (maxTime) tariff.maxTime = maxTime;
+    await tariff.save();
+    return {message: 'ok'};
+};
+
+exports.getTariffs = async () => {
+    const tariffs = await Tariff.find();
+    return {tariffs};
 };
 
 // exports.replenishmentByBonusCode = async (user, data) => {
