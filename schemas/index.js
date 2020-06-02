@@ -15,3 +15,4 @@ exports.UserCard = require('./UserCard');
 exports.Promocode = require('./Promocode');
 exports.Admin = require('./Admin');
 exports.UserCoords = require('./UserCoords');
+exports.ScooterCoords = require('./ScooterCoords');

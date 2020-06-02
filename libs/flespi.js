@@ -32,6 +32,21 @@ exports.getDeviseById = async (id) => {
     return result.result[0];
 };
 
+exports.getDevisesPlugins = async () => {
+    const options = {
+        method: 'GET',
+        uri: `${uri}/gw/devices/all/plugins`,
+        headers: {
+            Authorization: token,
+            Accept: 'application/json'
+        },
+        json: true
+    };
+    const result = await rpn(options);
+    if (!result || !result.result) throw notFound('Resource not found', result);
+    return result.result[0];
+};
+
 exports.getDevisesCoords = async (ids = []) => {
     if (!ids || !ids.length) {
         console.log('ids array empty');
