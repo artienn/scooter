@@ -13,6 +13,7 @@ const template = (opt) => {
     opt.public_key = liq.publicKey;
     console.log(opt)
     const data = (new Buffer(JSON.stringify(opt))).toString('base64');
+    console.log(data);
     const sha = crypto.createHash('sha1').update(liq.privateKey + data + liq.privateKey).digest();
     const signature = sha.toString('base64');
     return {data, signature};
