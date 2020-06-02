@@ -66,6 +66,7 @@ exports.createOrder = async (user, order_id, saveToken = false, cardNumberLastSy
 
 exports.callbackPayment = async (query) => {
     const {data, signature} = query;
+    console.lof(data, signature);
     if (!data || !signature) throw badRequest('');
     const check = liqPay.callbackPayment(data, signature);
     if (!check) throw badImplementation('Server error');
