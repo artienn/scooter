@@ -2,10 +2,7 @@ const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
 const Zone = new Schema({
-    area: [{
-        lat: Number,
-        lon: Number
-    }],
+    coordinates: [[Number, Number]],
     name: String,
     type: String
 }, {

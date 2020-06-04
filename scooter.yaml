@@ -9,6 +9,93 @@ basePath: /api
 produces:
   - application/json
 paths:
+  /admins/login:
+    post:
+      tags:
+      - Admin
+      summary: login
+      parameters:
+      - in: body
+        name: body
+        schema:
+          type: object
+          properties:
+            login:
+              type: string
+            password:
+              type: string
+      responses:
+        200:
+          description: ok
+  /balance/tariffs:
+    get:
+      tags:
+      - Admin
+      summary: tariffs
+      responses:
+        200:
+          description: ok
+  /balance/tariffs/{type}:
+    put:
+      tags:
+      - Admin
+      summary: tariffs
+      parameters:
+      - in: path
+        name: type
+        type: string
+        required: true
+      - in: body
+        name: body
+        schema:
+          type: object
+          properties:
+            price:
+              type: string
+            name:
+              type: string
+            maxTime:
+              type: number
+      responses:
+        200:
+          description: ok
+  /zones:
+    put:
+      tags:
+      - Admin
+      - Zones
+      summary: update zones
+      parameters:
+      - in: body
+        name: body
+        schema:
+          type: object
+          properties:
+            zonesData:
+              type: array
+              items:
+                type: object
+                properties:
+                  name:
+                    type: string
+                  coordinates:
+                    type: array
+                    items:
+                      type: number
+                  type:
+                    type: string
+                    description: green
+      responses:
+        200:
+          description: ok
+    get:
+      tags:
+      - Admin
+      - Zones
+      summary: zones
+      responses:
+        200:
+          description: ok
   /users/code:
     post:
       tags:

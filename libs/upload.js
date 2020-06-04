@@ -2,7 +2,7 @@ const multer = require('multer');
 const { badRequest } = require('boom');
 const path = require('path');
 
-const types = ['.pdf', '.png', '.jpeg', '.jpg', '.doc', '.docx', '.xlsx', '.csv'];
+const types = ['.pdf', '.png', '.jpeg', '.jpg', '.doc', '.docx', '.xlsx', '.csv', '.kml'];
 
 const storage = {
     limits: { fileSize: 20 * 1024 * 1024 },

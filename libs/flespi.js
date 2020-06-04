@@ -66,3 +66,7 @@ exports.getDevisesCoords = async (ids = []) => {
     if (!result || !result.result) throw notFound('Resource not found', result);
     return result.result;
 };
+
+exports.blockScooter = async () => {
+    
+};
