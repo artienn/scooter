@@ -96,6 +96,39 @@ paths:
       responses:
         200:
           description: ok
+  /balance/promocodes/{code}:
+    put:
+      tags:
+      - Admin
+      - Balance
+      summary: Update or create promocode
+      parameters:
+      - in: path
+        name: code
+        type: string
+        required: true
+      - in: body
+        name: body
+        schema:
+          type: object
+          properties:
+            salePercent:
+              type: number
+            contractStatus:
+              type: string
+            active: 
+              type: boolean
+      responses:
+        200:
+          description: OK
+  /contracts/statuses:
+    get:
+      tags:
+      - Admin
+      summary: contract statuses list for crm
+      responses:
+        200:
+          description: OK
   /users/code:
     post:
       tags:

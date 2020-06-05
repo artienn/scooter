@@ -22,6 +22,16 @@ router.get('/cards', checkUser, async (req, res, next) => {
     }
 });
 
+router.put('/promocodes/:code', checkUser, async (req, res, next) => {
+    try {
+        const {active, contractStatus, salePercent} = req.body;
+        const result = await Balance.putPromocode(req.params.code, active, contractStatus, salePercent);
+        res.send(result);
+    } catch (err) {
+        next(err);
+    }
+});
+
 router.get('/tariffs', checkAdmin, async (_req, res, next) => {
     try {
         const result = await Balance.getTariffs();

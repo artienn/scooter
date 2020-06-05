@@ -9,6 +9,17 @@ exports.getActivePromocode = async (code, catchFlag = true) => {
     return {promocode};
 };
 
+exports.putPromocode = async (code, active, contractStatus, salePercent) => {
+    let promocode = await Promocode.findOne({code});
+    if (!promocode) {
+        promocode = new Promocode({code});
+    }
+    if (active === true || active === false) promocode.active = active;
+    if (contractStatus) promocode.contractStatus = contractStatus;
+    if (salePercent || salePercent === 0) promocode.salePercent = salePercent;
+    await promocode.save();
+};
+
 exports.updateTariff = async (type, name = '', price = 1, maxTime = null) => {
     if (!type) throw badRequest('Enter tariff type');
     let tariff = await Tariff.findOne({type});

@@ -1,8 +1,8 @@
 const express = require('express');
 const router = express.Router();
 const Contract = require('../controllers/Contract');
-
-const {checkUser} = require('../libs/jwt');
+const {enumStatuses} = require('../config');
+const {checkUser, checkAdmin} = require('../libs/jwt');
 
 router.post('/', checkUser, async (req, res, next) => {
     try {
@@ -25,6 +25,15 @@ router.get('/active', checkUser, async (req, res, next) => {
 router.get('/', checkUser, async (req, res, next) => {
     try {
         const result = await Contract.getUserContracts(req.user);
+        res.send(result);
+    } catch (err) {
+        next(err);
+    }
+});
+
+router.get('/statuses', checkAdmin, async (_req, res, next) => {
+    try {
+        const result = enumStatuses.slice();
         res.send(result);
     } catch (err) {
         next(err);
