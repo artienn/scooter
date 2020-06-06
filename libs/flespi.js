@@ -67,6 +67,17 @@ exports.getDevisesCoords = async (ids = []) => {
     return result.result;
 };
 
-exports.blockScooter = async () => {
-    
+exports.blockScooter = async (scooterId) => {
+    const options = {
+        method: 'GET',
+        uri: `${uri}/gw/devices/${scooterId}/telemetry`,
+        headers: {
+            Authorization: token,
+            Accept: 'application/json'
+        },
+        json: true
+    };
+    const result = await rpn(options);
+    if (!result || !result.result) throw notFound('Resource not found', result);
+    return result.result;
 };
