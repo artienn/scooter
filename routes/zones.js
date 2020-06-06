@@ -2,9 +2,9 @@ const express = require('express');
 const router = express.Router();
 const Zone = require('../controllers/Zone');
 
-const {checkUser, checkAdmin} = require('../libs/jwt');
+const {checkUser, checkAdmin, checkUserOrAdmin} = require('../libs/jwt');
 
-router.get('/', checkUser, async (req, res, next) => {
+router.get('/', checkUserOrAdmin, async (req, res, next) => {
     try {
         const result = await Zone.getZones();
         res.send(result);

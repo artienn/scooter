@@ -86,6 +86,34 @@ const checkUserWithoutPhone = (req, res, next) => {
     }
 };
 
+const checkUserOrAdmin = async (req, _res, next) => {
+    try {
+        let jwtToken = req.headers['x-access-token'];
+        if (!jwtToken) return next(unauthorized('Ошибка авторизации'));
+        jwt.verify(jwtToken, jwtKey, async (error, data) => {
+            if(error)  return next(unauthorized('Ошибка авторизации'));
+            req.authData = data;
+            let admin = null;
+            let user = null;
+            try {
+                [admin, user] = await Promise.all([
+                    Admin.findById(req.authData._id, {password: 0, __v: 0}).lean(),
+                    mongoose.model('user').findById(req.authData._id, {password: 0, __v: 0}).lean()
+                ]);
+            } catch (err) {
+                return next(err);
+            }
+            req.admin = admin;
+            req.user = user;
+            if (!req.admin) return next(unauthorized('Ошибка авторизации'));
+            next();
+        });
+    } catch (err) {
+        next(err);
+    }
+};
+
 exports.checkUser = checkUser;
 exports.checkAdmin = checkAdmin;
 exports.checkUserWithoutPhone = checkUserWithoutPhone;
+exports.checkUserOrAdmin = checkUserOrAdmin;

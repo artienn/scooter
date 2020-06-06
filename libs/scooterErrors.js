@@ -1,7 +1,8 @@
 const {sendMessage} = require('./sendSms');
-const {adminPhones} = require('../config');
+const {AdminSettings} = require('../schemas');
 
 exports.scooterGoOutZone = async (scooter) => {
+    const settings = await AdminSettings.findOne().lean();
     const text = `Девайс ${scooter.id} покинул зеленую зону`;
-    await sendMessage(adminPhones, text);
+    if (settings && settings.phones) await sendMessage(settings.phones, text);
 };

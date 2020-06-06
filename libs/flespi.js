@@ -5,15 +5,16 @@ const {notFound} = require('boom');
 exports.getDevises = async () => {
     const options = {
         method: 'GET',
-        uri: `${uri}/gw/devices/all`,
+        uri: `https://ru.flespi.io/gw/devices/513886/settings/all`,
         headers: {
-            Authorization: token,
+            Authorization: `FlespiToken ${token}`,
             Accept: 'application/json'
         },
         json: true
     };
     const result = await rpn(options);
     if (!result || !result.result) throw notFound('Resource not found', result);
+    console.log(result.result);
     return result.result;
 };
 
@@ -64,6 +65,7 @@ exports.getDevisesCoords = async (ids = []) => {
     };
     const result = await rpn(options);
     if (!result || !result.result) throw notFound('Resource not found', result);
+    console.log(result.result[0]);
     return result.result;
 };
 
