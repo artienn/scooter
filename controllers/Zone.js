@@ -30,6 +30,6 @@ exports.updateZonePoints = async (zonesData) => {
 };
 
 exports.getZones = async () => {
-    const zones = Zone.find();
+    const zones = await Zone.find();
     return {zones};
 };
