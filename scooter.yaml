@@ -96,6 +96,15 @@ paths:
       responses:
         200:
           description: ok
+  /balance/promocodes:
+    get:
+      tags:
+      - Admin
+      - Balance
+      summary: Update or create promocode
+      responses:
+        200:
+          description: OK
   /balance/promocodes/{code}:
     put:
       tags:

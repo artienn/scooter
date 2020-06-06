@@ -20,6 +20,11 @@ exports.putPromocode = async (code, active, contractStatus, salePercent) => {
     await promocode.save();
 };
 
+exports.getPromocodes = async () => {
+    const promocodes = await Promocode.find();
+    return {promocodes};
+};
+
 exports.updateTariff = async (type, name = '', price = 1, maxTime = null) => {
     if (!type) throw badRequest('Enter tariff type');
     let tariff = await Tariff.findOne({type});
