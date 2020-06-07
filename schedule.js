@@ -26,7 +26,6 @@ const getCoordsByScooters = async () => {
     try {
         const scooters = await getDevisesCoords(['all']);
         for (const scooter of scooters) {
-            console.log(scooter.telemetry);
             let s = await Scooter.findOne({id: scooter.id});
             if (!s) {
                 s = new Scooter({
