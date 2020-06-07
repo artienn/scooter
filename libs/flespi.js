@@ -5,7 +5,7 @@ const {notFound} = require('boom');
 exports.getDevises = async () => {
     const options = {
         method: 'GET',
-        uri: `https://ru.flespi.io/gw/devices/513886/settings/all`,
+        uri: `${uri}/gw/devices/all`,
         headers: {
             Authorization: `FlespiToken ${token}`,
             Accept: 'application/json'
@@ -69,17 +69,24 @@ exports.getDevisesCoords = async (ids = []) => {
     return result.result;
 };
 
-exports.blockScooter = async (scooterId) => {
+exports.blockScooter = async (id, lock) => {
     const options = {
-        method: 'GET',
-        uri: `${uri}/gw/devices/${scooterId}/telemetry`,
+        method: 'PUT',
+        uri: `https://ru.flespi.io/gw/devices/${id}/settings/name=sclockctrl`,
         headers: {
-            Authorization: token,
+            Authorization: `FlespiToken ${token}`,
             Accept: 'application/json'
+        },
+        body: {
+            address: 'connection',
+            properties: {
+                lock
+            }
         },
         json: true
     };
     const result = await rpn(options);
     if (!result || !result.result) throw notFound('Resource not found', result);
+    console.log(result.result);
     return result.result;
 };

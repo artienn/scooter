@@ -24,7 +24,9 @@ const User = new Schema({
     middleName: String,
     email: String,
     birthday: Date,
-    firebaseIds: [String]
+    firebaseIds: [String],
+    lat: Number,
+    lon: Number
 }, {
     timestamps: true
 });

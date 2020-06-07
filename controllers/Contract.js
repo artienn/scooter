@@ -3,6 +3,7 @@ const {conflict, badRequest, notFound} = require('boom');
 const Scooter = require('./Scooter');
 const Balance = require('./Balance');
 const Distance = require('geo-distance');
+const geoLib = require('../libs/geoLib');
 const moment = require('moment');
 const DISTANCE_BETWEEN_USER_AND_SCOOTER = 5;
 const STOP = 'stop';
@@ -47,8 +48,7 @@ exports.createContract = async (user, body) => {
     ]);
     if (!tariff) throw notFound('Tariff not found');
     const {coords} = scooter;
-    const distance = Distance.between(userCoords, coords);
-    if (distance > Distance(`${DISTANCE_BETWEEN_USER_AND_SCOOTER} m`)) throw conflict('Distance is too big');
+    if (!geoLib.checkDistance(userCoords, coords)) throw conflict('Distance is too big');
     const now = new Date();
     const [contract] = await Promise.all([
         new Contract({

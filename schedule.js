@@ -1,6 +1,7 @@
 const schedule = require('node-schedule');
 const {getDevises, getDeviseById, getDevisesPlugins, getDevisesCoords} = require('./libs/flespi');
-const {Scooter, ScooterCoords} = require('./schemas');
+const {Scooter, ScooterCoords, Contract} = require('./schemas');
+const geoLib = require('./libs/geoLib');
 const Zone = require('./controllers/Zone');
 const scooterErrors = require('./libs/scooterErrors');
 
@@ -42,20 +43,33 @@ const getCoordsByScooters = async () => {
                     updatedAt: new Date()
                 };
             }
-            const [{result}] = await Promise.all([
-                Zone.checkPoint(s.coords.lat, s.coords.lon),
-                s.save(),
-                // ScooterCoords({
-                //     lat: s.coords.lat,
-                //     lon: s.coords.lon,
-                //     scooterId: scooter.id
-                // }).save()
-            ]);
-            if (!result) await scooterErrors.scooterGoOutZone(s);
         }
+        await checkScooterZone(scooters);
     } catch (err) {
         console.error(err);
     }
 };
 
+const checkScooterZone = async (scooters) => {
+    if (!scooters) scooters = await Scooter.find();
+    for (const s of scooters) {
+        const {result} = await Zone.checkPoint(s.coords.lat, s.coords.lon);
+        if (!result) await scooterErrors.scooterGoOutZone(s);
+    }
+};
+
+const checkDistanceBetweenScooterAndUser = async () => {
+    const contracts = await Contract.find({active: true}).populate('user').populate('scooter');
+    for (const contract of contracts) {
+        if (contract.user && contract.scooter) {
+            const distance = geoLib.checkDistance({
+                lat: contract.user.lat,
+                lon: contract.user.lon
+            }, contract.scooter.coords);
+            if (!distance) await scooterErrors.scooterIncorrectCoords(contract.scooter, contract.user);
+        } 
+    }
+};
+
 schedule.scheduleJob('*/5 * * * * *', getCoordsByScooters);
+schedule.scheduleJob('*/5 * * * * *', checkDistanceBetweenScooterAndUser);
