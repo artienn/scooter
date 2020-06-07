@@ -60,6 +60,7 @@ const checkScooterZone = async (scooters) => {
 
 const checkDistanceBetweenScooterAndUser = async () => {
     const contracts = await Contract.find({active: true}).populate('user').populate('scooter');
+    console.log('SCHEDULE CONTRACTS', contracts);
     for (const contract of contracts) {
         if (contract.user && contract.scooter) {
             const distance = geoLib.checkDistance({
