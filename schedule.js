@@ -1,26 +1,11 @@
 const schedule = require('node-schedule');
-const {getDevises, getDeviseById, getDevisesPlugins, getDevisesCoords} = require('./libs/flespi');
-const {Scooter, ScooterCoords, Contract} = require('./schemas');
+const {getDevisesCoords} = require('./libs/flespi');
+const {Scooter, Contract} = require('./schemas');
 const geoLib = require('./libs/geoLib');
 const Zone = require('./controllers/Zone');
 const scooterErrors = require('./libs/scooterErrors');
 
 require('./db')();
-
-const getScooters = async () => {
-    const scooters = await getDevises();
-    console.log(scooters);
-};
-
-const getPlugins = async () => {
-    const plugins = await getDevisesPlugins();
-    console.log(plugins);
-};
-
-const getScooterById = async () => {
-    const scooter = await getDeviseById(514342);
-    console.log(scooter);
-};
 
 const getCoordsByScooters = async () => {
     try {
