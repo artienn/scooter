@@ -53,6 +53,7 @@ const getCoordsByScooters = async () => {
 const checkScooterZone = async (scooters) => {
     if (!scooters) scooters = await Scooter.find();
     for (const s of scooters) {
+        console.log(s);
         const {result} = await Zone.checkPoint(s.coords.lat, s.coords.lon);
         if (!result) await scooterErrors.scooterGoOutZone(s);
     }
