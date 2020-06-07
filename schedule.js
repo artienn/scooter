@@ -43,7 +43,7 @@ const getCoordsByScooters = async () => {
                 };
             }
         }
-        await checkScooterZone(scooters);
+        await checkScooterZone();
     } catch (err) {
         console.error(err);
     }
