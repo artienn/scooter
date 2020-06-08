@@ -23,7 +23,7 @@ router.put('/', checkAdmin, async (req, res, next) => {
     }
 });
 
-router.put('/parse_zone', checkAdmin, async (req, res, next) => {
+router.put('/parse_zone', async (req, res, next) => {
     try {
         const {fileName} = req.body;
         const result = await Zone.getDataAboutZoneFromKml(fileName);
