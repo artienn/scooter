@@ -48,7 +48,7 @@ exports.createContract = async (user, body) => {
     ]);
     if (!tariff) throw notFound('Tariff not found');
     const {coords} = scooter;
-    if (!geoLib.checkDistance(userCoords, coords)) throw conflict('Distance is too big');
+    // if (!geoLib.checkDistance(userCoords, coords)) throw conflict('Distance is too big');
     const now = new Date();
     const [contract] = await Promise.all([
         new Contract({
