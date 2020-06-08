@@ -14,7 +14,8 @@ const getCoordsByScooters = async () => {
             let s = await Scooter.findOne({id: scooter.id});
             if (!s) {
                 s = new Scooter({
-                    id: scooter.id
+                    id: scooter.id,
+                    free: true
                 });
             }
             if (scooter.telemetry) {
