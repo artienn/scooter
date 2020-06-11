@@ -23,9 +23,9 @@ exports.facebookLogin = async (data) => {
     const tokenObject = await facebook.checkCode(code);
     const res = await facebook.data(tokenObject.access_token);
     if (!res.data || !res.data.user_id) throw unauthorized('Auth error');
-    let user = await this.findOne({'fb.id': res.data.user_id});
+    let user = await User.findOne({'fb.id': res.data.user_id});
     if (!user)
-        user = await this({fb: {id: res.data.user_id}, confirm: false}).save();
+        user = await User({fb: {id: res.data.user_id}, confirm: false}).save();
     const token = await jwt.sign({
         _id: user._id,
         createdAt: new Date()
@@ -63,7 +63,7 @@ exports.facebookLoginPhoneConfirm = async (user, data) => {
     const [token] = await Promise.all([
         jwt.sign({_id: user._id, createdAt: new Date()}),
         ConfirmCode.deleteOne(confirmCodeFind),
-        this.update({_id: user._id}, {$set: {phone}})
+        User.updateOne({_id: user._id}, {$set: {phone}})
     ]);
     return {
         token,
@@ -85,7 +85,7 @@ exports.register = async (data) => {
     if (checkPhoneNumber(phone)) throw badRequest('Enter correct phone number');
     const confirmCodeFind = {phone, code};
     const [user, confirmCode] = await Promise.all([
-        this.findOne({phone}),
+        User.findOne({phone}),
         ConfirmCode.findOne(confirmCodeFind)
     ]);
     checkRepeatPassword(password, repeatPassword);
@@ -97,7 +97,7 @@ exports.register = async (data) => {
     const hash = await auth.hashPassword(password);
 
     const [registerUser] = await Promise.all([
-        this({
+        User({
             phone,
             password: hash
         }).save(),
@@ -146,7 +146,7 @@ exports.confirmCode = async (data) => {
     const confirmCode = await ConfirmCode.findOne(confirmCodeFind);
     if (!confirmCode || confirmCode.code === null || confirmCode.code !== code) throw unauthorized('Auth error');
     confirmCode.code = null;
-    const user = await this.login({password, phone});
+    const user = await exports.login({password, phone});
     await confirmCode.deleteOne(confirmCodeFind);
     const token = await jwt.sign({
         _id: user._id,
@@ -162,19 +162,19 @@ exports.login = async (data) => {
     const {phone, password, firebaseId} = data;
     if (!password) throw badRequest('Enter password');
     if (checkPhoneNumber(phone)) throw badRequest('Enter correct phone number');
-    const user = await this.findOne({phone});
+    const user = await User.findOne({phone});
     const result = await auth.checkPassword(password, user.password);
     if (!result) throw unauthorized('Auth error');
-    if (firebaseId) await this.putFirebaseId(user, firebaseId);
+    if (firebaseId) await exports.putFirebaseId(user, firebaseId);
     return {phone, email: user.email, _id: user._id};
 };
 
 exports.putFirebaseId = async (user, firebaseId) => {
-    return this.updateOne({_id: user._id}, {addToSet: {firebaseIds: firebaseId}});
+    return User.updateOne({_id: user._id}, {addToSet: {firebaseIds: firebaseId}});
 };
 
 exports.deleteFirebaseId = async (user, firebaseId) => {
-    return this.updateOne({_id: user._id}, {pull: {firebaseIds: firebaseId}});
+    return User.updateOne({_id: user._id}, {pull: {firebaseIds: firebaseId}});
 };
 
 exports.resetPassword = async (data) => {
@@ -184,7 +184,7 @@ exports.resetPassword = async (data) => {
     checkRepeatPassword(password, repeatPassword);
     const confirmCodeFind = {phone, code};
     const [user, confirmCode] = await Promise.all([
-        this.findOne({phone}),
+        User.findOne({phone}),
         ConfirmCode.findOne(confirmCodeFind)
     ]);
     if (!confirmCode || !user || !confirmCode.code || confirmCode.code !== code) throw unauthorized('Auth error');
@@ -203,8 +203,8 @@ exports.resetPassword = async (data) => {
 
 exports.loginAndSendCode = async (data) => {
     const {phone, password} = data;
-    await this.login({phone, password});
-    return this.sendCode({phone});
+    await exports.login({phone, password});
+    return exports.sendCode({phone});
 };
 
 exports.createProblemRequest = async (userId, description, scooterId) => {
@@ -229,6 +229,6 @@ exports.updateInfo = async (user, firstName, lastName, middleName, email, birthd
         data.email = email;
     }
     if (birthday) data.birthday = birthday;
-    await this.updateOne({_id: user._id}, {$set: data});
+    await User.updateOne({_id: user._id}, {$set: data});
     return {message: 'ok'};
 };
