@@ -58,5 +58,5 @@ const checkDistanceBetweenScooterAndUser = async () => {
     }
 };
 
-schedule.scheduleJob('*/5 * * * * *', getCoordsByScooters);
-schedule.scheduleJob('*/5 * * * * *', checkDistanceBetweenScooterAndUser);
+schedule.scheduleJob('* */1 * * * *', getCoordsByScooters);
+// schedule.scheduleJob('*/5 * * * * *', checkDistanceBetweenScooterAndUser);
