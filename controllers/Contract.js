@@ -79,7 +79,7 @@ exports.updateStatusOfContractToNormal = async (user, contractId) => {
     if (contract.status.value !== START && contract.status.value !== PAUSE && contract.status.value !== STOP) throw conflict('impossible');
     if (!tariff || !tariff.price) throw notFound('Tariff not found');
     contract.status.value = NORMAL;
-    const salePercentPromocode = contract.contractStatusPromocode === NORMAL ? contract.salePercentPromocode : null;
+    const salePercentPromocode = contract.contractStatusPromocode === 'all' || contract.contractStatusPromocode === NORMAL ? contract.salePercentPromocode : null;
     await Promise.all([
         contract.save(),
         exports.startStatus(contract._id, tariff.price, NORMAL, salePercentPromocode)
@@ -96,7 +96,7 @@ exports.updateStatusOfContractToPause = async (user, contractId) => {
     if (!tariff) throw notFound('Tariff not found');
     const oldStatus = contract.status.value;
     contract.status.value = PAUSE;
-    const salePercentPromocode = contract.contractStatusPromocode === PAUSE ? contract.salePercentPromocode : null;
+    const salePercentPromocode = contract.contractStatusPromocode === 'all' || contract.contractStatusPromocode === PAUSE ? contract.salePercentPromocode : null;
     await Promise.all([
         contract.save(),
         exports.startStatus(contract._id, tariff.price, PAUSE, salePercentPromocode),
@@ -114,7 +114,7 @@ exports.updateStatusOfContractToStop = async (user, contractId) => {
     if (!tariff) throw notFound('Tariff not found');
     const oldStatus = contract.status.value;
     contract.status.value = STOP;
-    const salePercentPromocode = contract.contractStatusPromocode === STOP ? contract.salePercentPromocode : null;
+    const salePercentPromocode = contract.contractStatusPromocode === 'all' || contract.contractStatusPromocode === STOP ? contract.salePercentPromocode : null;
     await Promise.all([
         contract.save(),
         exports.startStatus(contract._id, tariff.price, STOP, salePercentPromocode),

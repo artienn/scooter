@@ -7,7 +7,7 @@ const Promocode = new Schema({
     active: Boolean,
     contractStatus: {
         type: String,
-        enum: enumStatuses
+        enum: [...enumStatuses, 'all']
     },
     salePercent: Number
 }, {
