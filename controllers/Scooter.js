@@ -1,6 +1,7 @@
 const {Scooter, ScooterCoordsHistory} = require('../schemas');
 const {notFound} = require('boom');
 const Contract = require('./Contract');
+const flespi = require('../libs/flespi');
 
 exports.listOfFreeScooters = async () => {
     const scooters = await Scooter.find({free: true}).sort({battery: 1});
@@ -25,8 +26,11 @@ exports.getFreeScooterById = async (_id) => {
     return scooter;
 };
 
-exports.updateFreeFlagOfScooter = async (scooterId, free) => {
-    await Scooter.updateOne({_id: scooterId}, {$set: {free}});
+exports.updateFreeFlagOfScooter = async (scooterId, free, id) => {
+    await Promise.all([
+        Scooter.updateOne({_id: scooterId}, {$set: {free}}),
+        flespi.blockScooter(id, free)
+    ]);
 };
 
 exports.getUsedScooters = async () => {

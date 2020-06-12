@@ -90,3 +90,24 @@ exports.blockScooter = async (id, lock) => {
     console.log(result.result);
     return result.result;
 };
+
+exports.blockScooterInfo = async (ids) => {
+    if (!ids || !ids.length) {
+        console.log('ids array empty');
+        return;
+    }
+    const idsString = ids.join(',');
+    const options = {
+        method: 'GET',
+        uri: `https://ru.flespi.io/gw/devices/${idsString}/settings/name=sclockctrl`,
+        headers: {
+            Authorization: `FlespiToken ${token}`,
+            Accept: 'application/json'
+        },
+        json: true
+    };
+    const result = await rpn(options);
+    if (!result || !result.result) throw notFound('Resource not found', result);
+    console.log(result.result);
+    return result.result;
+};

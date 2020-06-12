@@ -1,5 +1,5 @@
 const schedule = require('node-schedule');
-const {getDevisesCoords} = require('./libs/flespi');
+const {getDevisesCoords, blockScooterInfo} = require('./libs/flespi');
 const {Scooter, Contract} = require('./schemas');
 const geoLib = require('./libs/geoLib');
 const Zone = require('./controllers/Zone');
@@ -58,5 +58,15 @@ const checkDistanceBetweenScooterAndUser = async () => {
     }
 };
 
+const checkScooterLockInfo = async () => {
+    const scooters = await Scooter.find();
+    const result = await blockScooterInfo(scooters.map(s => s.id));
+    for (const s of result) {
+        const lock = s.current && s.current.lock ? true : false;
+        await Scooter.update({id: s.device_id}, {$set: {lock}});
+    }
+};
+
 schedule.scheduleJob('0 */1 * * * *', getCoordsByScooters);
+schedule.scheduleJob('0 */2 * * * *', checkScooterLockInfo);
 // schedule.scheduleJob('*/5 * * * * *', checkDistanceBetweenScooterAndUser);

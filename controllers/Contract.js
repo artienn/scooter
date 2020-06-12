@@ -30,7 +30,7 @@ exports.getUserContracts = async (user) => {
 
 exports.getUserActiveContractByContractId = async (userId, contractId) => {
     if (!contractId) throw badRequest('Enter contractId');
-    const contract = await Contract.findOne({user: userId, _id: contractId, active: true});
+    const contract = await Contract.findOne({user: userId, _id: contractId, active: true}).populate('scooter');
     if (!contract) throw notFound('Contract nor found');
     
     return contract;
@@ -65,7 +65,7 @@ exports.createContract = async (user, body) => {
             contractStatusPromocode: promocode ? promocode.contractStatus : null,
             salePercentPromocode: promocode ? promocode.salePercent : null,
         }).save(),
-        Scooter.updateFreeFlagOfScooter(scooter._id, false)
+        Scooter.updateFreeFlagOfScooter(scooter._id, false, scooter.id)
     ]);
     await ContractHistory({contract: contract._id, start: now, price: tariff.price }).save();
     return contract;
@@ -133,7 +133,7 @@ exports.updateStatusOfContractToExit = async (user, contractId, cableImg, closed
 
     await Promise.all([
         exports.endStatus(contractId, STOP),
-        Scooter.updateFreeFlagOfScooter(contract.scooter, true),
+        Scooter.updateFreeFlagOfScooter(contract.scooter._id, true, contract.scooter.id),
         contract.save(),
         ContractHistory({contract: contractId, type: EXIT, start: new Date()}).save()
     ]);
