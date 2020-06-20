@@ -7,7 +7,7 @@ const jwt = require('../libs/jwt');
 const auth = require('vvdev-auth');
 const facebook = require('../libs/facebook');
 const {validate} = require('email-validator');
-
+const {sendMessage} = require('../libs/sendSms');
 const checkPhoneNumber = (phone) => {
     if (!phone || phone.length !== 13 || phone.slice(0, 4) !== '+380' ) return true;
     return false;
@@ -76,6 +76,7 @@ exports.facebookLoginPhoneUpdate = async (user, data) => {
     const {phone} = data;
     const code = generateCode();
     await ConfirmCode({phone, code, user: user._id}).save();
+    await sendMessage([phone], `Код подтверждения: ${code}`);
     return {code, message: 'Подтвердите номер телефона'};
 };
 
@@ -132,6 +133,7 @@ exports.sendCode = async (data) => {
     if (!confirmCode) confirmCode = new ConfirmCode({phone});
     confirmCode.code = generateCode();
     await confirmCode.save();
+    await sendMessage([phone], `Код подтверждения: ${confirmCode.code}`);
     return {
         code: confirmCode.code,
         message: 'Code sent to your phone number'
