@@ -129,7 +129,7 @@ exports.sendCode = async (data) => {
     const ConfirmCode = mongoose.model('confirm_code');
     if (checkPhoneNumber(phone)) throw badRequest('Enter correct phone number');
     let confirmCode = await ConfirmCode.findOne({phone});
-    if (confirmCode && confirmCode.updatedAt && moment().diff(confirmCode.updatedAt, 'minutes') <= 2) throw tooManyRequests('Try again later');
+    // if (confirmCode && confirmCode.updatedAt && moment().diff(confirmCode.updatedAt, 'minutes') <= 2) throw tooManyRequests('Try again later');
     if (!confirmCode) confirmCode = new ConfirmCode({phone});
     confirmCode.code = generateCode();
     await confirmCode.save();
