@@ -20,7 +20,8 @@ const Scooter = new Schema({
         min: 1,
         max: 3
     },
-    lock: Boolean
+    lock: Boolean,
+    hex: String
 }, {
     timestamps: true
 });
