@@ -1,72 +1,92 @@
+const mqtt = require('mqtt');
 const schedule = require('node-schedule');
-const {getDevisesCoords, blockScooterInfo} = require('./libs/flespi');
-const {Scooter, Contract} = require('./schemas');
-const geoLib = require('./libs/geoLib');
-const Zone = require('./controllers/Zone');
-const scooterErrors = require('./libs/scooterErrors');
-
+const {Scooter} = require('./schemas');
 require('./db')();
 
-const getCoordsByScooters = async () => {
-    try {
-        const scooters = await getDevisesCoords(['all']);
-        for (const scooter of scooters) {
-            let s = await Scooter.findOne({id: scooter.id});
-            if (!s) {
-                s = new Scooter({
-                    id: scooter.id,
-                    free: true
-                });
-            }
-            if (scooter.telemetry) {
-                if (scooter.telemetry['battery.level']) {
-                    s.battery = scooter.telemetry['battery.level'].value || 0;
-                }
-                s.coords = {
-                    lat: scooter.telemetry['position.latitude'].value || null,
-                    lon: scooter.telemetry['position.longitude'].value || null,
-                    updatedAt: new Date()
-                };
-            }
-        }
-        await checkScooterZone();
-    } catch (err) {
+const option = {
+    wsOptions : {
+        objectMode : false,
+        perMessageDeflate : true,
+    },
+    host : 'wss://mqtt.flespi.io:443',
+    keepalive : 60,
+    protocolVersion : 5,
+    reconnectPeriod: 10000,
+    resubscribe : false,
+    clean : true,
+    username : 'hOcM18lL3ElPrRZ7jVbUbH6MV4CckBNqdQ23McEFENiVu8QBRRlSofu87UagmNwn',
+    properties : {
+        requestResponseInformation : false,
+        requestProblemInformation : false,
+        topicAliasMaximum : 65535
+    }
+};
+let data = {};
+
+const client = mqtt.connect('mqtt://mqtt.flespi.io', option);
+
+
+client.on('connect', () => {
+    console.log('connect');
+    client.subscribe('flespi/state/gw/devices/+/telemetry/+', {qos: 0}, (err) => {
         console.error(err);
+    });
+});
+
+client.on('message', (topic, message) => {
+    if (/telemetry/.test(topic)) parseTelemetry(topic, message);
+});
+
+const keysValues = {
+    'position.longitude': 'lon',
+    'battery.current': 'battery',
+    'position.latitude': 'lat',
+    'lock.status': 'lock',
+    'payload.hex': 'hex'
+};
+
+const parseTelemetry = (topic, message) => {
+    const topics = topic.split('/');
+    const deviceId = topics[4];
+    const key = topics.slice(6)[0];
+    if (!keysValues[key]) return;
+    if (!data[deviceId]) data[deviceId] = {};
+    data[deviceId][keysValues[key]] = message.toString();
+    if (key === 'payload.hex' && data[deviceId][keysValues[key]]) data[deviceId][keysValues[key]] = data[deviceId][keysValues[key]].replace(/"/gi, '');
+    if (key === 'lock.status') data[deviceId][keysValues[key]] = data[deviceId][keysValues[key]] === 'true' ? true : false;
+    console.log(data);
+};
+
+const updateData = async () => {
+    const newData = JSON.parse(JSON.stringify(data));
+    for (const key in newData) {
+        const scooter = await Scooter.findOne({id: key});
+        if (!scooter) {
+            await Scooter({
+                id: key,
+                hex: newData[key].hex,
+                lock: newData[key].lock || false,
+                coords: {
+                    lat: newData[key].lat,
+                    lon: newData[key].lon,
+                    updatedAt: new Date()
+                },
+                battery: newData[key].battery
+            }).save();
+            continue;
+        }
+        if (scooter.hex === newData[key].hex) continue;
+        scooter.hex = newData[key].hex;
+        scooter.coords = {
+            lat: newData[key].lat,
+            lon: newData[key].lon,
+            updatedAt: new Date()
+        };
+        scooter.battery = newData[key].battery;
+        scooter.lock = newData[key].lock || false;
+        await scooter.save();
     }
 };
 
-const checkScooterZone = async (scooters) => {
-    if (!scooters) scooters = await Scooter.find();
-    for (const s of scooters) {
-        console.log(s);
-        const {result} = await Zone.checkPoint(s.coords.lat, s.coords.lon);
-        if (!result) await scooterErrors.scooterGoOutZone(s);
-    }
-};
 
-const checkDistanceBetweenScooterAndUser = async () => {
-    const contracts = await Contract.find({active: true}).populate('user').populate('scooter');
-    console.log('SCHEDULE CONTRACTS', contracts);
-    for (const contract of contracts) {
-        if (contract.user && contract.scooter) {
-            const distance = geoLib.checkDistance({
-                lat: contract.user.lat,
-                lon: contract.user.lon
-            }, contract.scooter.coords);
-            if (!distance) await scooterErrors.scooterIncorrectCoords(contract.scooter, contract.user);
-        } 
-    }
-};
-
-const checkScooterLockInfo = async () => {
-    const scooters = await Scooter.find();
-    const result = await blockScooterInfo(scooters.map(s => s.id));
-    for (const s of result) {
-        const lock = s.current && s.current.lock ? true : false;
-        await Scooter.update({id: s.device_id}, {$set: {lock}});
-    }
-};
-
-schedule.scheduleJob('0 */1 * * * *', getCoordsByScooters);
-schedule.scheduleJob('0 */2 * * * *', checkScooterLockInfo);
-// schedule.scheduleJob('*/5 * * * * *', checkDistanceBetweenScooterAndUser);
+schedule.scheduleJob('*/10 * * * * *', updateData);
