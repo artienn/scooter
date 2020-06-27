@@ -39,7 +39,7 @@ client.on('message', (topic, message) => {
 
 const keysValues = {
     'position.longitude': 'lon',
-    'battery.current': 'battery',
+    'battery.level': 'battery',
     'position.latitude': 'lat',
     'lock.status': 'lock',
     'payload.hex': 'hex'
