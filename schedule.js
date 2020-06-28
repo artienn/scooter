@@ -29,7 +29,7 @@ const client = mqtt.connect('mqtt://mqtt.flespi.io', option);
 client.on('connect', () => {
     console.log('connect');
     client.subscribe('flespi/state/gw/devices/+/telemetry/+', {qos: 0}, (err) => {
-        console.error(err);
+        if (err) console.error(err);
     });
 });
 

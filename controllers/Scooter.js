@@ -38,11 +38,13 @@ exports.getUsedScooters = async () => {
 };
 
 exports.updateScooterCoords = async (user, lat, lon) => {
-    const contract = await Contract.getUserActiveContract(user);
+    const contracts = await Contract.getUserActiveContracts(user);
     const now = new Date();
-    await Promise.all([
-        Scooter.updateOne({coords: {lat, lon, updatedAt: now}}),
-        ScooterCoordsHistory.updateOne({scooter: contract.scooter, contract: contract._id}, {$push: {coords: {lat, lon, now}}})
-    ]);
+    for (const contract of contracts) {
+        await Promise.all([
+            Scooter.updateOne({coords: {lat, lon, updatedAt: now}}),
+            ScooterCoordsHistory.updateOne({scooter: contract.scooter, contract: contract._id}, {$push: {coords: {lat, lon, now}}})
+        ]);
+    }
     return {message: 'ok'};
 };

@@ -15,7 +15,7 @@ router.post('/', checkUser, async (req, res, next) => {
 
 router.get('/active', checkUser, async (req, res, next) => {
     try {
-        const result = await Contract.getUserActiveContract(req.user, false);
+        const result = await Contract.getUserActiveContracts(req.user);
         res.send(result);
     } catch (err) {
         next(err);
