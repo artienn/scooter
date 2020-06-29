@@ -24,6 +24,13 @@ const checkUser = (req, _res, next) => {
         jwt.verify(jwtToken, jwtKey, async (error, data) => {
             if(error)  return next(unauthorized('Ошибка авторизации'));
             req.authData = data;
+            if (data.type === 'admin') {
+                const admin = await Admin.findOne({_id: data._id}, {password: 0});
+                if (!admin) return next(unauthorized('Ошибка авторизации'));
+                req.admin = admin;
+                req.user = admin;
+                return next();
+            }
             // if (!data.date || moment().diff(moment(data.date), 'minutes') > 1560) 
             //     return next(unauthorized('Ошибка авторизации'));
             let user = null;

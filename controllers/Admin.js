@@ -9,7 +9,8 @@ exports.login = async (login, password) => {
     const check = await auth.checkPassword(password, admin.password);
     if (!check) throw unauthorized('Auth error');
     const token = await jwt.sign({
-        _id: admin._id
+        _id: admin._id,
+        type: 'admin'
     });
     return {
         token
