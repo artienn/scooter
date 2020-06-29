@@ -172,3 +172,9 @@ exports.checkSumAndPeriodOfContract = async (contract = null) => {
     }
     return {sum, period, saleAmount};
 };
+
+exports.checkSumAndPeriodOfContractByUser = async (user, contractId) => {
+    const contract = await exports.getUserActiveContractByContractId(user._id, contractId);
+    const result = await exports.checkSumAndPeriodOfContract(contract);
+    return result;
+};

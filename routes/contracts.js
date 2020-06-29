@@ -78,7 +78,7 @@ router.put('/exit', checkUser, async (req, res, next) => {
 
 router.get('/sum', checkUser, async (req, res, next) => {
     try {
-        const result = await Contract.checkSumAndPeriodOfContract(req.query.contract_id);
+        const result = await Contract.checkSumAndPeriodOfContractByUser(req.user, req.query.contract_id);
         res.send(result);
     } catch (err) {
         next(err);
