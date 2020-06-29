@@ -23,10 +23,11 @@ const client = mqtt.connect('mqtt://mqtt.flespi.io', option);
 
 client.on('connect', () => {
     console.log('connect');
-    client.subscribe('flespi/rest/put/gw/devices/922305/telemetry/name=lock.status', {qos: 0}, (err) => {
+    client.subscribe('flespi/rest/put/gw/devices/922305/telemetry', {qos: 0}, (err) => {
         if (err) console.error(err);
+        client.publish('flespi/rest/put/gw/devices/922305/telemetry', 'false');
     });
-    client.publish('flespi/rest/put/gw/devices/922305/telemetry/name=lock.status', 'false');
+    
 });
 
 client.on('message', (topic, message) => {

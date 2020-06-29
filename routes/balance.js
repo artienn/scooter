@@ -41,7 +41,7 @@ router.put('/promocodes/:code', checkAdmin, async (req, res, next) => {
     }
 });
 
-router.get('/tariffs', checkAdmin, async (_req, res, next) => {
+router.get('/tariffs', checkUser, async (_req, res, next) => {
     try {
         const result = await Balance.getTariffs();
         res.send(result);
