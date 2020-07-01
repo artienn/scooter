@@ -31,10 +31,14 @@ client.on('connect', () => {
     client.subscribe('flespi/state/gw/devices/+/telemetry/+', {qos: 0}, (err) => {
         if (err) console.error(err);
     });
+    client.subscribe('flespi/message/gw/devices/+', {qos: 0}, (err) => {
+        if (err) console.error(err);
+    });
 });
 
 client.on('message', (topic, message) => {
-    if (/telemetry/.test(topic)) parseTelemetry(topic, message);
+    console.log(topic, message.toString())
+    // if (/telemetry/.test(topic)) parseTelemetry(topic, message);
 });
 
 const keysValues = {
