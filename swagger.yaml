@@ -59,6 +59,49 @@ paths:
       responses:
         200:
           description: ok
+  /users:
+    get:
+      tags:
+      - Admin
+      summary: user list
+      parameters:
+      - in: query
+        name: limit
+        type: string
+      - in: query
+        name: page
+        type: string
+      - in: query
+        name: firstName
+        type: string
+      - in: query
+        name: lastName
+        type: string
+      - in: query
+        name: middleName
+        type: string
+      - in: query
+        name: phone
+        type: string
+      - in: query
+        name: type
+        type: string
+      responses:
+        200:
+          description: ok
+  /users/{id}:
+    get:
+      tags:
+      - Admin
+      summary: user list
+      parameters:
+      - in: path
+        name: id
+        type: string
+        required: true
+      responses:
+        200:
+          description: ok        
   /zones:
     put:
       tags:

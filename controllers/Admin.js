@@ -1,7 +1,9 @@
-const {Admin, AdminSettings} = require('../schemas');
+const {Admin, AdminSettings, User} = require('../schemas');
 const auth = require('vvdev-auth');
 const {unauthorized} = require('boom');
 const jwt = require('../libs/jwt');
+const fcm = require('../libs/fcm');
+const SystemQueue = require('./SystemQueue');
 
 exports.login = async (login, password) => {
     const admin = await Admin.findOne({login});
@@ -30,5 +32,26 @@ exports.putAdminSettings = async (phones) => {
     }
     if (phones) adminSettings.phones = phones;
     await adminSettings.save();
+    return {message: 'ok'};
+};
+
+exports.sendPush = async (text, userType) => {
+    const query = {};
+    if (userType) query.type = userType;
+    const total = await User.countDocuments(query);
+    const limit = 50;
+    let skip = 0;
+    while(skip < total) {
+        const users = await User.find(query, {firebaseIds: 1}).skip(skip).limit(limit);
+        let firebaseIds = [];
+        for (const user of users) {
+            firebaseIds.push(...user.firebaseIds);
+            if (firebaseIds.length > 10) {
+                await SystemQueue.addToSystemQueue('push', null, firebaseIds, text)
+            }
+        }
+        await fcm(firebaseIds, {}, text);
+        skip += limit;
+    }
     return {message: 'ok'};
 };

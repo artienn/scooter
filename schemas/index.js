@@ -17,3 +17,4 @@ exports.Admin = require('./Admin');
 exports.UserCoords = require('./UserCoords');
 exports.ScooterCoords = require('./ScooterCoords');
 exports.AdminSettings = require('./Admin');
+exports.SystemQueue = require('./SystemQueue');

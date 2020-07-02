@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
 const generateCode = require('../libs/generateCode');
-const {tooManyRequests, badRequest, unauthorized} = require('boom');
+const {tooManyRequests, badRequest, unauthorized, notFound} = require('boom');
 const moment = require('moment');
 const {UserCoords, User} = require('../schemas');
 const jwt = require('../libs/jwt');
@@ -8,6 +8,8 @@ const jwt = require('../libs/jwt');
 // const facebook = require('../libs/facebook');
 const {validate} = require('email-validator');
 const {sendMessage} = require('../libs/sendSms');
+const pagination = require('../libs/pagination');
+
 const checkPhoneNumber = (phone) => {
     if (!phone || phone.length !== 13 || phone.slice(0, 4) !== '+380' ) return true;
     return false;
@@ -36,10 +38,41 @@ const checkPhoneNumber = (phone) => {
 //     };   
 // };
 
-exports.getUserList = async (page, limit) => {
+exports.getUserList = async (page, limit, phone, firstName, lastName, middleName, type) => {
     page = page ? parseInt(page) : 1;
     limit = limit ? parseInt(limit) : 20;
-    if (page < 1 || limit < 1) throw badRequest('incorrect')
+    if (page < 1 || limit < 1) throw badRequest('Incorrect pagination data');
+    const skip = limit * (page - 1);
+    const query = {};
+    if (phone) {
+        query.phone = new RegExp(phone, 'gi');
+    }
+    if (firstName || lastName || middleName) {
+        query.$or = [{
+            firstName: new RegExp(firstName, 'gi')
+        }, {
+            lastName: new RegExp(lastName, 'gi')
+        }, {
+            middleName: new RegExp(middleName, 'gi')
+        }];
+    }
+    if (type) {
+        query.type = type;
+    }
+    const [total, users] = await Promise.all([
+        User.countDocuments(query),
+        User.find(query).limit(limit).skip(skip).lean()
+    ]);
+    return {
+        users,
+        pagination: pagination(limit, page, total)
+    };
+};
+
+exports.getUserById = async (_id) => {
+    const user = await User.findById(_id);
+    if (!user) throw notFound('User not found');
+    return {user};
 };
 
 exports.updateUserCoords = async (user, lat, lon) => {

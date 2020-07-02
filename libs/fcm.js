@@ -22,6 +22,6 @@ module.exports = async (firebaseIds, body, text) => {
             'Authorization':'key=' + fcmKey
         }
     };
-     rpn(options);
+    return rpn(options);
 };
 

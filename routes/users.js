@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const User = require('../controllers/User');
-const {checkUser, checkUserWithoutPhone} = require('../libs/jwt');
+const {checkUser, checkUserWithoutPhone, checkAdmin} = require('../libs/jwt');
 // const passport = require('passport');
 // require('../libs/facebookAuth');
 
@@ -42,6 +42,25 @@ const {checkUser, checkUserWithoutPhone} = require('../libs/jwt');
 //         next(err);
 //     }
 // });
+
+router.get('/', checkAdmin, async (req, res, next) => {
+    try {
+        const {page, limit, phone, firstName, lastName, middleName, type} = req.query;
+        const result = await User.getUserList(page, limit, phone, firstName, lastName, middleName, type);
+        res.send(result);
+    } catch (err) {
+        next(err);
+    }
+});
+
+router.get('/:id', checkAdmin, async (req, res, next) => {
+    try {
+        const result = await User.getUserById(req.params.id);
+        res.send(result);
+    } catch (err) {
+        next(err);
+    }
+});
 
 router.put('/check_code', async (req, res, next) => {
     try {
