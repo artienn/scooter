@@ -37,8 +37,7 @@ client.on('connect', () => {
 });
 
 client.on('message', (topic, message) => {
-    console.log(topic, message.toString())
-    // if (/telemetry/.test(topic)) parseTelemetry(topic, message);
+    if (/telemetry/.test(topic)) parseTelemetry(topic, message);
 });
 
 const keysValues = {
@@ -58,7 +57,6 @@ const parseTelemetry = (topic, message) => {
     data[deviceId][keysValues[key]] = message.toString();
     if (key === 'payload.hex' && data[deviceId][keysValues[key]]) data[deviceId][keysValues[key]] = data[deviceId][keysValues[key]].replace(/"/gi, '');
     if (key === 'lock.status') data[deviceId][keysValues[key]] = data[deviceId][keysValues[key]] === 'true' ? true : false;
-    console.log(data);
 };
 
 const updateData = async () => {
