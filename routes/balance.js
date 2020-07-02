@@ -71,8 +71,8 @@ router.delete('/cards/:cardId', checkUser, async (req, res, next) => {
 
 router.post('/pay', checkUser, async (req, res, next) => {
     try {
-        const {amount, description, cardNumberLastSymbols, result_url} = req.body;
-        const result = await Balance.pay(req.user, amount, description, cardNumberLastSymbols, result_url);
+        const {amount, description, cardNumberLastSymbols, result_url, cardId} = req.body;
+        const result = await Balance.pay(req.user, amount, description, cardNumberLastSymbols, result_url, cardId);
         res.send(result);
     } catch (err) {
         next(err);
