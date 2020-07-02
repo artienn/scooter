@@ -1,11 +1,11 @@
 const mongoose = require('mongoose');
 const generateCode = require('../libs/generateCode');
-const {conflict, tooManyRequests, badRequest, unauthorized} = require('boom');
+const {tooManyRequests, badRequest, unauthorized} = require('boom');
 const moment = require('moment');
 const {UserCoords, User} = require('../schemas');
 const jwt = require('../libs/jwt');
-const auth = require('vvdev-auth');
-const facebook = require('../libs/facebook');
+// const auth = require('vvdev-auth');
+// const facebook = require('../libs/facebook');
 const {validate} = require('email-validator');
 const {sendMessage} = require('../libs/sendSms');
 const checkPhoneNumber = (phone) => {
@@ -13,28 +13,28 @@ const checkPhoneNumber = (phone) => {
     return false;
 };
 
-const checkRepeatPassword = (password, repeatPassword) => {
-    const regex = new RegExp('(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])[0-9a-zA-Z!@#$%^&*]{8,}');
-    if (!password || password !== repeatPassword || !regex.test(password)) throw badRequest('Enter correct password');
-};
+// const checkRepeatPassword = (password, repeatPassword) => {
+//     const regex = new RegExp('(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])[0-9a-zA-Z!@#$%^&*]{8,}');
+//     if (!password || password !== repeatPassword || !regex.test(password)) throw badRequest('Enter correct password');
+// };
 
-exports.facebookLogin = async (data) => {
-    const {code} = data;
-    const tokenObject = await facebook.checkCode(code);
-    const res = await facebook.data(tokenObject.access_token);
-    if (!res.data || !res.data.user_id) throw unauthorized('Auth error');
-    let user = await User.findOne({'fb.id': res.data.user_id});
-    if (!user)
-        user = await User({fb: {id: res.data.user_id}, confirm: false}).save();
-    const token = await jwt.sign({
-        _id: user._id,
-        createdAt: new Date()
-    });
-    return {
-        token,
-        _id: user._id
-    };   
-};
+// exports.facebookLogin = async (data) => {
+//     const {code} = data;
+//     const tokenObject = await facebook.checkCode(code);
+//     const res = await facebook.data(tokenObject.access_token);
+//     if (!res.data || !res.data.user_id) throw unauthorized('Auth error');
+//     let user = await User.findOne({'fb.id': res.data.user_id});
+//     if (!user)
+//         user = await User({fb: {id: res.data.user_id}, confirm: false}).save();
+//     const token = await jwt.sign({
+//         _id: user._id,
+//         createdAt: new Date()
+//     });
+//     return {
+//         token,
+//         _id: user._id
+//     };   
+// };
 
 exports.updateUserCoords = async (user, lat, lon) => {
     if (!lat || !lon) throw badRequest('Enter coords');
@@ -54,82 +54,44 @@ exports.updateUserCoords = async (user, lat, lon) => {
     return {message: 'ok'};
 };
 
-exports.facebookLoginPhoneConfirm = async (user, data) => {
+// exports.facebookLoginPhoneConfirm = async (user, data) => {
+//     const ConfirmCode = mongoose.model('confirm_code');
+//     const {code, phone} = data;
+//     const confirmCodeFind = {user: user._id, phone, code};
+//     const confirmCode = await ConfirmCode.findOne(confirmCodeFind);
+//     if (!confirmCode) throw unauthorized('Auth error');
+//     const [token] = await Promise.all([
+//         jwt.sign({_id: user._id, createdAt: new Date()}),
+//         ConfirmCode.deleteOne(confirmCodeFind),
+//         User.updateOne({_id: user._id}, {$set: {phone}})
+//     ]);
+//     return {
+//         token,
+//         _id: user._id
+//     };
+// };
+
+// exports.facebookLoginPhoneUpdate = async (user, data) => {
+//     const ConfirmCode = mongoose.model('confirm_code');
+//     const {phone} = data;
+//     const code = generateCode();
+//     await ConfirmCode({phone, code, user: user._id}).save();
+//     await sendMessage([phone], `Код подтверждения: ${code}`);
+//     return {code, message: 'Подтвердите номер телефона'};
+// };
+
+exports.checkCode = async (phone, code) => {
     const ConfirmCode = mongoose.model('confirm_code');
-    const {code, phone} = data;
-    const confirmCodeFind = {user: user._id, phone, code};
-    const confirmCode = await ConfirmCode.findOne(confirmCodeFind);
-    if (!confirmCode) throw unauthorized('Auth error');
-    const [token] = await Promise.all([
-        jwt.sign({_id: user._id, createdAt: new Date()}),
-        ConfirmCode.deleteOne(confirmCodeFind),
-        User.updateOne({_id: user._id}, {$set: {phone}})
-    ]);
-    return {
-        token,
-        _id: user._id
-    };
-};
-
-exports.facebookLoginPhoneUpdate = async (user, data) => {
-    const ConfirmCode = mongoose.model('confirm_code');
-    const {phone} = data;
-    const code = generateCode();
-    await ConfirmCode({phone, code, user: user._id}).save();
-    await sendMessage([phone], `Код подтверждения: ${code}`);
-    return {code, message: 'Подтвердите номер телефона'};
-};
-
-exports.register = async (data) => {
-    const ConfirmCode = mongoose.model('confirm_code');
-    const {phone, code, password, repeatPassword} = data;
-    if (checkPhoneNumber(phone)) throw badRequest('Enter correct phone number');
-    const confirmCodeFind = {phone, code};
-    const [user, confirmCode] = await Promise.all([
-        User.findOne({phone}),
-        ConfirmCode.findOne(confirmCodeFind)
-    ]);
-    checkRepeatPassword(password, repeatPassword);
-    if (user) throw conflict('User already exists');
-    if (!confirmCode || confirmCode.code === null || confirmCode.code !== code) throw unauthorized('Auth error');
-    confirmCode.code = null;
-
-    
-    const hash = await auth.hashPassword(password);
-
-    const [registerUser] = await Promise.all([
-        User({
-            phone,
-            password: hash
-        }).save(),
-        confirmCode.deleteOne(confirmCodeFind)
-    ]);
-
-    const token = await jwt.sign({
-        _id: registerUser._id,
-        createdAt: new Date()
-    });
-
-    return {
-        token,
-        _id: registerUser._id
-    };
-};
-
-exports.checkCode = async (data) => {
-    const ConfirmCode = mongoose.model('confirm_code');
-    const {phone, code} = data;
     const confirmCode = await ConfirmCode.findOne({phone, code});
     if (!confirmCode) throw unauthorized('Auth error');
     return {message: 'ok'};
 };
 
-exports.sendCode = async (data) => {
-    const {phone} = data;
+exports.sendCode = async (phone) => {
     const ConfirmCode = mongoose.model('confirm_code');
     if (checkPhoneNumber(phone)) throw badRequest('Enter correct phone number');
     let confirmCode = await ConfirmCode.findOne({phone});
-    // if (confirmCode && confirmCode.updatedAt && moment().diff(confirmCode.updatedAt, 'minutes') <= 2) throw tooManyRequests('Try again later');
+    if (confirmCode && confirmCode.updatedAt && moment().diff(confirmCode.updatedAt, 'seconds') <= 10) throw tooManyRequests('Try again later');
     if (!confirmCode) confirmCode = new ConfirmCode({phone});
     confirmCode.code = generateCode();
     await confirmCode.save();
@@ -140,15 +102,19 @@ exports.sendCode = async (data) => {
     };
 };
 
-exports.confirmCode = async (data) => {
+exports.confirmCode = async (phone, code) => {
     const ConfirmCode = mongoose.model('confirm_code');
-    const {phone, code, password} = data;
     const confirmCodeFind = {phone, code};
-    if (!password) throw badRequest('Enter password');
     const confirmCode = await ConfirmCode.findOne(confirmCodeFind);
     if (!confirmCode || confirmCode.code === null || confirmCode.code !== code) throw unauthorized('Auth error');
     confirmCode.code = null;
-    const user = await exports.login({password, phone});
+    let user = await User.findOne({phone});
+    if (!user) {
+        user = await User({
+            phone,
+            type: 'normal'
+        }).save();
+    }
     await confirmCode.deleteOne(confirmCodeFind);
     const token = await jwt.sign({
         _id: user._id,
@@ -156,19 +122,9 @@ exports.confirmCode = async (data) => {
     });
     return {
         token,
-        _id: user._id
+        _id: user._id,
+        type: user.type
     };
-};
-
-exports.login = async (data) => {
-    const {phone, password, firebaseId} = data;
-    if (!password) throw badRequest('Enter password');
-    if (checkPhoneNumber(phone)) throw badRequest('Enter correct phone number');
-    const user = await User.findOne({phone});
-    const result = await auth.checkPassword(password, user.password);
-    if (!result) throw unauthorized('Auth error');
-    if (firebaseId) await exports.putFirebaseId(user, firebaseId);
-    return {phone, email: user.email, _id: user._id};
 };
 
 exports.putFirebaseId = async (user, firebaseId) => {
@@ -179,29 +135,29 @@ exports.deleteFirebaseId = async (user, firebaseId) => {
     return User.updateOne({_id: user._id}, {pull: {firebaseIds: firebaseId}});
 };
 
-exports.resetPassword = async (data) => {
-    const ConfirmCode = mongoose.model('confirm_code');
-    const {phone, code, password, repeatPassword} = data;
-    if (!code) throw badRequest('Enter code');
-    checkRepeatPassword(password, repeatPassword);
-    const confirmCodeFind = {phone, code};
-    const [user, confirmCode] = await Promise.all([
-        User.findOne({phone}),
-        ConfirmCode.findOne(confirmCodeFind)
-    ]);
-    if (!confirmCode || !user || !confirmCode.code || confirmCode.code !== code) throw unauthorized('Auth error');
-    confirmCode.code = null;
-    user.password = await auth.hashPassword(password);
-    const [token] = await Promise.all([
-        jwt.sign({_id: user._id, createdAt: new Date()}),
-        user.save(),
-        ConfirmCode.deleteOne(confirmCodeFind)
-    ]);
-    return {
-        token,
-        _id: user._id
-    };
-};
+// exports.resetPassword = async (data) => {
+//     const ConfirmCode = mongoose.model('confirm_code');
+//     const {phone, code, password, repeatPassword} = data;
+//     if (!code) throw badRequest('Enter code');
+//     checkRepeatPassword(password, repeatPassword);
+//     const confirmCodeFind = {phone, code};
+//     const [user, confirmCode] = await Promise.all([
+//         User.findOne({phone}),
+//         ConfirmCode.findOne(confirmCodeFind)
+//     ]);
+//     if (!confirmCode || !user || !confirmCode.code || confirmCode.code !== code) throw unauthorized('Auth error');
+//     confirmCode.code = null;
+//     user.password = await auth.hashPassword(password);
+//     const [token] = await Promise.all([
+//         jwt.sign({_id: user._id, createdAt: new Date()}),
+//         user.save(),
+//         ConfirmCode.deleteOne(confirmCodeFind)
+//     ]);
+//     return {
+//         token,
+//         _id: user._id
+//     };
+// };
 
 exports.loginAndSendCode = async (data) => {
     const {phone, password} = data;

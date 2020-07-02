@@ -23,7 +23,6 @@ const client = mqtt.connect('mqtt://mqtt.flespi.io', option);
 
 
 client.on('connect', () => {
-    console.log('connect');
     client.subscribe('flespi/rest/put/gw/devices/+/settings/sclockctrl', {qos: 0}, (err) => {
         if (err) console.error(err);
     });

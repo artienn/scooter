@@ -211,72 +211,6 @@ paths:
           description: too many requests on send code(only one request in two minutes)
         500:
           description: server error
-  /users/register:
-    post:
-      tags:
-        - Users
-      summary: Register to user after sent code
-      parameters:
-      - in: body
-        name: body
-        schema:
-          type: object
-          properties:
-            phone:
-              type: string
-            code:
-              type: string
-            password:
-              type: string
-            repeatPassword:
-              type: string
-      responses:
-        200:
-          description: OK
-          schema:
-            $ref: '#/definitions/token'
-        400:
-          description: Enter correct data(password=repeatPassword, phone number correct, password more 8 symbols and include lower case, upper case and number symbol)
-        401:
-          description: Code incorrect
-        409:
-          description: User already exists
-        500:
-          description: server error
-  /users/login:
-    post:
-      tags:
-        - Users
-      summary: Login user
-      parameters:
-      - in: body
-        name: body
-        schema:
-          type: object
-          properties:
-            password:
-              type: string
-            phone:
-              type: string
-            firebaseId:
-              type: string
-      responses:
-        200:
-          description: OK
-          schema:
-            type: object
-            properties:
-              message: 
-                type: string
-                description: code sent to your phone number
-              code:
-                type: string
-        400:
-          description: Incorrect phone number/enter password
-        401:
-          description: Auth error(password wrong, user is undefined)
-        500:
-          description: server error
   /users/firebase_id:
     post:
       tags:
@@ -296,7 +230,7 @@ paths:
     delete:
       tags:
       - Users
-      summary: добавить firebaseId
+      summary: удалить firebaseId
       parameters:
       - in: body
         name: bod
@@ -332,35 +266,7 @@ paths:
           description: Auth error
         500:
           description: Server error
-  /users/reset_password:
-    put:
-      tags:
-      - Users
-      summary: Reset password after sending code on your phone
-      parameters:
-      - in: body
-        name: body
-        schema:
-          type: object
-          properties:
-            phone:
-              type: string
-            code:
-              type: string
-            password:
-              type: string
-            repeatPassword:
-              type: string
-      responses:
-        200:
-          description: OK
-          schema:
-            $ref: '#/definitions/token'
-        401:
-          description: Auth error
-        500:
-          description: Server error
-  /users/confirm_login:
+  /users/code/confirm:
     post:
       tags:
       - Users
@@ -382,84 +288,6 @@ paths:
             $ref: '#/definitions/token'
         400:
           description: Enter phone/code
-        401:
-          description: Auth error
-        500:
-          description: server error
-  /users/login/facebook:
-    get:
-      tags:
-      - Users
-      summary: This method redirect to facebook auth page
-      responses:
-        200:
-          description: ok
-        500:
-          description: server error
-  /users/login/facebook/callback:
-    get:
-      tags:
-      - Users
-      summary: After auth on facebook, code sent on method
-      parameters:
-      - in: query
-        name: code
-        type: string
-        required: true
-      responses:
-        200:
-          description: If this first login with facebook auth, next method send phone number for confrim phone number
-          schema:
-            $ref: '#/definitions/token'
-        400:
-          description: enter data
-        500:
-          description: server error
-  /users/login/facebook/phone:
-    put:
-      tags:
-      - Users
-      summary: put phone number to user 
-      parameters:
-      - in: body
-        name: body
-        schema:
-          type: object
-          properties:
-            phone:
-              type: string
-      responses:
-        200:
-          description: OK
-          schema:
-            type: object
-            properties:
-              code:
-                type: string
-              message:
-                type: string
-        500:
-          description: server error
-  /users/login/facebook/phone_confirm:
-    put:
-      tags:
-      - Users
-      summary: Confrim phone after first facebook auth
-      parameters:
-      - in: body
-        name: body
-        schema:
-          type: object
-          properties:
-            code:
-              type: string
-            phone:
-              type: string
-      responses:
-        200:
-          description: OK
-          schema:
-            $ref: '#/definitions/token'
         401:
           description: Auth error
         500:

@@ -5,8 +5,12 @@ const User = new Schema({
     phone: {
         type: String
     },
-    password: {
-        type: String
+    type: {
+        type: String,
+        enum: [
+            'normal',
+            'vip'
+        ]
     },
     balance: {
         type: Number,
