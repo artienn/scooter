@@ -20,7 +20,7 @@ const template = (opt) => {
 };
 
 
-exports.pay = (phone, amount, description, order_id, result_url) => {
+exports.pay = (phone, amount, description, order_id, result_url, card_token) => {
     const opt = {
         server_url,
         public_key: liq.publicKey,
@@ -33,6 +33,7 @@ exports.pay = (phone, amount, description, order_id, result_url) => {
         description,
         order_id
     };
+    if (card_token) opt.card_token;
     return template(opt);
 };
 

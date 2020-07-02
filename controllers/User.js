@@ -36,6 +36,12 @@ const checkPhoneNumber = (phone) => {
 //     };   
 // };
 
+exports.getUserList = async (page, limit) => {
+    page = page ? parseInt(page) : 1;
+    limit = limit ? parseInt(limit) : 20;
+    if (page < 1 || limit < 1) throw badRequest('incorrect')
+};
+
 exports.updateUserCoords = async (user, lat, lon) => {
     if (!lat || !lon) throw badRequest('Enter coords');
     lat = parseFloat(lat);

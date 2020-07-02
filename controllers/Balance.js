@@ -95,7 +95,7 @@ exports.callbackPayment = async (query) => {
     json = json.replace(' ', '');
     if (typeof json === 'string')
         json = JSON.parse(json);
-    console.log(json);
+    console.log('JSON', json);
     await exports.createLiqPayOrderResult(json);
     const {token, order_id} = json;
     if (token && order_id) {
@@ -121,7 +121,12 @@ exports.callbackPayment = async (query) => {
 //     return result;
 // };
 
-exports.pay = async (user, amount, description, cardNumberLastSymbols, result_url) => {
+exports.pay = async (user, amount, description, cardNumberLastSymbols, result_url, cardId) => {
+    let card = null;
+    if (cardId) {
+        const cardResult = await exports.getCardById(user, cardId);
+        card = cardResult.card;
+    }
     const order = await mongoose.model('liq_pay_order')({
         user: user._id,
         amount, 
@@ -130,10 +135,10 @@ exports.pay = async (user, amount, description, cardNumberLastSymbols, result_ur
         cardNumberLastSymbols,
         result_url
     }).save();
-    if (cardNumberLastSymbols) {
+    if (cardNumberLastSymbols && !card) {
         await exports.createUserCard(user, null, cardNumberLastSymbols, String(order._id));
     }
-    const result = await liqPay.pay(user.phone.slice(1), amount, description, String(order._id), result_url);
+    const result = await liqPay.pay(user.phone.slice(1), amount, description, String(order._id), result_url, card.token);
     return result;
 };
 
@@ -223,7 +228,7 @@ exports.createUserCard = async (user, card_token, cardNumberLastSymbols, orderId
     const userCard = await UserCard({
         cardNumberLastSymbols,
         user: user._id,
-        token: card_token,
+        token: card_token || null,
         confirm: card_token ? true : false,
         orderId
     }).save();
