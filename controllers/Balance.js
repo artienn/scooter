@@ -138,7 +138,7 @@ exports.pay = async (user, amount, description, cardNumberLastSymbols, result_ur
     if (cardNumberLastSymbols && !card) {
         await exports.createUserCard(user, null, cardNumberLastSymbols, String(order._id));
     }
-    const result = await liqPay.pay(user.phone.slice(1), amount, description, String(order._id), result_url, card.token);
+    const result = await liqPay.pay(user.phone.slice(1), amount, description, String(order._id), result_url, card ? card.token : null);
     return result;
 };
 
