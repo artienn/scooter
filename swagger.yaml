@@ -437,9 +437,36 @@ paths:
               description: redirect to this url after pay
             cardId:
               type: string
+            type:
+              type: string
+              description: pay/hold
       responses:
         200:
           description: hold wait (go to second part)
+  /balance/cancel:
+    put:
+      tags:
+      - Balance
+      summary: cancel payment
+      parameters:
+      - in: body
+        name: body
+        schema:
+          type: object
+          properties:
+            orderId:
+              type: string
+      responses:
+        200:
+          description: success
+  /balance/last_hold:
+    get:
+      tags:
+      - Balance
+      summary: get hold payment
+      responses:
+        200:
+          description: success
   /balance/status:
     get:
       tags:

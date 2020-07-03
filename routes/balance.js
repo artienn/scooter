@@ -3,16 +3,6 @@ const router = express.Router();
 const Balance = require('../controllers').Balance;
 const {checkUser, checkAdmin} = require('../libs/jwt');
 
-router.post('/cards', checkUser, async (req, res, next) => {
-    try {
-        const {amount, description, cardNumber, cardMonth, cardYear, cvv} = req.body;
-        const result = await Balance.createUserCard(req.user, amount, description, cardNumber, cardMonth, cardYear, cvv);
-        res.send(result);
-    } catch (err) {
-        next(err);
-    }
-});
-
 router.get('/cards', checkUser, async (req, res, next) => {
     try {
         const result = await Balance.getUserCards(req.user);
@@ -71,22 +61,14 @@ router.delete('/cards/:cardId', checkUser, async (req, res, next) => {
 
 router.post('/pay', checkUser, async (req, res, next) => {
     try {
-        const {amount, description, cardNumberLastSymbols, result_url, cardId} = req.body;
-        const result = await Balance.pay(req.user, amount, description, cardNumberLastSymbols, result_url, cardId);
+        const {amount, description, cardNumberLastSymbols, result_url, cardId, type} = req.body;
+        const result = await Balance.pay(req.user, type, amount, description, cardNumberLastSymbols, result_url, cardId);
         res.send(result);
     } catch (err) {
         next(err);
     }
 });
 
-router.post('/hold', checkUser, async (req, res, next) => {
-    try {
-        const result = await Balance.hold(req.user, req.body);
-        res.send(result);
-    } catch (err) {
-        next(err);
-    }
-});
 
 router.put('/hold_completion', checkUser, async (req, res, next) => {
     try {
@@ -97,37 +79,19 @@ router.put('/hold_completion', checkUser, async (req, res, next) => {
     }
 });
 
-router.post('/subscribe', checkUser, async (req, res, next) => {
+router.get('/last_hold', checkUser, async (req, res, next) => {
     try {
-        const result = await Balance.subscribe(req.user, req.body);
+        const result = await Balance.getLastHold(req.user);
         res.send(result);
     } catch (err) {
         next(err);
     }
 });
 
-router.put('/cancel_hold', checkUser, async (req, res, next) => {
-    try {
-        const result = await Balance.cancelHold(req.user, req.body);
-        res.send(result);
-    } catch (err) {
-        next(err);
-    }
-});
-
-router.put('/cancel_pay', checkUser, async (req, res, next) => {
+router.put('/cancel', checkUser, async (req, res, next) => {
     try {
         const {orderId} = req.body;
         const result = await Balance.cancelPay(req.user, orderId);
-        res.send(result);
-    } catch (err) {
-        next(err);
-    }
-});
-
-router.put('/cancel_subscribe', checkUser, async (req, res, next) => {
-    try {
-        const result = await Balance.cancelSubscribe(req.user, req.body);
         res.send(result);
     } catch (err) {
         next(err);

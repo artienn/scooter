@@ -1,4 +1,4 @@
-const {BonusCode, UserBonusHistory, UserCard, Promocode, Tariff} = require('../schemas');
+const {BonusCode, UserBonusHistory, UserCard, Promocode, Tariff, LiqPayOrder} = require('../schemas');
 const {notFound, badImplementation, badRequest, paymentRequired, conflict} = require('boom');
 const mongoose = require('mongoose');
 const liqPay = require('../libs/liqPay');
@@ -98,8 +98,8 @@ exports.callbackPayment = async (query) => {
     console.log('JSON', json);
     await exports.createLiqPayOrderResult(json);
     const {token, order_id} = json;
-    if (token && order_id) {
-        await UserCard.updateOne({orderId: order_id}, {$set: {confirm: true, token}});
+    if (order_id) {
+        await UserCard.updateOne({orderId: order_id}, {$set: {confirm: true, token: 'oasdoiasjdoijasoidjaosijdiajsdio'}});
     }
     return json;
 };  
@@ -121,7 +121,7 @@ exports.callbackPayment = async (query) => {
 //     return result;
 // };
 
-exports.pay = async (user, amount, description, cardNumberLastSymbols, result_url, cardId) => {
+exports.pay = async (user, type = 'pay', amount, description, cardNumberLastSymbols, result_url, cardId) => {
     let card = null;
     if (cardId) {
         const cardResult = await exports.getCardById(user, cardId);
@@ -131,7 +131,7 @@ exports.pay = async (user, amount, description, cardNumberLastSymbols, result_ur
         user: user._id,
         amount, 
         description,
-        type: 'pay',
+        type,
         cardNumberLastSymbols,
         result_url
     }).save();
@@ -188,11 +188,17 @@ exports.pay = async (user, amount, description, cardNumberLastSymbols, result_ur
 exports.cancelPay = async (user, orderId) => {
     const LiqPayOrder = mongoose.model('liq_pay_order');
     if (!orderId) throw badRequest('Enter correct data');
-    const liqPayOrder = await LiqPayOrder.findOne({_id: orderId, user: user._id, type: 'hold'});
+    const liqPayOrder = await LiqPayOrder.findOne({_id: orderId, user: user._id});
     if (!liqPayOrder) throw notFound('Order is not found');
     const result = await liqPay.cancelPayment(orderId);
+    if (liqPayOrder.type === 'hold') await LiqPayOrder.deleteOne({_id: orderId});
     return result;
 };  
+
+exports.getLastHold = async (user) => {
+    const liqPayOrders = await LiqPayOrder.find({user: user._id, type: 'hold'}).sort({createdAt: -1});
+    return {liqPayOrders: liqPayOrders[0]};
+};
 
 // exports.cancelHold = async (user, data) => {
 //     const LiqPayOrderResult = mongoose.model('liq_pay_order_result');
