@@ -53,15 +53,6 @@ router.get('/', checkAdmin, async (req, res, next) => {
     }
 });
 
-router.get('/:id', checkAdmin, async (req, res, next) => {
-    try {
-        const result = await User.getUserById(req.params.id);
-        res.send(result);
-    } catch (err) {
-        next(err);
-    }
-});
-
 router.put('/check_code', async (req, res, next) => {
     try {
         const {phone, code} = req.body;
@@ -166,6 +157,15 @@ router.put('/info', checkUser, async (req, res, next) => {
     try {
         const {firstName, lastName, middleName, email, birthday} = req.body;
         const result = await User.updateInfo(req.user, firstName, lastName, middleName, email, birthday);
+        res.send(result);
+    } catch (err) {
+        next(err);
+    }
+});
+
+router.get('/:id', checkAdmin, async (req, res, next) => {
+    try {
+        const result = await User.getUserById(req.params.id);
         res.send(result);
     } catch (err) {
         next(err);
