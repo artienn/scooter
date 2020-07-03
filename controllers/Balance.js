@@ -81,7 +81,7 @@ exports.createOrder = async (user, order_id, saveToken = false, cardNumberLastSy
 };
 
 exports.createLiqPayOrderResult = async (data) => {
-    await (await mongoose.model('liq_pay_order_result').findOne(data)).save();
+    return mongoose.model('liq_pay_order_result')(data).save();
 };
 
 exports.callbackPayment = async (query) => {
