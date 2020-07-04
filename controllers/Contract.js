@@ -9,7 +9,7 @@ const DISTANCE_BETWEEN_USER_AND_SCOOTER = 5;
 const STOP = 'stop';
 const NORMAL = 'normal';
 const PAUSE = 'pause';
-const UNLOCK = 'START';
+const UNLOCK = 'start';
 const EXIT = 'exit';
 
 exports.getUserActiveContracts = async (user) => {
