@@ -3,7 +3,11 @@ const Schema = mongoose.Schema;
 
 const AdminSettings = new Schema({
     phones: [String],
-    scooterUserDistanceError: Number //m
+    scooterUserDistanceError: Number, //m
+    UserBalanceMinAmount: {
+        type: Number,
+        default: 50
+    }
 }, {
     timestamps: true
 });

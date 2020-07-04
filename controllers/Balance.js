@@ -1,4 +1,4 @@
-const {BonusCode, UserBonusHistory, UserCard, Promocode, Tariff, LiqPayOrder} = require('../schemas');
+const {BonusCode, UserBonusHistory, UserCard, Promocode, Tariff, LiqPayOrder, User, UserBalanceHistory} = require('../schemas');
 const {notFound, badImplementation, badRequest, paymentRequired, conflict} = require('boom');
 const mongoose = require('mongoose');
 const liqPay = require('../libs/liqPay');
@@ -92,6 +92,13 @@ exports.createLiqPayOrderResult = async (data) => {
     return mongoose.model('liq_pay_order_result')(data).save();
 };
 
+exports.putUserBalance = async (userId, amount, type) => {
+    return Promise.all([
+        User.updateOne({_id: userId}, {$inc: {balance: amount}}),
+        UserBalanceHistory({user: userId, type, amount})
+    ]);
+};
+
 exports.callbackPayment = async (query) => {
     const {data, signature} = query;
     console.log(data, signature);
@@ -105,10 +112,14 @@ exports.callbackPayment = async (query) => {
         json = JSON.parse(json);
     console.log('JSON', json);
     await exports.createLiqPayOrderResult(json);
-    const {token, order_id} = json;
-    if (order_id) {
-        await UserCard.updateOne({orderId: order_id}, {$set: {confirm: true, token: 'oasdoiasjdoijasoidjaosijdiajsdio'}});
+    const {order_id, status, amount} = json;
+    const liqPayOrder = await LiqPayOrder.findOne({_id: order_id});
+    if (liqPayOrder && liqPayOrder.user && (status === 'wait_accept' || status === 'success')) {
+        await exports.putUserBalance(liqPayOrder.user, amount, 'pay');
     }
+    // if (order_id) {
+    //     await UserCard.updateOne({orderId: order_id}, {$set: {confirm: true, token: 'oasdoiasjdoijasoidjaosijdiajsdio'}});
+    // }
     return json;
 };  
 

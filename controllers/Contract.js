@@ -48,6 +48,7 @@ exports.createContract = async (user, body) => {
     if (existsContracts.contractsCount >= 3) throw badRequest('User already created 3 contracts');
     const {scooterId, userCoords, code} = body;
     if (!scooterId || !userCoords) throw badRequest('Enter data');
+    if (!user.balance && user.balance < 50) throw conflict('Pay on your balance');
     const [scooter, tariffNormal, tariffUnlock, promocode] = await Promise.all([
         Scooter.getFreeScooterById(scooterId),
         Tariff.findOne({type: NORMAL, userType: user.type || 'normal'}),

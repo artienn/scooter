@@ -18,3 +18,4 @@ exports.UserCoords = require('./UserCoords');
 exports.ScooterCoords = require('./ScooterCoords');
 exports.AdminSettings = require('./Admin');
 exports.SystemQueue = require('./SystemQueue');
+exports.UserBalanceHistory = require('./UserBalanceHistory');
