@@ -88,11 +88,13 @@ exports.updateStatusOfContractToNormal = async (user, contractId) => {
     ]);
     if (contract.status.value !== PAUSE && contract.status.value !== STOP) throw conflict('impossible');
     if (!tariff || !tariff.price) throw notFound('Tariff not found');
+    const oldStatus = contract.status.value;
     contract.status.value = NORMAL;
     const salePercentPromocode = contract.contractStatusPromocode === 'all' || contract.contractStatusPromocode === NORMAL ? contract.salePercentPromocode : null;
     await Promise.all([
         contract.save(),
-        exports.startStatus(contract._id, tariff.price, NORMAL, salePercentPromocode)
+        exports.startStatus(contract._id, tariff.price, NORMAL, salePercentPromocode),
+        exports.endStatus(contract._id, oldStatus)
     ]);
     return exports.checkSumAndPeriodOfContract(user, contract);
 };
@@ -145,7 +147,7 @@ exports.updateStatusOfContractToExit = async (user, contractId, cableImg, closed
         exports.endStatus(contractId, STOP),
         Scooter.updateFreeFlagOfScooter(contract.scooter._id, true, contract.scooter.id),
         contract.save(),
-        ContractHistory({contract: contractId, type: EXIT, start: new Date()}).save()
+        ContractHistory({contract: contractId, type: EXIT, start: new Date(), end: new Date()}).save()
     ]);
     return exports.checkSumAndPeriodOfContract(user, contract);
 };  
@@ -166,11 +168,13 @@ exports.checkSumAndPeriodOfContract = async (contract = null) => {
     let sum = 0;
     let period = 0;
     let saleAmount = 0;
+    let periodSeconds = 0;
     for (const history of histories) {
         if (!history.end) history.end = new Date();
         let periodSum = 0;
         let saleSum = 0;
         const minutes = Math.ceil(moment(history.end).diff(history.start, 'minutes', true));
+        const seconds = Math.ceil(moment(history.end).diff(history.start, 'seconds', true));
         history.price = history.salePercent && history.salePercent <= 100 ? (history.price / 100) * (100 - history.salePercent) : history.price;
         if (!history.click) periodSum += minutes * history.price;
         else periodSum += history.price;
@@ -178,10 +182,11 @@ exports.checkSumAndPeriodOfContract = async (contract = null) => {
         if (saleSum > periodSum) saleSum = periodSum;
         periodSum -= saleSum;
         period += minutes;
+        periodSeconds += seconds;
         sum += periodSum;
         saleAmount += saleSum;
     }
-    return {sum, period, saleAmount};
+    return {sum, period, saleAmount, periodSeconds};
 };
 
 exports.checkSumAndPeriodOfContractByUser = async (user, contractId) => {

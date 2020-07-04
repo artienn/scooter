@@ -205,7 +205,9 @@ exports.cancelPay = async (user, orderId) => {
 
 exports.getLastHold = async (user) => {
     const liqPayOrders = await LiqPayOrder.find({user: user._id, type: 'hold'}).sort({createdAt: -1});
-    return {liqPayOrders: liqPayOrders[0]};
+    let result;
+    if (liqPayOrders && liqPayOrders[0] && liqPayOrders[0]._id) result = await exports.cancelPay(user, liqPayOrders[0]._id);
+    return result;
 };
 
 // exports.cancelHold = async (user, data) => {

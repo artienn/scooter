@@ -79,7 +79,7 @@ router.put('/hold_completion', checkUser, async (req, res, next) => {
     }
 });
 
-router.get('/last_hold', checkUser, async (req, res, next) => {
+router.get('/cancellation_last_hold', checkUser, async (req, res, next) => {
     try {
         const result = await Balance.getLastHold(req.user);
         res.send(result);

@@ -45,6 +45,7 @@ paths:
         name: type
         type: string
         required: true
+        description: unlock/normal/pause/stop/exit
       - in: body
         name: body
         schema:
