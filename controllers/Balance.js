@@ -92,11 +92,23 @@ exports.createLiqPayOrderResult = async (data) => {
     return mongoose.model('liq_pay_order_result')(data).save();
 };
 
-exports.putUserBalance = async (userId, amount, type) => {
+exports.putUserBalance = async (userId, amount, type, contractId = null) => {
     return Promise.all([
         User.updateOne({_id: userId}, {$inc: {balance: amount}}),
-        UserBalanceHistory({user: userId, type, amount})
+        UserBalanceHistory({user: userId, type, amount, contract: contractId}).save()
     ]);
+};
+
+exports.getUserBalanceHistory = async (user, type = null) => {
+    const query = {user: user._id};
+    if (type) query.type = type;
+    const userBalanceHistories = await UserBalanceHistory.find(query);
+    return {userBalanceHistories};
+};
+
+exports.getUserBalanceHistoryByContractId = async (user, contractId) => {
+    const userBalanceHistory = await UserBalanceHistory.findOne({user: user._id, contract: contractId});
+    return {userBalanceHistory};
 };
 
 exports.callbackPayment = async (query) => {

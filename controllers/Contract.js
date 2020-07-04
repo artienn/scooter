@@ -12,8 +12,10 @@ const PAUSE = 'pause';
 const UNLOCK = 'start';
 const EXIT = 'exit';
 
-exports.getUserActiveContracts = async (user) => {
-    const contracts = await Contract.find({user: user._id, active: true}).lean();
+exports.getUserActiveContracts = async (user = null) => {
+    const query = {active: true};
+    if (user) query.user = user._id;
+    const contracts = await Contract.find(query).lean();
     return {
         contracts: contracts.map(c => {
             c.period = moment().diff(c.createdAt, 'seconds');

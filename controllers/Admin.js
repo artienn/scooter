@@ -47,10 +47,10 @@ exports.sendPush = async (text, userType) => {
         for (const user of users) {
             firebaseIds.push(...user.firebaseIds);
             if (firebaseIds.length > 10) {
-                await SystemQueue.addToSystemQueue('push', null, firebaseIds, text)
+                await SystemQueue.addToSystemQueue('push', null, firebaseIds, text, {});
+                firebaseIds = [];
             }
         }
-        await fcm(firebaseIds, {}, text);
         skip += limit;
     }
     return {message: 'ok'};

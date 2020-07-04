@@ -13,6 +13,10 @@ const UserBalanceHistory = new Schema({
             'pay',
             'write_off_contract'
         ]
+    },
+    contract: {
+        type: Schema.Types.ObjectId,
+        ref: 'contracts'
     }
 }, {
     timestamps: true
