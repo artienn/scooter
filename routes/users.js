@@ -45,8 +45,8 @@ const {checkUser, checkUserWithoutPhone, checkAdmin} = require('../libs/jwt');
 
 router.get('/', checkAdmin, async (req, res, next) => {
     try {
-        const {page, limit, phone, firstName, lastName, middleName, type} = req.query;
-        const result = await User.getUserList(page, limit, phone, firstName, lastName, middleName, type);
+        const {page, limit, phone, name, type} = req.query;
+        const result = await User.getUserList(page, limit, phone, name, type);
         res.send(result);
     } catch (err) {
         next(err);

@@ -38,7 +38,7 @@ const checkPhoneNumber = (phone) => {
 //     };   
 // };
 
-exports.getUserList = async (page, limit, phone, firstName, lastName, middleName, type) => {
+exports.getUserList = async (page, limit, phone, name, type) => {
     page = page ? parseInt(page) : 1;
     limit = limit ? parseInt(limit) : 20;
     if (page < 1 || limit < 1) throw badRequest('Incorrect pagination data');
@@ -47,13 +47,13 @@ exports.getUserList = async (page, limit, phone, firstName, lastName, middleName
     if (phone) {
         query.phone = new RegExp(phone, 'gi');
     }
-    if (firstName || lastName || middleName) {
+    if (name) {
         query.$or = [{
-            firstName: new RegExp(firstName, 'gi')
+            firstName: new RegExp(name, 'gi')
         }, {
-            lastName: new RegExp(lastName, 'gi')
+            lastName: new RegExp(name, 'gi')
         }, {
-            middleName: new RegExp(middleName, 'gi')
+            middleName: new RegExp(name, 'gi')
         }];
     }
     if (type) {

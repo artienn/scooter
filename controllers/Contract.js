@@ -9,7 +9,7 @@ const DISTANCE_BETWEEN_USER_AND_SCOOTER = 5;
 const STOP = 'stop';
 const NORMAL = 'normal';
 const PAUSE = 'pause';
-const UNLOCK = 'unlock';
+const UNLOCK = 'START';
 const EXIT = 'exit';
 
 exports.getUserActiveContracts = async (user) => {
@@ -55,7 +55,6 @@ exports.createContract = async (user, body) => {
         Tariff.findOne({type: UNLOCK, userType: user.type || 'normal'}),
         Balance.getActivePromocode(code, false)
     ]);
-    console.log(tariffNormal, tariffUnlock)
     if (!tariffNormal || !tariffUnlock) throw notFound('Tariff not found');
 
     const {coords} = scooter;

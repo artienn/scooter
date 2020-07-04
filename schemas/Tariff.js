@@ -5,7 +5,7 @@ const Tariff = new Schema({
     type: {
         type: String,
         enum: [
-            'unlock',
+            'start',
             'normal',
             'pause',
             'exit',
