@@ -578,7 +578,20 @@ paths:
     get:
       tags:
       - Contracts
-      summary: create contract
+      summary: get contracts
+      responses:
+        200:
+          description: ok
+  /contracts/{id}:
+    get:
+      tags:
+      - Contracts
+      summary: get contracts
+      parameters:
+      - in: path
+        name: id
+        required: true
+        type: string
       responses:
         200:
           description: ok
@@ -590,16 +603,16 @@ paths:
       responses:
         200:
           description: ok
-  /contracts/pause:
+  /contracts/{id}/pause:
     put:
       tags: 
       - Contracts
       summary: pause
       parameters:
-      - in: body
-        name: body
-        schema:
-          $ref: '#/definitions/contractId'
+      - in: path
+        name: id
+        required: true
+        type: string
       responses:
         200:
           description: OK
@@ -607,16 +620,16 @@ paths:
           description: imposible
         500:
           description: server error
-  /contract/normal:
+  /contract/{id}/normal:
     put:
       tags: 
       - Contracts
       summary: normal
       parameters:
-      - in: body
-        name: body
-        schema:
-          $ref: '#/definitions/contractId'
+      - in: path
+        name: id
+        required: true
+        type: string
       responses:
         200:
           description: OK
@@ -624,16 +637,16 @@ paths:
           description: imposible
         500:
           description: server error
-  /contract/stop:
+  /contract/{id}/stop:
     put:
       tags: 
       - Contracts
       summary: stop
       parameters:
-      - in: body
-        name: body
-        schema:
-          $ref: '#/definitions/contractId'
+      - in: path
+        name: id
+        required: true
+        type: string
       responses:
         200:
           description: OK
@@ -641,19 +654,21 @@ paths:
           description: imposible
         500:
           description: server error
-  /contract/exit:
+  /contract/{id}/exit:
     put:
       tags: 
       - Contracts
       summary: exit
       parameters:
+      - in: path
+        name: id
+        required: true
+        type: string
       - in: body
         name: body
         schema:
           type: object
           properties:
-            contractId:
-              type: string
             cableImg:
               type: string
             closedLockImg:
@@ -665,14 +680,15 @@ paths:
           description: imposible
         500:
           description: server error
-  /contracts/sum:
+  /contracts/{id}/sum:
     get:
       tags:
       - Contracts
       summary: get sum and period of this contract
       parameters:
-      - in: query
-        name: contract_id
+      - in: path
+        name: id
+        required: true
         type: string
       responses:
         200:
