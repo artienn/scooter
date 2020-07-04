@@ -4,7 +4,10 @@ const Schema = mongoose.Schema;
 const Scooter = new Schema({
     id: String,
     lockId: String,
-    free: Boolean,
+    free: {
+        type: Boolean,
+        default: true
+    },
     coords: {
         lat: Number,
         lon: Number,

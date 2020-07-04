@@ -11,11 +11,11 @@ const Contract = new Schema({
         type: Schema.Types.ObjectId,
         ref: 'user'
     },
-    period: Number, //seconds
     tariff: {
         type: Schema.Types.ObjectId,
         ref: 'tariff'
     },
+    sum: Number,
     active: Boolean,
     cableImg: String,
     closedLockImg: String,

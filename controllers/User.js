@@ -70,7 +70,7 @@ exports.getUserList = async (page, limit, phone, firstName, lastName, middleName
 };
 
 exports.getUserById = async (_id) => {
-    const user = await User.findById(_id);
+    const user = await User.findById(_id).lean();
     if (!user) throw notFound('User not found');
     return {user};
 };
@@ -214,9 +214,12 @@ exports.createProblemRequest = async (userId, description, scooterId) => {
     return request;
 };
 
-exports.updateInfo = async (user, firstName, lastName, middleName, email, birthday) => {
+exports.updateInfo = async (userId, user, firstName, lastName, middleName, email, birthday) => {
     const data = {};
     const queries = [];
+    if (userId) {
+        user = await exports.getUserById(userId);
+    }
     if ((firstName || firstName === '') && user.firstName !== firstName) data.firstName = firstName;
     if ((lastName || lastName === '') && user.lastName !== lastName) data.lastName = lastName;
     if ((middleName || middleName === '') && user.middleName !== middleName) data.middleName = middleName;

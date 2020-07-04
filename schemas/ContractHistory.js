@@ -10,7 +10,8 @@ const ContractHistory = new Schema({
     start: Date,
     end: Date,
     price: Number,
-    salePercent: Number
+    salePercent: Number,
+    click: Boolean
 }, {
     timestamps: true
 });

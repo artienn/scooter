@@ -73,7 +73,8 @@ const updateData = async () => {
                     lon: newData[key].lon,
                     updatedAt: new Date()
                 },
-                battery: newData[key].battery
+                battery: newData[key].battery,
+                free: newData[key].lock || false
             }).save();
             continue;
         }

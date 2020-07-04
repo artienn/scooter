@@ -31,6 +31,15 @@ router.get('/', checkUser, async (req, res, next) => {
     }
 });
 
+router.get('/:id', checkUser, async (req, res, next) => {
+    try {
+        const result = await Contract.getUserContractById(req.user, req.params.id);
+        res.send(result);
+    } catch (err) {
+        next(err);
+    }
+});
+
 router.get('/statuses', checkAdmin, async (_req, res, next) => {
     try {
         const result = enumStatuses.slice();
@@ -40,45 +49,45 @@ router.get('/statuses', checkAdmin, async (_req, res, next) => {
     }
 });
 
-router.put('/pause', checkUser, async (req, res, next) => {
+router.put('/:id/pause', checkUser, async (req, res, next) => {
     try {
-        const result = await Contract.updateStatusOfContractToPause(req.user, req.body.contractId);
+        const result = await Contract.updateStatusOfContractToPause(req.user, req.params.id);
         res.send(result);
     } catch (err) {
         next(err);
     }
 });
 
-router.put('/normal', checkUser, async (req, res, next) => {
+router.put('/:id/normal', checkUser, async (req, res, next) => {
     try {
-        const result = await Contract.updateStatusOfContractToNormal(req.user, req.body.contractId);
+        const result = await Contract.updateStatusOfContractToNormal(req.user, req.params.id);
         res.send(result);
     } catch (err) {
         next(err);
     }
 });
 
-router.put('/stop', checkUser, async (req, res, next) => {
+router.put('/:id/stop', checkUser, async (req, res, next) => {
     try {
-        const result = await Contract.updateStatusOfContractToStop(req.user, req.body.contractId);
+        const result = await Contract.updateStatusOfContractToStop(req.user, req.params.id);
         res.send(result);
     } catch (err) {
         next(err);
     }
 });
 
-router.put('/exit', checkUser, async (req, res, next) => {
+router.put('/:id/exit', checkUser, async (req, res, next) => {
     try {
-        const result = await Contract.updateStatusOfContractToExit(req.user, req.body.contractId, req.body.cableImg, req.body.closedLockImg);
+        const result = await Contract.updateStatusOfContractToExit(req.user, req.params.id, req.body.cableImg, req.body.closedLockImg);
         res.send(result);
     } catch (err) {
         next(err);
     }
 });
 
-router.get('/sum', checkUser, async (req, res, next) => {
+router.get('/:id/sum', checkUser, async (req, res, next) => {
     try {
-        const result = await Contract.checkSumAndPeriodOfContractByUser(req.user, req.query.contract_id);
+        const result = await Contract.checkSumAndPeriodOfContractByUser(req.user, req.params.id);
         res.send(result);
     } catch (err) {
         next(err);

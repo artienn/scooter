@@ -156,7 +156,7 @@ router.get('/info', checkUser, async (req, res, next) => {
 router.put('/info', checkUser, async (req, res, next) => {
     try {
         const {firstName, lastName, middleName, email, birthday} = req.body;
-        const result = await User.updateInfo(req.user, firstName, lastName, middleName, email, birthday);
+        const result = await User.updateInfo(null, req.user, firstName, lastName, middleName, email, birthday);
         res.send(result);
     } catch (err) {
         next(err);
@@ -171,5 +171,17 @@ router.get('/:id', checkAdmin, async (req, res, next) => {
         next(err);
     }
 });
+
+router.put('/:id', checkAdmin, async (req, res, next) => {
+    try {
+        const {firstName, lastName, middleName, email, birthday} = req.body;
+        const result = await User.updateInfo(req.params.id, null, firstName, lastName, middleName, email, birthday);
+        res.send(result);
+    } catch (err) {
+        next(err);
+    }
+});
+
+
 
 module.exports = router;

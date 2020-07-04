@@ -25,7 +25,7 @@ exports.getPromocodes = async () => {
     return {promocodes};
 };
 
-exports.updateTariff = async (type, name = '', price = 1, maxTime = null) => {
+exports.updateTariff = async (type, name = '', price = 1, maxTime = null, userType) => {
     if (!type) throw badRequest('Enter tariff type');
     let tariff = await Tariff.findOne({type});
     if (!tariff) {
@@ -34,14 +34,22 @@ exports.updateTariff = async (type, name = '', price = 1, maxTime = null) => {
         });
     }
     if (name) tariff.name = name;
+    if (userType) tariff.userType = userType;
     if (price) tariff.price = price;
     if (maxTime) tariff.maxTime = maxTime;
     await tariff.save();
     return {message: 'ok'};
 };
 
-exports.getTariffs = async () => {
-    const tariffs = await Tariff.find();
+exports.getTariffs = async (user) => {
+    let type = null;
+    if (user) {
+        if (user.type === 'vip') type = 'vip';
+        else type = 'normal';
+    }
+    const query = {};
+    if (type) query.userType = type;
+    const tariffs = await Tariff.find(query);
     return {tariffs};
 };
 

@@ -5,13 +5,14 @@ const Tariff = new Schema({
     type: {
         type: String,
         enum: [
+            'unlock',
             'normal',
             'pause',
-            'start',
             'exit',
             'stop'
         ]
     },
+    userType: String,
     name: String,
     price: Number,
     maxTime: Number

@@ -21,7 +21,7 @@ exports.getScooterById = async (user, query) => {
 };
 
 exports.getFreeScooterById = async (_id) => {
-    const scooter = await Scooter.findOne({_id, free: true});
+    const scooter = await Scooter.findOne({_id, free: {$ne: false}});
     if (!scooter) throw notFound('Scooter not found');
     return scooter;
 };
