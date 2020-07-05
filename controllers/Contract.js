@@ -51,13 +51,12 @@ exports.createContract = async (user, body) => {
     const {scooterId, userCoords, code} = body;
     if (!scooterId || !userCoords) throw badRequest('Enter data');
     if (!user.balance && user.balance < 50) throw conflict('Pay on your balance');
-    const [scooter, tariffNormal, tariffUnlock, promocode] = await Promise.all([
+    const [scooter, tariffUnlock, promocode] = await Promise.all([
         Scooter.getFreeScooterById(scooterId),
-        Tariff.findOne({type: NORMAL, userType: user.type || 'normal'}),
         Tariff.findOne({type: UNLOCK, userType: user.type || 'normal'}),
         Balance.getActivePromocode(code, false)
     ]);
-    if (!tariffNormal || !tariffUnlock) throw notFound('Tariff not found');
+    if (!tariffUnlock) throw notFound('Tariff not found');
 
     const {coords} = scooter;
     // if (!geoLib.checkDistance(userCoords, coords)) throw conflict('Distance is too big');
@@ -69,7 +68,7 @@ exports.createContract = async (user, body) => {
             active: true,
             period: 0,
             status: {
-                value: NORMAL,
+                value: UNLOCK,
                 updatedAt: now
             },
             promocode: code,
@@ -79,7 +78,6 @@ exports.createContract = async (user, body) => {
         Scooter.updateFreeFlagOfScooter(scooter._id, false, scooter.id)
     ]);
     await ContractHistory({contract: contract._id, type: UNLOCK, start: now, end: now, price: tariffUnlock.price, click: true}).save();
-    await ContractHistory({contract: contract._id, type: NORMAL, start: now, price: tariffNormal.price, click: false}).save();
     return contract;
 };
 
@@ -88,7 +86,7 @@ exports.updateStatusOfContractToNormal = async (user, contractId) => {
         exports.getUserActiveContractByContractId(user._id, contractId),
         Tariff.findOne({type: NORMAL})
     ]);
-    if (contract.status.value !== PAUSE && contract.status.value !== STOP) throw conflict('impossible');
+    if (![STOP, PAUSE, UNLOCK].includes(contract.status.value)) throw conflict('impossible');
     if (!tariff || !tariff.price) throw notFound('Tariff not found');
     const oldStatus = contract.status.value;
     contract.status.value = NORMAL;
