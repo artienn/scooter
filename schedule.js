@@ -90,7 +90,7 @@ const updateData = async () => {
             continue;
         }
         if (scooter.hex === newData[key].hex) {
-            scooter.name = newData[key].name || null;
+            scooter.name = newData[key].name || scooter.name || null;
             await scooter.save();
             continue;
         }
