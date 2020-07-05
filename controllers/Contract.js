@@ -15,7 +15,7 @@ const EXIT = 'exit';
 exports.getUserActiveContracts = async (user = null) => {
     const query = {active: true};
     if (user) query.user = user._id;
-    const contracts = await Contract.find(query).lean();
+    const contracts = await Contract.find(query).populate('user').lean();
     return {
         contracts: contracts.map(c => {
             c.period = moment().diff(c.createdAt, 'seconds');
