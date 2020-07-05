@@ -42,7 +42,6 @@ client.on('message', (topic, message) => {
 });
 
 const deviseName = (topic, message) => {
-    console.log('success');
     const topics = topic.split('/');
     const deviceId = topics[4];
     const json = JSON.parse(message.toString());
@@ -73,7 +72,6 @@ const parseTelemetry = (topic, message) => {
 const updateData = async () => {
     const newData = JSON.parse(JSON.stringify(data));
     for (const key in newData) {
-        console.log(key, newData[key].name)
         const scooter = await Scooter.findOne({id: key});
         if (!scooter) {
             await Scooter({
