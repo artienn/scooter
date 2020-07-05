@@ -137,9 +137,9 @@ exports.updateStatusOfContractToStop = async (user, contractId) => {
     return exports.checkSumAndPeriodOfContract(user, contract);
 };
 
-exports.updateStatusOfContractToExit = async (user, contractId, cableImg, closedLockImg) => {
+exports.updateStatusOfContractToExit = async (user, contractId, cableImg, closedLockImg, warning = false) => {
     const contract = await exports.getUserActiveContractByContractId(user._id, contractId);
-    if (!cableImg || !closedLockImg) throw badRequest('Enter imgs names');
+    if ((!closedLockImg) && !warning) throw badRequest('Enter imgs names');
     contract.cableImg = cableImg;
     contract.closedLockImg = closedLockImg;
     contract.status.value = EXIT;
