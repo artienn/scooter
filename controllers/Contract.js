@@ -17,10 +17,7 @@ exports.getUserActiveContracts = async (user = null) => {
     if (user) query.user = user._id;
     const contracts = await Contract.find(query).populate({path: 'user', model: 'user', select: '_id phone balance firstName lastName'}).populate({path: 'scooter', model: 'scooter', select: '_id battery name'}).lean();
     return {
-        contracts: contracts.map(c => {
-            c.period = moment().diff(c.createdAt, 'seconds');
-            return c;
-        }), 
+        contracts,
         contractsCount: contracts.length
     };
 };
