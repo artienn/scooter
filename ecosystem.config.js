@@ -13,5 +13,12 @@ module.exports = {
             NODE_ENV: 'production',
             TZ: 'utc'
         }
+    }, {
+        name: 'scooter_user_balance',
+        script: 'updateUserBalanceSchedule.js',
+        env : {
+            NODE_ENV: 'production',
+            TZ: 'utc'
+        }
     }]
 };
