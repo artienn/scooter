@@ -41,12 +41,13 @@ exports.updateTariff = async (type, name = '', price = 1, maxTime = null, userTy
     return {message: 'ok'};
 };
 
-exports.getTariffs = async (user) => {
+exports.getTariffs = async (user, userType = null) => {
     let type = null;
     if (user) {
         if (user.type === 'vip') type = 'vip';
         else type = 'normal';
     }
+    if (userType && !user) type = userType;
     const query = {};
     if (type) query.userType = type;
     const tariffs = await Tariff.find(query);

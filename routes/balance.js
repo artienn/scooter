@@ -33,7 +33,8 @@ router.put('/promocodes/:code', checkAdmin, async (req, res, next) => {
 
 router.get('/tariffs', checkUser, async (req, res, next) => {
     try {
-        const result = await Balance.getTariffs(req.user);
+        const {userType} = req.query;
+        const result = await Balance.getTariffs(req.user, userType);
         res.send(result);
     } catch (err) {
         next(err);
