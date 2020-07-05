@@ -43,7 +43,7 @@ exports.updateScooterCoords = async (user, lat, lon) => {
     for (const contract of contracts) {
         await Promise.all([
             Scooter.updateOne({coords: {lat, lon, updatedAt: now}}),
-            ScooterCoordsHistory.updateOne({scooter: contract.scooter, contract: contract._id}, {$push: {coords: {lat, lon, now}}})
+            ScooterCoordsHistory.updateOne({scooter: contract.scooter._id, contract: contract._id}, {$push: {coords: {lat, lon, now}}})
         ]);
     }
     return {message: 'ok'};
