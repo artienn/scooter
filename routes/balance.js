@@ -43,8 +43,8 @@ router.get('/tariffs', checkUser, async (req, res, next) => {
 
 router.put('/tariffs/:type', checkAdmin, async (req, res, next) => {
     try {
-        const {name, price, maxTime} = req.body;
-        const result = await Balance.updateTariff(req.params.type, name, price, maxTime);
+        const {name, price, maxTime, userType} = req.body;
+        const result = await Balance.updateTariff(req.params.type, name, price, maxTime, userType);
         res.send(result);
     } catch (err) {
         next(err);
