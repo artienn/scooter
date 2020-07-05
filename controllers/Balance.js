@@ -27,14 +27,16 @@ exports.getPromocodes = async () => {
 
 exports.updateTariff = async (type, name = '', price = 1, maxTime = null, userType) => {
     if (!type) throw badRequest('Enter tariff type');
-    let tariff = await Tariff.findOne({type});
+    if (!userType) throw badRequest('Enter tariff user type');
+    const query = {type, userType};
+    let tariff = await Tariff.findOne(query);
     if (!tariff) {
         tariff = new Tariff({
-            type
+            type,
+            userType
         });
     }
     if (name) tariff.name = name;
-    if (userType) tariff.userType = userType;
     if (price) tariff.price = price;
     if (maxTime) tariff.maxTime = maxTime;
     await tariff.save();
