@@ -87,13 +87,14 @@ exports.updateStatusOfContractToNormal = async (user, contractId) => {
     if (!tariff || !tariff.price) throw notFound('Tariff not found');
     const oldStatus = contract.status.value;
     contract.status.value = NORMAL;
+    console.log(oldStatus)
     const salePercentPromocode = contract.contractStatusPromocode === 'all' || contract.contractStatusPromocode === NORMAL ? contract.salePercentPromocode : null;
     await Promise.all([
         contract.save(),
         exports.startStatus(contract._id, tariff.price, NORMAL, salePercentPromocode),
-        exports.endStatus(contract._id, oldStatus)
+        oldStatus === UNLOCK ? null : exports.endStatus(contract._id, oldStatus)
     ]);
-    return exports.checkSumAndPeriodOfContract(user, contract);
+    return exports.checkSumAndPeriodOfContract(contract);
 };
 
 exports.updateStatusOfContractToPause = async (user, contractId) => {
@@ -111,7 +112,7 @@ exports.updateStatusOfContractToPause = async (user, contractId) => {
         exports.startStatus(contract._id, tariff.price, PAUSE, salePercentPromocode),
         exports.endStatus(contract._id, oldStatus)
     ]);
-    return exports.checkSumAndPeriodOfContract(user, contract);
+    return exports.checkSumAndPeriodOfContract(contract);
 };
 
 exports.updateStatusOfContractToStop = async (user, contractId) => {
@@ -129,12 +130,12 @@ exports.updateStatusOfContractToStop = async (user, contractId) => {
         exports.startStatus(contract._id, tariff.price, STOP, salePercentPromocode),
         exports.endStatus(contract._id, oldStatus)
     ]);
-    return exports.checkSumAndPeriodOfContract(user, contract);
+    return exports.checkSumAndPeriodOfContract(contract);
 };
 
 exports.updateStatusOfContractToExit = async (user, contractId, cableImg, closedLockImg, warning = false) => {
     const contract = await exports.getUserActiveContractByContractId(user._id, contractId);
-    if ((!closedLockImg) && !warning) throw badRequest('Enter imgs names');
+    // if ((!closedLockImg) && !warning) throw badRequest('Enter imgs names');
     contract.cableImg = cableImg;
     contract.closedLockImg = closedLockImg;
     contract.status.value = EXIT;
@@ -146,7 +147,7 @@ exports.updateStatusOfContractToExit = async (user, contractId, cableImg, closed
         contract.save(),
         ContractHistory({contract: contractId, type: EXIT, start: new Date(), end: new Date()}).save()
     ]);
-    return exports.checkSumAndPeriodOfContract(user, contract);
+    return exports.checkSumAndPeriodOfContract(contract);
 };  
 
 exports.startStatus = async (contractId, tariffPrice, type, salePercent = null) => {
@@ -156,7 +157,7 @@ exports.startStatus = async (contractId, tariffPrice, type, salePercent = null) 
 };
 
 exports.endStatus = async (contractId, type) => {
-    return ContractHistory.updateOne({contract: contractId, type}, {$set: {end: new Date()}});
+    return ContractHistory.updateMany({contract: contractId, type}, {$set: {end: new Date()}});
 };
 
 exports.checkSumAndPeriodOfContract = async (contract = null) => {
@@ -167,6 +168,7 @@ exports.checkSumAndPeriodOfContract = async (contract = null) => {
     let saleAmount = 0;
     let periodSeconds = 0;
     for (const history of histories) {
+        console.log(history);
         if (!history.end) history.end = new Date();
         let periodSum = 0;
         let saleSum = 0;
@@ -175,7 +177,7 @@ exports.checkSumAndPeriodOfContract = async (contract = null) => {
         history.price = history.salePercent && history.salePercent <= 100 ? (history.price / 100) * (100 - history.salePercent) : history.price;
         if (!history.click) periodSum += minutes * history.price;
         else periodSum += history.price;
-        saleSum += minutes * ((history.price / 100) * (100 - (history.salePercent || 0)));
+        saleSum += minutes * ((history.price / 100) * (history.salePercent || 0));
         if (saleSum > periodSum) saleSum = periodSum;
         periodSum -= saleSum;
         period += minutes;
