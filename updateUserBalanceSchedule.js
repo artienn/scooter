@@ -36,7 +36,7 @@ const updateUserBalance = async () => {
                 User.updateOne({_id: contract.user._id}, {$inc: {amount}})
             ]);
         } else {
-            await Balance.putUserBalance(contract.user._id, - amount, 'contract', contract._id);
+            await Balance.putUserBalance(contract.user._id, amount, 'contract', contract._id);
         }
     }
 };
