@@ -6,6 +6,7 @@ const Distance = require('geo-distance');
 const geoLib = require('../libs/geoLib');
 const moment = require('moment');
 const DISTANCE_BETWEEN_USER_AND_SCOOTER = 5;
+const flespi = require('../libs/flespi');
 const STOP = 'stop';
 const NORMAL = 'normal';
 const PAUSE = 'pause';
@@ -87,10 +88,10 @@ exports.updateStatusOfContractToNormal = async (user, contractId) => {
     if (!tariff || !tariff.price) throw notFound('Tariff not found');
     const oldStatus = contract.status.value;
     contract.status.value = NORMAL;
-    console.log(oldStatus)
     const salePercentPromocode = contract.contractStatusPromocode === 'all' || contract.contractStatusPromocode === NORMAL ? contract.salePercentPromocode : null;
     await Promise.all([
         contract.save(),
+        oldStatus === PAUSE ? flespi.lockScooter(contract.scooter._id, false) : null,
         exports.startStatus(contract._id, tariff.price, NORMAL, salePercentPromocode),
         oldStatus === UNLOCK ? null : exports.endStatus(contract._id, oldStatus)
     ]);
@@ -109,6 +110,7 @@ exports.updateStatusOfContractToPause = async (user, contractId) => {
     const salePercentPromocode = contract.contractStatusPromocode === 'all' || contract.contractStatusPromocode === PAUSE ? contract.salePercentPromocode : null;
     await Promise.all([
         contract.save(),
+        flespi.lockScooter(contract.scooter._id, true),
         exports.startStatus(contract._id, tariff.price, PAUSE, salePercentPromocode),
         exports.endStatus(contract._id, oldStatus)
     ]);
@@ -127,6 +129,7 @@ exports.updateStatusOfContractToStop = async (user, contractId) => {
     const salePercentPromocode = contract.contractStatusPromocode === 'all' || contract.contractStatusPromocode === STOP ? contract.salePercentPromocode : null;
     await Promise.all([
         contract.save(),
+        oldStatus === PAUSE ? flespi.lockScooter(contract.scooter._id, false) : null,
         exports.startStatus(contract._id, tariff.price, STOP, salePercentPromocode),
         exports.endStatus(contract._id, oldStatus)
     ]);
