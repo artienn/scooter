@@ -9,7 +9,7 @@ const {sendMessage} = require('./libs/sendSms');
 
 const updateUserBalance = async () => {
     let amount = 0;
-    const contracts = await Contract.getUserActiveContracts();
+    const {contracts} = await Contract.getUserActiveContracts();
     console.log(contracts)
     for (const contract of contracts) {
         if (!contract.user) {
