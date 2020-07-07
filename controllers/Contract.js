@@ -91,7 +91,7 @@ exports.updateStatusOfContractToNormal = async (user, contractId) => {
     const salePercentPromocode = contract.contractStatusPromocode === 'all' || contract.contractStatusPromocode === NORMAL ? contract.salePercentPromocode : null;
     await Promise.all([
         contract.save(),
-        oldStatus === PAUSE ? flespi.lockScooter(contract.scooter._id, false) : null,
+        oldStatus === PAUSE ? flespi.lockScooter(contract.scooter.id, false) : null,
         exports.startStatus(contract._id, tariff.price, NORMAL, salePercentPromocode),
         oldStatus === UNLOCK ? null : exports.endStatus(contract._id, oldStatus)
     ]);
@@ -110,7 +110,7 @@ exports.updateStatusOfContractToPause = async (user, contractId) => {
     const salePercentPromocode = contract.contractStatusPromocode === 'all' || contract.contractStatusPromocode === PAUSE ? contract.salePercentPromocode : null;
     await Promise.all([
         contract.save(),
-        flespi.lockScooter(contract.scooter._id, true),
+        flespi.lockScooter(contract.scooter.id, true),
         exports.startStatus(contract._id, tariff.price, PAUSE, salePercentPromocode),
         exports.endStatus(contract._id, oldStatus)
     ]);
@@ -129,7 +129,7 @@ exports.updateStatusOfContractToStop = async (user, contractId) => {
     const salePercentPromocode = contract.contractStatusPromocode === 'all' || contract.contractStatusPromocode === STOP ? contract.salePercentPromocode : null;
     await Promise.all([
         contract.save(),
-        oldStatus === PAUSE ? flespi.lockScooter(contract.scooter._id, false) : null,
+        oldStatus === PAUSE ? flespi.lockScooter(contract.scooter.id, false) : null,
         exports.startStatus(contract._id, tariff.price, STOP, salePercentPromocode),
         exports.endStatus(contract._id, oldStatus)
     ]);
