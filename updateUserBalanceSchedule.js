@@ -30,13 +30,11 @@ const updateUserBalance = async () => {
         if (userBalanceHistory) {
             if (Math.abs(amount) < Math.abs(userBalanceHistory.amount)) amount = 0;
             else amount -= userBalanceHistory.amount;
-            console.log(amount);
             userBalanceHistory.amount += amount;
-            const [e, user] = await Promise.all([
+            await Promise.all([
                 userBalanceHistory.save(),
-                User.updateOne({_id: contract.user._id}, {$inc: {amount}})
+                User.updateOne({_id: contract.user._id}, {$inc: {balance: amount}})
             ]);
-            console.log(user)
         } else {
             await Balance.putUserBalance(contract.user._id, amount, 'contract', contract._id);
         }
