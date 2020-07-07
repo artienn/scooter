@@ -29,7 +29,7 @@ exports.getFreeScooterById = async (_id) => {
 exports.updateFreeFlagOfScooter = async (scooterId, free, id) => {
     await Promise.all([
         Scooter.updateOne({_id: scooterId}, {$set: {free, lock: free}}),
-        flespi.lockScooter(id, free === true ? 1 : 0)
+        flespi.lockScooter(id, free)
     ]);
 };
 

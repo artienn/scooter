@@ -30,7 +30,7 @@ client.on('connect', () => {
 });
 
 exports.lockScooter = (scooterId, lock) => {
-    client.publish(`flespi/rest/put/gw/devices/${scooterId}/settings/sclockctrl`, `{"address":"connection","properties":{"lock": ${lock}}}`);
+    client.publish(`flespi/rest/put/gw/devices/${scooterId}/settings/sclockctrl`, `{"address":"connection","properties":{"lock": ${lock === true ? 1 : 0}}}`);
 };
 
 client.on('message', (topic, message) => {
