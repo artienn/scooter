@@ -1,9 +1,11 @@
+require('./db')();
 const schedule = require('node-schedule');
 const Contract = require('./controllers/Contract');
 const Balance = require('./controllers/Balance');
 const User = require('./schemas/User');
 const fcm = require('./libs/fcm');
 const {sendMessage} = require('./libs/sendSms');
+
 
 const updateUserBalance = async () => {
     let amount = 0;
