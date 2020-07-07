@@ -10,7 +10,6 @@ const {sendMessage} = require('./libs/sendSms');
 const updateUserBalance = async () => {
     let amount = 0;
     const {contracts} = await Contract.getUserActiveContracts();
-    console.log(contracts)
     for (const contract of contracts) {
         if (!contract.user) {
             console.error('updateUserBalanceSchedule USER NOT FOUND', contract);
@@ -31,11 +30,13 @@ const updateUserBalance = async () => {
         if (userBalanceHistory) {
             if (Math.abs(amount) < Math.abs(userBalanceHistory.amount)) amount = 0;
             else amount -= userBalanceHistory.amount;
+            console.log(amount);
             userBalanceHistory.amount += amount;
-            await Promise.all([
+            const [e, user] = await Promise.all([
                 userBalanceHistory.save(),
                 User.updateOne({_id: contract.user._id}, {$inc: {amount}})
             ]);
+            console.log(user)
         } else {
             await Balance.putUserBalance(contract.user._id, amount, 'contract', contract._id);
         }
