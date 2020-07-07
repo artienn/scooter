@@ -8,6 +8,7 @@ const {sendMessage} = require('./libs/sendSms');
 const updateUserBalance = async () => {
     let amount = 0;
     const contracts = await Contract.getUserActiveContracts();
+    console.log(contracts)
     for (const contract of contracts) {
         if (!contract.user) {
             console.error('updateUserBalanceSchedule USER NOT FOUND', contract);
@@ -17,6 +18,7 @@ const updateUserBalance = async () => {
             Contract.checkSumAndPeriodOfContract(contract),
             Balance.getUserBalanceHistoryByContractId(contract.user._id, contract._id)
         ]);
+        console.log(sum, userBalanceHistory);
         amount -= sum;
         if (!contract.user.balance || contract.user.balance < 0) {
             const text = 'Недостаточно средств на вашем счету! Пополните счет и возобновите поездку или отвезите самокат на ближайшую парковку!';
