@@ -102,7 +102,6 @@ const updateData = async () => {
         };
         scooter.battery = newData[key].battery;
         scooter.lock = newData[key].lock === true || newData[key].lock === false ? newData[key].lock : scooter.lock || true;
-        scooter.free = scooter.lock;
         scooter.name = newData[key].name || scooter.name || null;
         await scooter.save();
     }
