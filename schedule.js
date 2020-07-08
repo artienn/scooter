@@ -89,12 +89,7 @@ const updateData = async () => {
             }).save();
             continue;
         }
-        if (scooter.hex === newData[key].hex) {
-            scooter.name = newData[key].name || scooter.name || null;
-            await scooter.save();
-            continue;
-        }
-        scooter.hex = newData[key].hex;
+        scooter.name = newData[key].name || scooter.name || null;
         scooter.coords = {
             lat: newData[key].lat,
             lon: newData[key].lon,
