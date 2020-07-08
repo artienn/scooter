@@ -5,6 +5,8 @@ const Balance = require('./controllers/Balance');
 const User = require('./schemas/User');
 const fcm = require('./libs/fcm');
 const {sendMessage} = require('./libs/sendSms');
+const {scooterGoOutZone} = require('./libs/scooterErrors');
+const Scooter = require('./schemas/Scooter');
 
 
 const updateUserBalance = async () => {
@@ -41,4 +43,12 @@ const updateUserBalance = async () => {
     }
 };
 
+const checkScooters = async () => {
+    const scooters = await Scooter.find();
+    for (const scooter of scooters) {
+        await scooterGoOutZone(scooter);
+    }
+};
+
 schedule.scheduleJob('*/10 * * * * *', updateUserBalance);
+schedule.scheduleJob('*/15 * * * * *', checkScooters);
