@@ -3,8 +3,13 @@ const {notFound} = require('boom');
 const Contract = require('./Contract');
 const flespi = require('../libs/flespi');
 
-exports.listOfFreeScooters = async () => {
-    const scooters = await Scooter.find({free: {$ne: false}, lock: {$ne: false}}).sort({battery: 1});
+exports.listOfFreeScooters = async (free = true) => {
+    const query = {};
+    if (free) {
+        query.free = true;
+        query.lock = true;
+    }
+    const scooters = await Scooter.find(query).sort({battery: 1});
     for (const scooter of scooters) {
         const {battery} = scooter;
         if (battery < 15) scooter.batteryFlag = 1;

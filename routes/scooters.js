@@ -2,11 +2,12 @@ const express = require('express');
 const router = express.Router();
 const Scooter = require('../controllers/Scooter');
 
-const {checkUser} = require('../libs/jwt');
+const {checkUser, checkUserOrAdmin} = require('../libs/jwt');
 
-router.get('/', checkUser, async (req, res, next) => {
+router.get('/', checkUserOrAdmin, async (req, res, next) => {
     try {
-        const result = await Scooter.listOfFreeScooters();
+        const free = req.user ? true : req.admin ? false : true;
+        const result = await Scooter.listOfFreeScooters(free);
         res.send(result);
     } catch (err) {
         next(err);
