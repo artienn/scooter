@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const User = require('../controllers/User');
+const Balance = require('../controllers/Balance');
 const {checkUser, checkUserWithoutPhone, checkAdmin} = require('../libs/jwt');
 // const passport = require('passport');
 // require('../libs/facebookAuth');
@@ -176,6 +177,16 @@ router.put('/:id', checkAdmin, async (req, res, next) => {
     try {
         const {firstName, lastName, middleName, email, birthday} = req.body;
         const result = await User.updateInfo(req.params.id, null, firstName, lastName, middleName, email, birthday);
+        res.send(result);
+    } catch (err) {
+        next(err);
+    }
+});
+
+router.put('/:id/balance', checkAdmin, async (req, res, next) => {
+    try {
+        const {amount} = req.body;
+        const result = await Balance.putUserBalance(req.params.id, amount, 'admin');
         res.send(result);
     } catch (err) {
         next(err);

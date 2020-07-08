@@ -96,7 +96,7 @@ paths:
     get:
       tags:
       - Admin
-      summary: user list
+      summary: user by id
       parameters:
       - in: path
         name: id
@@ -104,7 +104,55 @@ paths:
         required: true
       responses:
         200:
-          description: ok        
+          description: ok  
+    put:
+      tags:
+      - Admin
+      summary: update user
+      parameters:
+      - in: path
+        name: id
+        type: string
+        required: true
+      - in: body
+        name: body
+        schema:
+          type: object
+          properties:
+            firstName:
+              type: string
+            lastName:
+              type: string
+            middleName:
+              type: string
+            email:
+              type: string
+            birthday:
+              type: string
+      responses:
+        200:
+          description: OK
+  /users/{id}/balance:
+    put:
+      tags:
+      - Admin
+      summary: update user balance
+      parameters:
+      - in: path
+        name: id
+        type: string
+        required: true
+      - in: body
+        name: body
+        schema:
+          type: object
+          properties:
+            amount:
+              type: number
+      responses:
+        200:
+          description: OK
+    
   /zones:
     put:
       tags:
