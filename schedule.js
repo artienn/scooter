@@ -1,103 +1,54 @@
-const mqtt = require('mqtt');
-const schedule = require('node-schedule');
-const {Scooter} = require('./schemas');
 require('./db')();
-
-const option = {
-    wsOptions : {
-        objectMode : false,
-        perMessageDeflate : true,
-    },
-    host : 'wss://mqtt.flespi.io:443',
-    keepalive : 60,
-    protocolVersion : 5,
-    reconnectPeriod: 10000,
-    resubscribe : false,
-    clean : true,
-    username : 'hOcM18lL3ElPrRZ7jVbUbH6MV4CckBNqdQ23McEFENiVu8QBRRlSofu87UagmNwn',
-    properties : {
-        requestResponseInformation : false,
-        requestProblemInformation : false,
-        topicAliasMaximum : 65535
-    }
-};
-let data = {};
-
-const client = mqtt.connect('mqtt://mqtt.flespi.io', option);
+const schedule = require('node-schedule');
+const Contract = require('./controllers/Contract');
+const Balance = require('./controllers/Balance');
+const User = require('./schemas/User');
+const fcm = require('./libs/fcm');
+const {sendMessage} = require('./libs/sendSms');
+const {scooterGoOutZone} = require('./libs/scooterErrors');
+const Scooter = require('./schemas/Scooter');
 
 
-client.on('connect', () => {
-    console.log('connect');
-    client.subscribe('flespi/message/gw/devices/+', {qos: 0}, (err) => {
-        if (err) console.error(err);
-    });
-    client.subscribe('flespi/state/gw/devices/+/telemetry/+', {qos: 0}, (err) => {
-        if (err) console.error(err);
-    });
-});
-
-client.on('message', (topic, message) => {
-    if (/telemetry/.test(topic)) parseTelemetry(topic, message);
-    else if (/flespi\/message\/gw\/devices/.test(topic)) deviseName(topic, message);
-});
-
-const deviseName = (topic, message) => {
-    const topics = topic.split('/');
-    const deviceId = topics[4];
-    const json = JSON.parse(message.toString());
-    const name = json['device.name'];
-    if (!data[deviceId]) data[deviceId] = {};
-    data[deviceId].name = name;
-};
-
-const keysValues = {
-    'position.longitude': 'lon',
-    'battery.level': 'battery',
-    'position.latitude': 'lat',
-    'lock.status': 'lock'
-};
-
-const parseTelemetry = (topic, message) => {
-    const topics = topic.split('/');
-    const deviceId = topics[4];
-    const key = topics.slice(6)[0];
-    if (!keysValues[key]) return;
-    if (!data[deviceId]) data[deviceId] = {};
-    data[deviceId][keysValues[key]] = message.toString();
-    if (key === 'lock.status') data[deviceId][keysValues[key]] = data[deviceId][keysValues[key]] === 'true' ? true : false;
-};
-
-const updateData = async () => {
-    const newData = JSON.parse(JSON.stringify(data));
-    for (const key in newData) {
-        const scooter = await Scooter.findOne({id: key});
-        if (!scooter) {
-            await Scooter({
-                id: key,
-                lock: newData[key].lock === true || newData[key].lock === false ? newData[key].lock : true,
-                coords: {
-                    lat: newData[key].lat,
-                    lon: newData[key].lon,
-                    updatedAt: new Date()
-                },
-                battery: newData[key].battery,
-                free: newData[key].lock === true || newData[key].lock === false ? newData[key].lock : true,
-                name: newData[key].name
-            }).save();
+const updateUserBalance = async () => {
+    let amount = 0;
+    const {contracts} = await Contract.getUserActiveContracts();
+    for (const contract of contracts) {
+        if (!contract.user) {
+            console.error('updateUserBalanceSchedule USER NOT FOUND', contract);
             continue;
         }
-        scooter.name = newData[key].name || scooter.name || null;
-        scooter.coords = {
-            lat: newData[key].lat,
-            lon: newData[key].lon,
-            updatedAt: new Date()
-        };
-        scooter.battery = newData[key].battery;
-        scooter.lock = newData[key].lock === true || newData[key].lock === false ? newData[key].lock : scooter.lock || true;
-        scooter.name = newData[key].name || scooter.name || null;
-        await scooter.save();
+        const [{sum}, {userBalanceHistory}] = await Promise.all([
+            Contract.checkSumAndPeriodOfContract(contract),
+            Balance.getUserBalanceHistoryByContractId(contract.user._id, contract._id)
+        ]);
+        console.log(sum, userBalanceHistory);
+        amount -= sum;
+        if (!contract.user.balance || contract.user.balance < 0) {
+            const text = 'Недостаточно средств на вашем счету! Пополните счет и возобновите поездку или отвезите самокат на ближайшую парковку!';
+            await Contract.updateStatusOfContractToExit(contract.user, contract._id, null, null, true);
+            if (contract.user.firebaseIds && contract.user.firebaseIds.length) await fcm(contract.user.firebaseIds, {}, text);
+            if (contract.user.phone) await sendMessage([contract.user.phone], text);
+        }
+        if (userBalanceHistory) {
+            if (Math.abs(amount) < Math.abs(userBalanceHistory.amount)) amount = 0;
+            else amount -= userBalanceHistory.amount;
+            userBalanceHistory.amount += amount;
+            await Promise.all([
+                userBalanceHistory.save(),
+                User.updateOne({_id: contract.user._id}, {$inc: {balance: amount}})
+            ]);
+        } else {
+            await Balance.putUserBalance(contract.user._id, amount, 'contract', contract._id);
+        }
     }
 };
 
+const checkScooters = async () => {
+    const scooters = await Scooter.find();
+    for (const scooter of scooters) {
+        await scooterGoOutZone(scooter);
+    }
+};
 
-schedule.scheduleJob('*/10 * * * * *', updateData);
+schedule.scheduleJob('*/10 * * * * *', updateUserBalance);
+schedule.scheduleJob('*/15 * * * * *', checkScooters);

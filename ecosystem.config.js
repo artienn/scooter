@@ -7,15 +7,15 @@ module.exports = {
             TZ: 'utc'
         }
     }, {
-        name: 'scooters',
-        script: 'schedule.js',
+        name: 'flespi',
+        script: 'scheduleFlespi.js',
         env : {
             NODE_ENV: 'production',
             TZ: 'utc'
         }
     }, {
-        name: 'scooter_user_balance',
-        script: 'updateUserBalanceSchedule.js',
+        name: 'schedule',
+        script: 'schedule.js',
         env : {
             NODE_ENV: 'production',
             TZ: 'utc'
