@@ -54,8 +54,7 @@ const keysValues = {
     'position.longitude': 'lon',
     'battery.level': 'battery',
     'position.latitude': 'lat',
-    'lock.status': 'lock',
-    'payload.hex': 'hex'
+    'lock.status': 'lock'
 };
 
 const parseTelemetry = (topic, message) => {
@@ -65,7 +64,6 @@ const parseTelemetry = (topic, message) => {
     if (!keysValues[key]) return;
     if (!data[deviceId]) data[deviceId] = {};
     data[deviceId][keysValues[key]] = message.toString();
-    if (key === 'payload.hex' && data[deviceId][keysValues[key]]) data[deviceId][keysValues[key]] = data[deviceId][keysValues[key]].replace(/"/gi, '');
     if (key === 'lock.status') data[deviceId][keysValues[key]] = data[deviceId][keysValues[key]] === 'true' ? true : false;
 };
 
@@ -76,7 +74,6 @@ const updateData = async () => {
         if (!scooter) {
             await Scooter({
                 id: key,
-                hex: newData[key].hex,
                 lock: newData[key].lock === true || newData[key].lock === false ? newData[key].lock : true,
                 coords: {
                     lat: newData[key].lat,
