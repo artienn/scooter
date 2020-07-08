@@ -7,7 +7,7 @@ exports.scooterGoOutZone = async (scooter) => {
     const zone = await Zone.findOne().lean();
     const settings = await AdminSettings.findOne().lean();
     for (const z of zone.coordinates) {
-        const result = pointInsideZones([scooter.coords.lat, scooter.coords.lon], z);
+        const result = await pointInsideZones([scooter.coords.lat, scooter.coords.lon], z);
         console.log('RESULT', result);
         if (!result) {
             await lockScooter(scooter.id, true);
