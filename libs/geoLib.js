@@ -6,7 +6,7 @@ exports.DISTANCE_BETWEEN_USER_AND_SCOOTER = DISTANCE_BETWEEN_USER_AND_SCOOTER;
 exports.pointInsideZones = async (point, coordinates) => {
     if (point && coordinates) {
         const result = await geoLib.pointInsidePolygon(point, coordinates);
-        if (result) return true;
+        return result;
     }
     return false;
 };

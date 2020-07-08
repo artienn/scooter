@@ -4,10 +4,10 @@ const {lockScooter} = require('./flespi');
 const {pointInsideZones, checkDistance} = require('./geoLib');
 
 exports.scooterGoOutZone = async (scooter) => {
-    const zone = await Zone.findOne().lean();
+    const zones = await Zone.find().lean();
     const settings = await AdminSettings.findOne().lean();
-    for (const z of zone.coordinates) {
-        const result = await pointInsideZones([scooter.coords.lat, scooter.coords.lon], z);
+    for (const zone of zones) {
+        const result = await pointInsideZones([scooter.coords.lat, scooter.coords.lon], zone.coordinates);
         console.log('RESULT', result);
         if (!result) {
             await lockScooter(scooter.id, true);
