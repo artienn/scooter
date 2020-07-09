@@ -1,11 +1,12 @@
 require('./db')();
 const schedule = require('node-schedule');
 const Contract = require('./controllers/Contract');
+const ContractModel = require('./schemas/Contract');
 const Balance = require('./controllers/Balance');
 const User = require('./schemas/User');
 const fcm = require('./libs/fcm');
 const {sendMessage} = require('./libs/sendSms');
-const {scooterGoOutZone} = require('./libs/scooterErrors');
+const {scooterGoOutZone, blockScooterWarning} = require('./libs/scooterErrors');
 const Scooter = require('./schemas/Scooter');
 
 
@@ -46,7 +47,11 @@ const updateUserBalance = async () => {
 const checkScooters = async () => {
     const scooters = await Scooter.find({});
     for (const scooter of scooters) {
-        await scooterGoOutZone(scooter);
+        const result = await scooterGoOutZone(scooter);
+        if (!result) {
+            const contract = await ContractModel.findOne({scooter: scooter._id, active: true}).populate('user');
+            await blockScooterWarning(scooter.id, scooter.name, contract && contract.user ? contract.user.phone : null);
+        }
     }
 };
 

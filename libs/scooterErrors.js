@@ -5,15 +5,23 @@ const {pointInsideZones, checkDistance} = require('./geoLib');
 
 exports.scooterGoOutZone = async (scooter) => {
     const zones = await Zone.find().lean();
-    const settings = await AdminSettings.findOne().lean();
     for (const zone of zones) {
         const result = await pointInsideZones([scooter.coords.lat, scooter.coords.lon], zone.coordinates);
         console.log('RESULT', result);
-        if (!result) {
-            await lockScooter(scooter.id, true);
-            const text = `Device ${scooter.name} go out green zone. Scooter already locked`;
-            if (settings && settings.phones) await sendMessage(settings.phones, text);
-        }
+        if (!result) return false;
+    }
+    return true;
+};
+
+exports.blockScooterWarning = async (scooterId, scooterName, userPhone) => {
+    const [settings] = await Promise.all([
+        AdminSettings.findOne().lean(), 
+        lockScooter(scooterId, true)
+    ]);
+    const text = `Device ${scooterName} go out green zone. Scooter already locked`;
+    if (settings && settings.phones) await sendMessage(settings.phones, text);
+    if (userPhone) {
+        await sendMessage([userPhone], 'Device ${scooterName} go out green zone. Scooter already locked');
     }
     return;
 };
