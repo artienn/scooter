@@ -112,7 +112,7 @@ const checkUserOrAdmin = async (req, _res, next) => {
             }
             req.admin = admin;
             req.user = user;
-            if (!req.admin) return next(unauthorized('Ошибка авторизации'));
+            if (!req.admin && !req.user) return next(unauthorized('Ошибка авторизации'));
             next();
         });
     } catch (err) {
