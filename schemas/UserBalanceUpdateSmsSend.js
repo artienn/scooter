@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
-const UserBalanceHistory = new Schema({
+const UserBalanceUpdateSmsSend = new Schema({
     user: {
         type: Schema.Types.ObjectId,
         ref: 'user'
@@ -14,4 +14,4 @@ const UserBalanceHistory = new Schema({
     timestamps: true
 });
 
-module.exports = mongoose.model('user_balance_history', UserBalanceHistory);
+module.exports = mongoose.model('user_balance_update_sms_send', UserBalanceUpdateSmsSend);
