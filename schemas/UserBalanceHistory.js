@@ -11,7 +11,8 @@ const UserBalanceHistory = new Schema({
         type: String,
         enum: [
             'pay',
-            'contract'
+            'contract',
+            'admin'
         ]
     },
     contract: {
