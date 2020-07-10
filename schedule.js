@@ -25,7 +25,7 @@ const updateUserBalance = async () => {
         console.log(sum, userBalanceHistory);
         amount -= sum;
         if (!contract.user.balance || contract.user.balance < 0) {
-            const text = 'Недостаточно средств на вашем счету! Пополните счет и возобновите поездку или отвезите самокат на ближайшую парковку!';
+            const text = 'Недостатньо коштів на вашому рахунку! Поповніть рахунок і відновіть поїздку або відвезіть самокат на найближчу парковку!';
             await Contract.updateStatusOfContractToExit(contract.user, contract._id, null, null, true);
             if (contract.user.firebaseIds && contract.user.firebaseIds.length) await fcm(contract.user.firebaseIds, {}, text);
             if (contract.user.phone) await sendMessage([contract.user.phone], text);
@@ -55,5 +55,5 @@ const checkScooters = async () => {
     }
 };
 
-schedule.scheduleJob('*/10 * * * * *', updateUserBalance);
+schedule.scheduleJob('*/20 * * * * *', updateUserBalance);
 schedule.scheduleJob('*/15 * * * * *', checkScooters);
