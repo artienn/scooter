@@ -191,6 +191,9 @@ exports.checkSumAndPeriodOfContract = async (contract = null) => {
         sum += periodSum;
         saleAmount += saleSum;
     }
+    sum = Math.ceil(sum);
+    period = Math.ceil(period);
+    saleAmount = Math.ceil(saleAmount);
     return {sum, period, saleAmount};
 };
 

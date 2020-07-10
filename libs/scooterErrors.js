@@ -21,7 +21,7 @@ exports.blockScooterWarning = async (scooterId, scooterName, userPhone) => {
     const text = `Device ${scooterName} go out green zone. Scooter already locked`;
     if (settings && settings.phones) await sendMessage(settings.phones, text);
     if (userPhone) {
-        await sendMessage([userPhone], 'Device ${scooterName} go out green zone. Scooter already locked');
+        await sendMessage([userPhone], text);
     }
     return;
 };
