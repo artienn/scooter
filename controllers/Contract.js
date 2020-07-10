@@ -31,8 +31,11 @@ exports.getUserContracts = async (user) => {
 exports.getUserContractById = async (user, contractId) => {
     const contract = await Contract.findOne({user: user._id, _id: contractId});
     if (!contract) throw notFound('Contract not found');
-    const contractData = await exports.checkSumAndPeriodOfContract(contract);
-    return {contract, ...contractData};
+    const result = {contract};
+    if (contract.active) {
+        contract.contractData = await exports.checkSumAndPeriodOfContract(contract);
+    }
+    return result;
 };
 
 exports.getUserActiveContractByContractId = async (userId, contractId) => {
@@ -150,7 +153,9 @@ exports.updateStatusOfContractToExit = async (user, contractId, cableImg, closed
         contract.save(),
         ContractHistory({contract: contractId, type: EXIT, start: new Date(), end: new Date()}).save()
     ]);
-    return exports.checkSumAndPeriodOfContract(contract);
+    const {sum, period, saleAmount} = await exports.checkSumAndPeriodOfContract(contract);
+    await Contract.updateOne({_id: contractId}, {$set: {sum, period, saleAmount}});
+    return {sum, period, saleAmount};
 };  
 
 exports.startStatus = async (contractId, tariffPrice, type, salePercent = null) => {
@@ -169,7 +174,6 @@ exports.checkSumAndPeriodOfContract = async (contract = null) => {
     let sum = 0;
     let period = 0;
     let saleAmount = 0;
-    let periodSeconds = 0;
     for (const history of histories) {
         console.log(history);
         if (!history.end) history.end = new Date();
@@ -184,11 +188,10 @@ exports.checkSumAndPeriodOfContract = async (contract = null) => {
         if (saleSum > periodSum) saleSum = periodSum;
         periodSum -= saleSum;
         period += seconds;
-        periodSeconds += seconds;
         sum += periodSum;
         saleAmount += saleSum;
     }
-    return {sum, period, saleAmount, periodSeconds};
+    return {sum, period, saleAmount};
 };
 
 exports.checkSumAndPeriodOfContractByUser = async (user, contractId) => {

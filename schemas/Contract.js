@@ -28,7 +28,9 @@ const Contract = new Schema({
     },
     promocode: String,
     contractStatusPromocode: String,
-    salePercentPromocode: Number
+    salePercentPromocode: Number,
+    period: Number, 
+    saleAmount: Number
 }, {
     timestamps: true
 });
