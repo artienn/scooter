@@ -58,7 +58,8 @@ exports.createContract = async (user, body) => {
         Balance.getActivePromocode(code, false)
     ]);
     if (!tariffUnlock) throw notFound('Tariff not found');
-
+    if (!scooter.battery || scooter.battery < 5) throw conflict('Battery is empty');
+    if (scooter.viewed === false) throw conflict('Scooter not viewed');
     const {coords} = scooter;
     // if (!geoLib.checkDistance(userCoords, coords)) throw conflict('Distance is too big');
     const now = new Date();

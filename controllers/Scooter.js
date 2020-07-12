@@ -4,7 +4,7 @@ const Contract = require('./Contract');
 const flespi = require('../libs/flespi');
 
 exports.listOfFreeScooters = async (free = true) => {
-    const query = {};
+    const query = {battery: {$gte: 10}, viewed: {$ne: false}};
     if (free) {
         query.free = true;
     }

@@ -23,6 +23,10 @@ const Scooter = new Schema({
         min: 1,
         max: 3
     },
+    viewed: {
+        type: Boolean,
+        default: true
+    },
     lock: Boolean,
     name: String
 }, {
