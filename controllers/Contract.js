@@ -29,13 +29,11 @@ exports.getUserContracts = async (user) => {
 };
 
 exports.getUserContractById = async (user, contractId) => {
-    const contract = await Contract.findOne({user: user._id, _id: contractId});
+    const contract = await Contract.findOne({user: user._id, _id: contractId}).lean();
     if (!contract) throw notFound('Contract not found');
     const result = {contract};
-    console.log(contract);
     if (contract.active) {
         contract.contractData = await exports.checkSumAndPeriodOfContract(contract);
-        console.log(contract);
     }
     return result;
 };
