@@ -161,12 +161,12 @@ exports.updateStatusOfContractToExit = async (user, contractId, cableImg, closed
 exports.startStatus = async (contractId, tariffPrice, type, salePercent = null) => {
     const now = new Date();
     // tariffPrice = salePercent && salePercent < 100 ? (tariffPrice / 100) * (100 - salePercent) : tariffPrice;
-    const click = [NORMAL, PAUSE, STOP].includes(type) ? false : true
-    return ContractHistory({contract: contractId, type, start: now, price: tariffPrice, salePercent, click}).save();
+    const click = [NORMAL, PAUSE, STOP].includes(type) ? false : true;
+    return ContractHistory({contract: contractId, type, start: now, price: tariffPrice, salePercent, click, end: null}).save();
 };
 
 exports.endStatus = async (contractId, type) => {
-    return ContractHistory.updateMany({contract: contractId, type}, {$set: {end: new Date()}});
+    return ContractHistory.updateOne({contract: contractId, type, end: null}, {$set: {end: new Date()}});
 };
 
 exports.checkSumAndPeriodOfContract = async (contract = null) => {
