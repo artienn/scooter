@@ -34,6 +34,7 @@ exports.getUserContractById = async (user, contractId) => {
     const result = {contract};
     if (contract.active) {
         contract.contractData = await exports.checkSumAndPeriodOfContract(contract);
+        console.log(contract);
     }
     return result;
 };
