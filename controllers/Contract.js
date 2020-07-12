@@ -85,7 +85,7 @@ exports.createContract = async (user, body) => {
 exports.updateStatusOfContractToNormal = async (user, contractId) => {
     const [contract, tariff] = await Promise.all([
         exports.getUserActiveContractByContractId(user._id, contractId),
-        Tariff.findOne({type: NORMAL})
+        Tariff.findOne({type: NORMAL, userType: user.type || 'normal'})
     ]);
     if (![STOP, PAUSE, UNLOCK].includes(contract.status.value)) throw conflict('impossible');
     if (!tariff || !tariff.price) throw notFound('Tariff not found');
@@ -104,7 +104,7 @@ exports.updateStatusOfContractToNormal = async (user, contractId) => {
 exports.updateStatusOfContractToPause = async (user, contractId) => {
     const [contract, tariff] = await Promise.all([
         exports.getUserActiveContractByContractId(user._id, contractId),
-        Tariff.findOne({type: PAUSE})
+        Tariff.findOne({type: PAUSE, userType: user.type})
     ]);
     if (contract.status.value !== NORMAL) throw conflict('Impossible');
     if (!tariff) throw notFound('Tariff not found');
@@ -123,7 +123,7 @@ exports.updateStatusOfContractToPause = async (user, contractId) => {
 exports.updateStatusOfContractToStop = async (user, contractId) => {
     const [contract, tariff] = await Promise.all([
         exports.getUserActiveContractByContractId(user._id, contractId),
-        Tariff.findOne({type: STOP})
+        Tariff.findOne({type: STOP, userType: user.type})
     ]);
     if (![NORMAL, PAUSE].includes(contract.status.value)) throw conflict('Impossible');
     if (!tariff) throw notFound('Tariff not found');
@@ -161,7 +161,8 @@ exports.updateStatusOfContractToExit = async (user, contractId, cableImg, closed
 exports.startStatus = async (contractId, tariffPrice, type, salePercent = null) => {
     const now = new Date();
     // tariffPrice = salePercent && salePercent < 100 ? (tariffPrice / 100) * (100 - salePercent) : tariffPrice;
-    return ContractHistory({contract: contractId, type, start: now, price: tariffPrice, salePercent, click: [NORMAL, PAUSE, STOP].includes(type) ? false : true}).save();
+    const click = [NORMAL, PAUSE, STOP].includes(type) ? false : true
+    return ContractHistory({contract: contractId, type, start: now, price: tariffPrice, salePercent, click}).save();
 };
 
 exports.endStatus = async (contractId, type) => {
@@ -180,7 +181,8 @@ exports.checkSumAndPeriodOfContract = async (contract = null) => {
         let periodSum = 0;
         let saleSum = 0;
         // const minutes = Math.ceil(moment(history.end).diff(history.start, 'minutes', true));
-        const seconds = Math.ceil(moment(history.end).diff(history.start, 'seconds', true));
+        const seconds = Math.ceil(moment(history.end).diff(history.start, 'seconds'));
+        console.log(seconds);
         history.price = history.salePercent && history.salePercent <= 100 ? (history.price / 100) * (100 - history.salePercent) : history.price;
         if (!history.click) periodSum += seconds * history.price;
         else periodSum += history.price;
@@ -192,6 +194,7 @@ exports.checkSumAndPeriodOfContract = async (contract = null) => {
         saleAmount += saleSum;
     }
     sum = Math.ceil(sum);
+    console.log(period);
     period = Math.ceil(period);
     saleAmount = Math.ceil(saleAmount);
     return {sum, period, saleAmount};
