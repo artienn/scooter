@@ -7,6 +7,7 @@ exports.listOfFreeScooters = async (free = true) => {
     const query = {battery: {$gte: 10}, viewed: {$ne: false}};
     if (free) {
         query.free = true;
+        query.lock = true;
     }
     const scooters = await Scooter.find(query).sort({battery: 1});
     for (const scooter of scooters) {
@@ -25,7 +26,7 @@ exports.getScooterById = async (user, query) => {
 };
 
 exports.getFreeScooterById = async (_id) => {
-    const scooter = await Scooter.findOne({_id, free: {$ne: false}});
+    const scooter = await Scooter.findOne({_id, free: {$ne: false}, lock: true});
     if (!scooter) throw notFound('Scooter not found');
     return scooter;
 };
