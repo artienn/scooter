@@ -594,6 +594,26 @@ paths:
           description: not found
         500:
           description: server error
+  /scooters/{id}/info:
+    put:
+      tags:
+      - Scooters
+      summary: update scooters 
+      parameters:
+      - in: path
+        name: id
+        type: string
+        required: true
+      - in: body
+        name: body
+        schema:
+          type: object
+          properties:
+            viewed:
+              type: boolean
+      responses:
+        200:
+          description: ok
   /contracts:
     post:
       tags:

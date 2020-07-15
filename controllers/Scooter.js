@@ -31,6 +31,14 @@ exports.getFreeScooterById = async (_id) => {
     return scooter;
 };
 
+exports.updateScooter = async (_id, viewed) => {
+    const scooter = await Scooter.findById(_id);
+    if (!scooter) throw notFound('Scooter not found');
+    if (viewed === false || viewed === true) scooter.viewed = viewed;
+    await scooter.save();
+    return {message: 'ok'};
+};
+
 exports.updateFreeFlagOfScooter = async (scooterId, free, id) => {
     await Promise.all([
         Scooter.updateOne({_id: scooterId}, {$set: {free, lock: free}}),
