@@ -45,6 +45,9 @@ exports.getUserList = async (page, limit, phone, name, type) => {
     const skip = limit * (page - 1);
     const query = {};
     if (phone) {
+        while (phone.includes('+')) {
+            phone = phone.replace('+', '');
+        }
         query.phone = new RegExp(phone, 'gi');
     }
     if (name) {
