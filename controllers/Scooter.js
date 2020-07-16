@@ -4,11 +4,11 @@ const Contract = require('./Contract');
 const flespi = require('../libs/flespi');
 
 exports.listOfFreeScooters = async (free = true) => {
-    const query = {battery: {$gte: 10}, viewed: {$ne: false}};
+    const query = {battery: {$gte: 10}};
     if (free) {
         query.free = true;
         query.lock = true;
-    }
+    } else query.viewed = {$ne: false};
     const scooters = await Scooter.find(query).sort({battery: 1});
     for (const scooter of scooters) {
         const {battery} = scooter;
