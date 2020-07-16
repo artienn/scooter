@@ -39,18 +39,15 @@ exports.sendPush = async (text, userType) => {
     const query = {};
     if (userType) query.type = userType;
     const total = await User.countDocuments(query);
-    const limit = 50;
+    const limit = 100;
     let skip = 0;
     while(skip < total) {
         const users = await User.find(query, {firebaseIds: 1}).skip(skip).limit(limit);
         let firebaseIds = [];
         for (const user of users) {
             firebaseIds.push(...user.firebaseIds);
-            if (firebaseIds.length > 10) {
-                await SystemQueue.addToSystemQueue('push', null, firebaseIds, text, {});
-                firebaseIds = [];
-            }
         }
+        await fcm(firebaseIds, {}, text);
         skip += limit;
     }
     return {message: 'ok'};

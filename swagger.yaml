@@ -276,6 +276,24 @@ paths:
       responses:
         200:
           description: ok
+  /admins/push_notifications:
+    post:
+      tags:
+      - Admin
+      summary: send push for all users
+      parameters:
+      - in: body
+        name: body
+        schema:
+          type: object
+          properties:
+            text:
+              type: string
+            userType: 
+              type: string
+      responses:
+        200:
+          description: ok
   /users/code:
     post:
       tags:

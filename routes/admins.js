@@ -32,4 +32,14 @@ router.put('/settings', checkAdmin, async (req, res, next) => {
     }
 });
 
+router.post('/push_notifications', checkAdmin, async (req, res, next) => {
+    try {
+        const {text, userType} = req.body;
+        const result = await Admin.sendPush(text, userType);
+        res.send(result);
+    } catch (err) {
+        next(err);
+    }
+});
+
 module.exports = router;
