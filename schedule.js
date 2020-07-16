@@ -8,6 +8,7 @@ const fcm = require('./libs/fcm');
 const {sendMessage} = require('./libs/sendSms');
 const {scooterGoOutZone, blockScooterWarning} = require('./libs/scooterErrors');
 const Scooter = require('./schemas/Scooter');
+const GoOutZoneOfScooter = require('./schemas');
 
 
 const updateUserBalance = async () => {
@@ -51,6 +52,8 @@ const checkScooters = async () => {
         if (!result) {
             const contract = await ContractModel.findOne({scooter: scooter._id, active: true}).populate('user');
             await blockScooterWarning(scooter.id, scooter.name, contract && contract.user ? contract.user.phone : null);
+        } else {
+            await GoOutZoneOfScooter.remove({scooter: scooter._id});
         }
     }
 };

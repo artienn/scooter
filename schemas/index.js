@@ -20,3 +20,4 @@ exports.AdminSettings = require('./AdminSettings');
 exports.SystemQueue = require('./SystemQueue');
 exports.UserBalanceHistory = require('./UserBalanceHistory');
 exports.UserBalanceUpdateSmsSend = require('./UserBalanceUpdateSmsSend');
+exports.GoOutZoneOfScooter = require('./GoOutZoneOfScooter');

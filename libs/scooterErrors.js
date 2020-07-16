@@ -1,5 +1,5 @@
 const {sendMessage} = require('./sendSms');
-const {Zone, AdminSettings} = require('../schemas');
+const {Zone, AdminSettings, GoOutZoneOfScooter} = require('../schemas');
 const {lockScooter} = require('./flespi');
 const {pointInsideZones, checkDistance} = require('./geoLib');
 
@@ -14,15 +14,17 @@ exports.scooterGoOutZone = async (scooter) => {
 };
 
 exports.blockScooterWarning = async (scooterId, scooterName, userPhone) => {
-    const [settings] = await Promise.all([
+    const [settings, goOutZone] = await Promise.all([
         AdminSettings.findOne().lean(), 
+        GoOutZoneOfScooter.findOne({scooter: scooterId}),
         lockScooter(scooterId, true)
     ]);
-    const text = `Device ${scooterName} go out green zone. Scooter already locked`;
-    if (settings && settings.phones) await sendMessage(settings.phones, text);
-    if (userPhone) {
+    const text = `Самокат ${scooterName} вийшов із зеленої зони.  Самокат заблокований. Поверніться до зеленої зони і зателефонуйте в службу підтримки.  Ми його розблокуємо.`;
+    if (settings && settings.phones && !goOutZone) await sendMessage(settings.phones, text);
+    if (userPhone && !goOutZone) {
         await sendMessage([userPhone], text);
     }
+    await GoOutZoneOfScooter({scooter: scooterId}).save();
     return;
 };
 
