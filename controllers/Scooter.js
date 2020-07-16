@@ -8,7 +8,8 @@ exports.listOfFreeScooters = async (free = true) => {
     if (free) {
         query.free = true;
         query.lock = true;
-    } else query.viewed = {$ne: false};
+        query.viewed = {$ne: false};
+    }
     const scooters = await Scooter.find(query).sort({battery: 1});
     for (const scooter of scooters) {
         const {battery} = scooter;
