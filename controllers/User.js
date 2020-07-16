@@ -218,7 +218,8 @@ exports.updateInfo = async (userId, user, firstName, lastName, middleName, email
     const data = {};
     const queries = [];
     if (userId) {
-        user = await exports.getUserById(userId);
+        const result = await exports.getUserById(userId);
+        user = result.user;
     }
     if ((firstName || firstName === '') && user.firstName !== firstName) data.firstName = firstName;
     if ((lastName || lastName === '') && user.lastName !== lastName) data.lastName = lastName;
