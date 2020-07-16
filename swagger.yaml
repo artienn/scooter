@@ -129,6 +129,8 @@ paths:
               type: string
             birthday:
               type: string
+            type:
+              type: string
       responses:
         200:
           description: OK

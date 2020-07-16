@@ -214,7 +214,7 @@ exports.createProblemRequest = async (userId, description, scooterId) => {
     return request;
 };
 
-exports.updateInfo = async (userId, user, firstName, lastName, middleName, email, birthday) => {
+exports.updateInfo = async (userId, user, firstName, lastName, middleName, email, birthday, type) => {
     const data = {};
     const queries = [];
     if (userId) {
@@ -223,6 +223,7 @@ exports.updateInfo = async (userId, user, firstName, lastName, middleName, email
     if ((firstName || firstName === '') && user.firstName !== firstName) data.firstName = firstName;
     if ((lastName || lastName === '') && user.lastName !== lastName) data.lastName = lastName;
     if ((middleName || middleName === '') && user.middleName !== middleName) data.middleName = middleName;
+    if ((type || type === '') && user.type !== type) data.type = type;
     if ((email || email === '') && user.email !== email) {
         if (email && !validate(email)) throw badRequest('Incorrect email');
         queries.push({email});
