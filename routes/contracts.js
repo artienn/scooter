@@ -41,9 +41,9 @@ router.get('/statuses', checkAdmin, async (_req, res, next) => {
     }
 });
 
-router.get('/:id', checkUser, async (req, res, next) => {
+router.get('/:id', checkUserOrAdmin, async (req, res, next) => {
     try {
-        const result = await Contract.getUserContractById(req.user, req.params.id);
+        const result = await Contract.getUserContractById(req.user || req.admin, req.params.id);
         res.send(result);
     } catch (err) {
         next(err);

@@ -30,7 +30,9 @@ exports.getUserContracts = async (user) => {
 };
 
 exports.getUserContractById = async (user, contractId) => {
-    const contract = await Contract.findOne({user: user._id, _id: contractId}).lean();
+    const query = {_id: contractId};
+    if (user.userType) query.user = user._id;
+    const contract = await Contract.findOne(query).lean();
     if (!contract) throw notFound('Contract not found');
     const result = {contract};
     if (contract.active) {
