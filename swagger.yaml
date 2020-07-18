@@ -691,6 +691,10 @@ paths:
       tags:
       - Contracts
       summary: get active contract
+      parameters:
+      - in: query
+        name: active
+        type: boolean
       responses:
         200:
           description: ok

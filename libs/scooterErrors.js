@@ -17,14 +17,14 @@ exports.blockScooterWarning = async (scooterId, scooterName, userPhone) => {
     const [settings, goOutZone] = await Promise.all([
         AdminSettings.findOne().lean(), 
         GoOutZoneOfScooter.findOne({scooter: scooterId}),
-        lockScooter(scooterId, true)
+        // lockScooter(scooterId, true)
     ]);
     const text = `Самокат ${scooterName} вийшов із зеленої зони.  Самокат заблокований. Поверніться до зеленої зони і зателефонуйте в службу підтримки.  Ми його розблокуємо.`;
     if (settings && settings.phones && !goOutZone) await sendMessage(settings.phones, text);
     if (userPhone && !goOutZone) {
         await sendMessage([userPhone], text);
     }
-    await GoOutZoneOfScooter({scooter: scooterId}).save();
+    if (!goOutZone) await GoOutZoneOfScooter({scooter: scooterId}).save();
     return;
 };
 
