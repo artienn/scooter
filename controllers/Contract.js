@@ -13,8 +13,9 @@ const PAUSE = 'pause';
 const UNLOCK = 'start';
 const EXIT = 'exit';
 
-exports.getUserActiveContracts = async (user = null) => {
-    const query = {active: true};
+exports.getUserActiveContracts = async (user = null, active = true) => {
+    const query = {};
+    if (active) query.active = true;
     if (user) query.user = user._id;
     const contracts = await Contract.find(query).populate({path: 'user', model: 'user', select: '_id phone balance firstName lastName'}).populate({path: 'scooter', model: 'scooter', select: '_id battery name'}).lean();
     return {

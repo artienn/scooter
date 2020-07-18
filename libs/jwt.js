@@ -104,7 +104,7 @@ const checkUserOrAdmin = async (req, _res, next) => {
             try {
                 [admin, user] = await Promise.all([
                     Admin.findById(req.authData._id, {password: 0, __v: 0}).lean(),
-                    mongoose.model('user').findById(req.authData._id, {password: 0, __v: 0}).lean()
+                    User.findById(req.authData._id, {password: 0, __v: 0}).lean()
                 ]);
             } catch (err) {
                 return next(err);

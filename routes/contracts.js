@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const Contract = require('../controllers/Contract');
 const {enumStatuses} = require('../config');
-const {checkUser, checkAdmin} = require('../libs/jwt');
+const {checkUser, checkAdmin, checkUserOrAdmin} = require('../libs/jwt');
 
 router.post('/', checkUser, async (req, res, next) => {
     try {
@@ -13,9 +13,10 @@ router.post('/', checkUser, async (req, res, next) => {
     }
 });
 
-router.get('/active', checkUser, async (req, res, next) => {
+router.get('/active', checkUserOrAdmin, async (req, res, next) => {
     try {
-        const result = await Contract.getUserActiveContracts(req.user);
+        const {active = 'true'} = req.query;
+        const result = await Contract.getUserActiveContracts(req.user, active === 'false' ? false : true);
         res.send(result);
     } catch (err) {
         next(err);
