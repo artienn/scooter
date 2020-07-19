@@ -1,4 +1,4 @@
-const {Tariff, Contract, ContractHistory} = require('../schemas');
+const {Tariff, Contract, ContractHistory, User} = require('../schemas');
 const {conflict, badRequest, notFound} = require('boom');
 const Scooter = require('./Scooter');
 const Balance = require('./Balance');
@@ -12,6 +12,13 @@ const NORMAL = 'normal';
 const PAUSE = 'pause';
 const UNLOCK = 'start';
 const EXIT = 'exit';
+
+const notUserOnUpdateContractStatus = async (contractId) => {
+    const contract = await Contract.findById(contractId);
+    if (!contract) throw notFound('Contract not found');
+    const user = await User.findById(contract.user);
+    return user;
+};
 
 exports.getUserActiveContracts = async (user = null, active = true) => {
     const query = {};
@@ -87,6 +94,9 @@ exports.createContract = async (user, body) => {
 };
 
 exports.updateStatusOfContractToNormal = async (user, contractId) => {
+    if (!user) {
+        user = await notUserOnUpdateContractStatus(contractId);
+    }
     const [contract, tariff] = await Promise.all([
         exports.getUserActiveContractByContractId(user._id, contractId),
         Tariff.findOne({type: NORMAL, userType: user.type || 'normal'})
@@ -106,6 +116,9 @@ exports.updateStatusOfContractToNormal = async (user, contractId) => {
 };
 
 exports.updateStatusOfContractToPause = async (user, contractId) => {
+    if (!user) {
+        user = await notUserOnUpdateContractStatus(contractId);
+    }
     const [contract, tariff] = await Promise.all([
         exports.getUserActiveContractByContractId(user._id, contractId),
         Tariff.findOne({type: PAUSE, userType: user.type})
@@ -125,6 +138,9 @@ exports.updateStatusOfContractToPause = async (user, contractId) => {
 };
 
 exports.updateStatusOfContractToStop = async (user, contractId) => {
+    if (!user) {
+        user = await notUserOnUpdateContractStatus(contractId);
+    }
     const [contract, tariff] = await Promise.all([
         exports.getUserActiveContractByContractId(user._id, contractId),
         Tariff.findOne({type: STOP, userType: user.type})
@@ -144,6 +160,9 @@ exports.updateStatusOfContractToStop = async (user, contractId) => {
 };
 
 exports.updateStatusOfContractToExit = async (user, contractId, cableImg, closedLockImg, warning = false) => {
+    if (!user) {
+        user = await notUserOnUpdateContractStatus(contractId);
+    }
     const contract = await exports.getUserActiveContractByContractId(user._id, contractId);
     // if ((!closedLockImg) && !warning) throw badRequest('Enter imgs names');
     contract.cableImg = cableImg;
