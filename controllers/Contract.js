@@ -160,11 +160,13 @@ exports.updateStatusOfContractToStop = async (user, contractId) => {
 };
 
 exports.updateStatusOfContractToExit = async (user, contractId, cableImg, closedLockImg, warning = false) => {
+    const isAdmin = user ? false : true;
     if (!user) {
         user = await notUserOnUpdateContractStatus(contractId);
     }
     const contract = await exports.getUserActiveContractByContractId(user._id, contractId);
     // if ((!closedLockImg) && !warning) throw badRequest('Enter imgs names');
+    if (!isAdmin && ![STOP].includes(contract.status.value)) throw conflict('Impossible');
     contract.cableImg = cableImg;
     contract.closedLockImg = closedLockImg;
     contract.status.value = EXIT;
