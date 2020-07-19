@@ -15,7 +15,7 @@ exports.scooterGoOutZone = async (scooter) => {
 exports.blockScooterWarning = async (_id, scooterId, scooterName, userPhone) => {
     const [settings, goOutZone] = await Promise.all([
         AdminSettings.findOne().lean(), 
-        GoOutZoneOfScooter.findOne({scooter: scooterId}),
+        GoOutZoneOfScooter.findOne({scooter: _id}),
         // lockScooter(scooterId, true)
     ]);
     const text = `Самокат ${scooterName} вийшов із зеленої зони.  Самокат заблокований. Поверніться до зеленої зони і зателефонуйте в службу підтримки.  Ми його розблокуємо.`;
