@@ -50,7 +50,7 @@ router.get('/:id', checkUserOrAdmin, async (req, res, next) => {
     }
 });
 
-router.put('/:id/pause', checkUser, async (req, res, next) => {
+router.put('/:id/pause', checkUserOrAdmin, async (req, res, next) => {
     try {
         const result = await Contract.updateStatusOfContractToPause(req.user, req.params.id);
         res.send(result);
@@ -59,7 +59,7 @@ router.put('/:id/pause', checkUser, async (req, res, next) => {
     }
 });
 
-router.put('/:id/normal', checkUser, async (req, res, next) => {
+router.put('/:id/normal', checkUserOrAdmin, async (req, res, next) => {
     try {
         const result = await Contract.updateStatusOfContractToNormal(req.user, req.params.id);
         res.send(result);
@@ -68,7 +68,7 @@ router.put('/:id/normal', checkUser, async (req, res, next) => {
     }
 });
 
-router.put('/:id/stop', checkUser, async (req, res, next) => {
+router.put('/:id/stop', checkUserOrAdmin, async (req, res, next) => {
     try {
         const result = await Contract.updateStatusOfContractToStop(req.user, req.params.id);
         res.send(result);
@@ -77,7 +77,7 @@ router.put('/:id/stop', checkUser, async (req, res, next) => {
     }
 });
 
-router.put('/:id/exit', checkUser, async (req, res, next) => {
+router.put('/:id/exit', checkUserOrAdmin, async (req, res, next) => {
     try {
         const result = await Contract.updateStatusOfContractToExit(req.user, req.params.id, req.body.cableImg, req.body.closedLockImg);
         res.send(result);
