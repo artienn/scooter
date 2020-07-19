@@ -27,7 +27,7 @@ const updateUserBalance = async () => {
         amount -= sum;
         if (!contract.user.balance || contract.user.balance < 0) {
             const text = 'Недостатньо коштів на вашому рахунку! Поповніть рахунок і відновіть поїздку або відвезіть самокат на найближчу парковку!';
-            await Contract.updateStatusOfContractToExit(contract.user, contract._id, null, null, true);
+            await Contract.updateStatusOfContractToExit(null, contract._id, null, null, true);
             if (contract.user.firebaseIds && contract.user.firebaseIds.length) await fcm(contract.user.firebaseIds, {}, text);
             if (contract.user.phone) await sendMessage([contract.user.phone], text);
         }
@@ -51,7 +51,7 @@ const checkScooters = async () => {
         const result = await scooterGoOutZone(scooter);
         if (!result) {
             const contract = await ContractModel.findOne({scooter: scooter._id, active: true}).populate('user');
-            await blockScooterWarning(scooter.id, scooter.name, contract && contract.user ? contract.user.phone : null);
+            await blockScooterWarning(scooter._id, scooter.id, scooter.name, contract && contract.user ? contract.user.phone : null);
         } else {
             await GoOutZoneOfScooter.deleteMany({scooter: scooter._id});
         }

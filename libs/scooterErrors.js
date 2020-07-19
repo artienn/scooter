@@ -12,7 +12,7 @@ exports.scooterGoOutZone = async (scooter) => {
     return true;
 };
 
-exports.blockScooterWarning = async (scooterId, scooterName, userPhone) => {
+exports.blockScooterWarning = async (_id, scooterId, scooterName, userPhone) => {
     const [settings, goOutZone] = await Promise.all([
         AdminSettings.findOne().lean(), 
         GoOutZoneOfScooter.findOne({scooter: scooterId}),
@@ -23,7 +23,7 @@ exports.blockScooterWarning = async (scooterId, scooterName, userPhone) => {
     if (userPhone && !goOutZone) {
         await sendMessage([userPhone], text);
     }
-    if (!goOutZone) await GoOutZoneOfScooter({scooter: scooterId}).save();
+    if (!goOutZone) await GoOutZoneOfScooter({scooter: _id}).save();
     return;
 };
 
