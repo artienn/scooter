@@ -26,6 +26,7 @@ const updateUserBalance = async () => {
         console.log(sum, userBalanceHistory ? userBalanceHistory.amount : 0,  contract.user, contract.scooter);
         amount -= sum;
         if (!contract.user.balance || contract.user.balance < 0) {
+            console.log('NULL BALANCE', contract && contract.scooter ? contract.scooter.name : 0, contract.user.balance);
             const text = 'Недостатньо коштів на вашому рахунку! Поповніть рахунок і відновіть поїздку або відвезіть самокат на найближчу парковку!';
             await Contract.updateStatusOfContractToExit(null, contract._id, null, null, true);
             if (contract.user.firebaseIds && contract.user.firebaseIds.length) await fcm(contract.user.firebaseIds, {}, text);
