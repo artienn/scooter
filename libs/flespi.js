@@ -33,7 +33,3 @@ exports.lockScooter = (scooterId, lock) => {
     console.log('Publish lock', scooterId, lock);
     client.publish(`flespi/rest/put/gw/devices/${scooterId}/settings/sclockctrl`, `{"address":"connection","properties":{"lock": ${lock === true ? 1 : 0}}}`);
 };
-
-client.on('message', (topic, message) => {
-    console.log(topic, message.toString());
-});
