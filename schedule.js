@@ -51,7 +51,8 @@ const checkScooters = async () => {
         const result = await scooterGoOutZone(scooter);
         if (!result) {
             const contract = await ContractModel.findOne({scooter: scooter._id, active: true}).populate('user');
-            await blockScooterWarning(scooter._id, scooter.id, scooter.name, contract && contract.user ? contract.user.phone : null);
+            const userPhone = (contract && contract.user) ? contract.user.phone : null;
+            await blockScooterWarning(scooter._id, scooter.id, scooter.name, userPhone);
         } else {
             await GoOutZoneOfScooter.deleteMany({scooter: scooter._id});
         }
