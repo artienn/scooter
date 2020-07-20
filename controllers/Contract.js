@@ -202,13 +202,11 @@ exports.checkSumAndPeriodOfContract = async (contract = null) => {
     let period = 0;
     let saleAmount = 0;
     for (const history of histories) {
-        console.log(history);
         if (!history.end) history.end = new Date();
         let periodSum = 0;
         let saleSum = 0;
         // const minutes = Math.ceil(moment(history.end).diff(history.start, 'minutes', true));
         const seconds = Math.ceil(moment(history.end).diff(history.start, 'seconds'));
-        console.log(seconds);
         history.price = history.salePercent && history.salePercent <= 100 ? (history.price / 100) * (100 - history.salePercent) : history.price;
         if (!history.click) periodSum += seconds * history.price;
         else periodSum += history.price;
