@@ -18,7 +18,7 @@ exports.blockScooterWarning = async (_id, scooterId, scooterName, userPhone) => 
         GoOutZoneOfScooter.findOne({scooter: _id}),
         // lockScooter(scooterId, true)
     ]);
-    const text = `Самокат ${scooterName} покинув зелену зону.  Поверніться до зеленої зони.`;
+    const text = `Самокат ${scooterName} покинув зелену зону. Поверніться до зеленої зони.`;
     if (settings && settings.phones && !goOutZone) await sendMessage(settings.phones, text);
     console.log('USERPHONE', userPhone);
     if (userPhone && !goOutZone) {

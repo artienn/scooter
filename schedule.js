@@ -23,7 +23,7 @@ const updateUserBalance = async () => {
             Contract.checkSumAndPeriodOfContract(contract),
             Balance.getUserBalanceHistoryByContractId(contract.user._id, contract._id)
         ]);
-        console.log(sum, userBalanceHistory);
+        console.log(sum, contract.user, contract.scooter);
         amount -= sum;
         if (!contract.user.balance || contract.user.balance < 0) {
             const text = 'Недостатньо коштів на вашому рахунку! Поповніть рахунок і відновіть поїздку або відвезіть самокат на найближчу парковку!';

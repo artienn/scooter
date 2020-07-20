@@ -177,7 +177,7 @@ exports.updateStatusOfContractToExit = async (user, contractId, cableImg, closed
         exports.endStatus(contractId, STOP),
         Scooter.updateFreeFlagOfScooter(contract.scooter._id, true, contract.scooter.id),
         contract.save(),
-        ContractHistory({contract: contractId, type: EXIT, start: new Date(), end: new Date()}).save()
+        ContractHistory({contract: contractId, type: EXIT, start: new Date(), end: new Date(), click: true}).save()
     ]);
     const {sum, period, saleAmount} = await exports.checkSumAndPeriodOfContract(contract);
     await Contract.updateOne({_id: contractId}, {$set: {sum, period, saleAmount}});
