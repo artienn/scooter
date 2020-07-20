@@ -20,7 +20,7 @@ exports.blockScooterWarning = async (_id, scooterId, scooterName, userPhone) => 
     ]);
     const text = `Самокат ${scooterName} покинув зелену зону. Поверніться до зеленої зони.`;
     if (settings && settings.phones && !goOutZone) await sendMessage(settings.phones, text);
-    console.log('USERPHONE', userPhone);
+    console.log('USERPHONE', userPhone, goOutZone);
     if (userPhone && !goOutZone) {
         await sendMessage([userPhone], text);
     }
