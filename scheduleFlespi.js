@@ -64,7 +64,10 @@ const parseTelemetry = (topic, message) => {
     if (!keysValues[key]) return;
     if (!data[deviceId]) data[deviceId] = {};
     data[deviceId][keysValues[key]] = message.toString();
-    if (key === 'lock.status') data[deviceId][keysValues[key]] = data[deviceId][keysValues[key]] === 'true' ? true : false;
+    if (key === 'lock.status') {
+        console.log(data[deviceId][keysValues[key]]);
+        data[deviceId][keysValues[key]] = data[deviceId][keysValues[key]] === 'true' ? true : false;
+    }
 };
 
 const updateData = async () => {
@@ -96,6 +99,7 @@ const updateData = async () => {
         scooter.lock = newData[key].lock === true || newData[key].lock === false ? newData[key].lock : scooter.lock || true;
         scooter.name = newData[key].name || scooter.name || null;
         await scooter.save();
+        console.log(scooter.name, scooter.lock);
     }
 };
 
