@@ -84,7 +84,7 @@ const updateData = async () => {
                     updatedAt: new Date()
                 },
                 battery: newData[key].battery,
-                free: newData[key].lock === true || newData[key].lock === false ? newData[key].lock : true,
+                free: true,
                 name: newData[key].name
             }).save();
             continue;
