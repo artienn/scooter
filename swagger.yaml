@@ -583,6 +583,10 @@ paths:
       tags:
       - Scooters
       summary: free scooters list
+      parameters:
+      - in: query
+        name: version
+        type: string
       responses:
         200:
           description: OK

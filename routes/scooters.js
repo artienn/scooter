@@ -7,7 +7,8 @@ const {checkUser, checkUserOrAdmin, checkAdmin} = require('../libs/jwt');
 router.get('/', checkUserOrAdmin, async (req, res, next) => {
     try {
         const free = req.user ? true : req.admin ? false : true;
-        const result = await Scooter.listOfFreeScooters(free);
+        const {version = null} = req.query;
+        const result = await Scooter.listOfFreeScooters(free, version);
         res.send(result);
     } catch (err) {
         next(err);
