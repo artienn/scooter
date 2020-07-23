@@ -47,16 +47,14 @@ const updateUserBalance = async () => {
 };
 
 const checkScooters = async () => {
-    const scooters = await Scooter.find();
+    const scooters = await Scooter.find({viewed: {$ne: false}});
     for (const scooter of scooters) {
         const result = await scooterGoOutZone(scooter);
-        console.log(scooter.name, result);
         if (!result) {
             const contract = await ContractModel.findOne({scooter: scooter._id, active: true}).populate('user');
             const userPhone = (contract && contract.user) ? contract.user.phone : null;
             await blockScooterWarning(scooter._id, scooter.id, scooter.name, userPhone);
         } else {
-            console.log('delete');
             await GoOutZoneOfScooter.deleteMany({scooter: scooter._id});
         }
     }
