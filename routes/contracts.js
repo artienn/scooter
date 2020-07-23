@@ -15,8 +15,8 @@ router.post('/', checkUser, async (req, res, next) => {
 
 router.get('/active', checkUserOrAdmin, async (req, res, next) => {
     try {
-        const {active = 'true'} = req.query;
-        const result = await Contract.getUserActiveContracts(req.user, active === 'false' ? false : true);
+        const {active = 'true', limit, page} = req.query;
+        const result = await Contract.getUserActiveContracts(req.user, active === 'false' ? false : true, limit, page);
         res.send(result);
     } catch (err) {
         next(err);

@@ -20,14 +20,22 @@ const notUserOnUpdateContractStatus = async (contractId) => {
     return user;
 };
 
-exports.getUserActiveContracts = async (user = null, active = true) => {
+exports.getUserActiveContracts = async (user = null, active = true, limit = 20, page = 1) => {
+    limit = limit ? parseInt(limit) : 20;
+    page = page ? parseInt(page) : 1;
+    const skip = limit * (page - 1);
+    if (limit < 1) limit = 20;
+    if (page < 1) page = 1;
     const query = {};
     if (active) query.active = true;
     if (user) query.user = user._id;
-    const contracts = await Contract.find(query).populate({path: 'user', model: 'user', select: '_id phone balance firstName lastName'}).populate({path: 'scooter', model: 'scooter', select: '_id battery name'}).lean();
+    const [contracts, contractsCount] = await Promise.all([
+        Contract.find(query).populate({path: 'user', model: 'user', select: '_id phone balance firstName lastName'}).populate({path: 'scooter', model: 'scooter', select: '_id battery name'}).limit(limit).skip(skip).lean(),
+        Contract.count(query)
+    ]);
     return {
         contracts,
-        contractsCount: contracts.length
+        contractsCount
     };
 };
 
