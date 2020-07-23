@@ -47,7 +47,7 @@ const updateUserBalance = async () => {
 };
 
 const checkScooters = async () => {
-    const scooters = await Scooter.find({viewed: {$ne: false}});
+    const scooters = await Scooter.find();
     for (const scooter of scooters) {
         const result = await scooterGoOutZone(scooter);
         console.log(scooter.name, result);
