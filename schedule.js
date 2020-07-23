@@ -50,6 +50,7 @@ const checkScooters = async () => {
     const scooters = await Scooter.find({viewed: {$ne: false}});
     for (const scooter of scooters) {
         const result = await scooterGoOutZone(scooter);
+        console.log(scooter.name, result);
         if (!result) {
             const contract = await ContractModel.findOne({scooter: scooter._id, active: true}).populate('user');
             const userPhone = (contract && contract.user) ? contract.user.phone : null;

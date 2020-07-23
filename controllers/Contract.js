@@ -31,7 +31,7 @@ exports.getUserActiveContracts = async (user = null, active = true, limit = 20, 
     if (user) query.user = user._id;
     const [contracts, contractsCount] = await Promise.all([
         Contract.find(query).populate({path: 'user', model: 'user', select: '_id phone balance firstName lastName'}).populate({path: 'scooter', model: 'scooter', select: '_id battery name'}).limit(limit).skip(skip).lean(),
-        Contract.count(query)
+        Contract.countDocuments(query)
     ]);
     return {
         contracts,
