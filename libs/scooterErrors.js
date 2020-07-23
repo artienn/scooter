@@ -7,9 +7,9 @@ exports.scooterGoOutZone = async (scooter) => {
     const zones = await Zone.find().lean();
     for (const zone of zones) {
         const result = await pointInsideZones([scooter.coords.lat, scooter.coords.lon], zone.coordinates);
-        if (!result) return false;
+        if (result) return true;
     }
-    return true;
+    return false;
 };
 
 exports.blockScooterWarning = async (_id, scooterId, scooterName, userPhone) => {

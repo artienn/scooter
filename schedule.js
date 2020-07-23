@@ -55,6 +55,7 @@ const checkScooters = async () => {
             const userPhone = (contract && contract.user) ? contract.user.phone : null;
             await blockScooterWarning(scooter._id, scooter.id, scooter.name, userPhone);
         } else {
+            console.log('delete');
             await GoOutZoneOfScooter.deleteMany({scooter: scooter._id});
         }
     }
