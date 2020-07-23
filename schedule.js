@@ -33,8 +33,7 @@ const updateUserBalance = async () => {
             if (contract.user.phone) await sendMessage([contract.user.phone], text);
         }
         if (userBalanceHistory) {
-            if (Math.abs(amount) < Math.abs(userBalanceHistory.amount)) amount = 0;
-            else amount -= userBalanceHistory.amount;
+            amount = 0 - (sum - Math.abs(userBalanceHistory.amount));
             userBalanceHistory.amount += amount;
             await Promise.all([
                 userBalanceHistory.save(),
