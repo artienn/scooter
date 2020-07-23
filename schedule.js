@@ -12,9 +12,9 @@ const {GoOutZoneOfScooter} = require('./schemas');
 
 
 const updateUserBalance = async () => {
-    let amount = 0;
     const {contracts} = await Contract.getUserActiveContracts();
     for (const contract of contracts) {
+        let amount = 0;
         if (!contract.user) {
             console.error('updateUserBalanceSchedule USER NOT FOUND', contract);
             continue;
