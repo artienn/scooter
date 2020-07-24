@@ -119,7 +119,28 @@ const checkUserOrAdmin = async (req, _res, next) => {
     }
 };
 
+const checkAdminWithoutError = async (req, _res, next) => {
+    try {
+        let jwtToken = req.headers['x-access-token'];
+        jwt.verify(jwtToken, jwtKey, async (error, data) => {
+            if(error)  return next();
+            req.authData = data;
+            let admin = null;
+            try {
+                admin = await Admin.findById(req.authData._id, {password: 0, __v: 0}).lean();
+            } catch (err) {
+                return next(err);
+            }
+            req.admin = admin;
+            next();
+        });
+    } catch (err) {
+        next(err);
+    }
+};
+
 exports.checkUser = checkUser;
 exports.checkAdmin = checkAdmin;
 exports.checkUserWithoutPhone = checkUserWithoutPhone;
 exports.checkUserOrAdmin = checkUserOrAdmin;
+exports.checkAdminWithoutError = checkAdminWithoutError;

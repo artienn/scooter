@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const Admin = require('../controllers/Admin');
-const {checkAdmin} = require('../libs/jwt');
+const {checkAdmin, checkUserWithoutPhone} = require('../libs/jwt');
 
 router.post('/login', async (req, res, next) => {
     try {
@@ -13,9 +13,9 @@ router.post('/login', async (req, res, next) => {
     }
 });
 
-router.get('/settings', checkAdmin, async (req, res, next) => {
+router.get('/settings', checkUserWithoutPhone, async (req, res, next) => {
     try {
-        const result = await Admin.getAdminSettings();
+        const result = await Admin.getAdminSettings(req.admin);
         res.send(result);
     } catch (err) {
         next(err);

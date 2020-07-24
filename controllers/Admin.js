@@ -4,6 +4,7 @@ const {unauthorized} = require('boom');
 const jwt = require('../libs/jwt');
 const fcm = require('../libs/fcm');
 const SystemQueue = require('./SystemQueue');
+const admin = require('firebase-admin');
 
 exports.login = async (login, password) => {
     const admin = await Admin.findOne({login});
@@ -19,18 +20,21 @@ exports.login = async (login, password) => {
     };
 };
 
-exports.getAdminSettings = async () => {
-    const adminSettings = await AdminSettings.findOne();
+exports.getAdminSettings = async (admin) => {
+    const select = {workTime: 1};
+    if (admin) select.phones = 1;
+    const adminSettings = await AdminSettings.findOne({}, select);
     if (!adminSettings) return {adminSettings: {}};
     return {adminSettings};
 };
 
-exports.putAdminSettings = async (phones) => {
+exports.putAdminSettings = async (phones, workTime) => {
     let adminSettings = await AdminSettings.findOne();
     if (!adminSettings) {
         adminSettings = new AdminSettings({});
     }
     if (phones) adminSettings.phones = phones;
+    if (workTime) adminSettings.workTime = workTime;
     await adminSettings.save();
     return {message: 'ok'};
 };
