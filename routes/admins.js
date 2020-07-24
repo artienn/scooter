@@ -24,8 +24,8 @@ router.get('/settings', checkAdminWithoutError, async (req, res, next) => {
 
 router.put('/settings', checkAdmin, async (req, res, next) => {
     try {
-        const {phones} = req.body;
-        const result = await Admin.putAdminSettings(phones);
+        const {phones, workTime} = req.body;
+        const result = await Admin.putAdminSettings(phones, workTime);
         res.send(result);
     } catch (err) {
         next(err);
