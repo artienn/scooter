@@ -25,6 +25,16 @@ router.put('/:id', checkUser, async (req, res, next) => {
     }
 });
 
+router.put('/:id/locking', checkAdmin, async (req, res, next) => {
+    try {
+        const {lock} = req.body;
+        const result = await Scooter.lockScooterByAdmin(req.params.id, lock);
+        res.send(result);
+    } catch (err) {
+        next(err);
+    }
+});
+
 router.put('/:id/info', checkAdmin, async (req, res, next) => {
     try {
         const {viewed} = req.body;

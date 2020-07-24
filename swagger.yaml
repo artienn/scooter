@@ -273,6 +273,16 @@ paths:
               type: array
               items:
                 type: string
+            workTime:
+              type: object
+              properties:
+                0:
+                  type: object
+                  properties:
+                    from:
+                      type: string
+                    to:
+                      type: string
       responses:
         200:
           description: ok
@@ -618,6 +628,27 @@ paths:
           description: not found
         500:
           description: server error
+  /scooters/{id}/locking:
+    put:
+      tags:
+      - Scooters
+      summary: update scooter lock 
+      parameters:
+      - in: path
+        name: id
+        type: string
+        required: true
+        description: _id
+      - in: body
+        name: body
+        schema:
+          type: object
+          properties:
+            lock:
+              type: boolean
+      responses:
+        200:
+          description: ok
   /scooters/{id}/info:
     put:
       tags:

@@ -37,6 +37,15 @@ exports.getFreeScooterById = async (_id) => {
     return scooter;
 };
 
+exports.lockScooterByAdmin = async (_id, lock) => {
+    const scooter = await Scooter.findById(_id);
+    if (!scooter) throw notFound('Scooter not found');
+    if (lock === true || lock === false) {
+        await flespi.lockScooter(scooter.id, lock);
+    }
+    return {message: 'ok'};
+};
+
 exports.updateScooter = async (_id, viewed) => {
     const scooter = await Scooter.findById(_id);
     if (!scooter) throw notFound('Scooter not found');
