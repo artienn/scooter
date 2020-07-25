@@ -98,8 +98,7 @@ exports.createContract = async (user, body) => {
         Scooter.updateFreeFlagOfScooter(scooter._id, false, scooter.id)
     ]);
     try {
-        const res = await ScooterCoordsWithoutContract.deleteMany({scooter: scooter._id});
-        console.log(res);
+        await ScooterCoordsWithoutContract.deleteMany({scooter: scooter._id});
     } catch (err) {
         console.error(err);
     }

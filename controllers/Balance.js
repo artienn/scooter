@@ -93,16 +93,13 @@ exports.getUserBalanceHistoryByContractId = async (user, contractId) => {
 
 exports.callbackPayment = async (query) => {
     const {data, signature} = query;
-    console.log(data, signature);
     if (!data || !signature) throw badRequest('');
     const check = liqPay.callbackPayment(data, signature);
     if (!check) throw badImplementation('Server error');
     let json = new Buffer(data, 'base64').toString('utf8');
-    console.log(json);
     json = json.replace(' ', '');
     if (typeof json === 'string')
         json = JSON.parse(json);
-    console.log('JSON', json);
     await exports.createLiqPayOrderResult(json);
     const {order_id, status, amount} = json;
     const liqPayOrder = await LiqPayOrder.findOne({_id: order_id});

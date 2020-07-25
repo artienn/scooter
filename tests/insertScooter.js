@@ -1,6 +1,6 @@
 require('../db')();
 const {Scooter, Tariff} = require('../schemas');
-console.log(Tariff)
+
 const f = async () => {
     await Scooter({lockId: 1,
         free: true,

@@ -4,7 +4,6 @@ const {Zone} = require('../schemas');
 
 exports.checkPoint = async (lat, lon) => {
     const zones = await Zone.find();
-    console.log(lat, lon);
     for (const zone of zones) {
         const geoLibResult = await geoLib.pointInsideZones([lat, lon], zone.coordinates);
         if (geoLibResult) return {zone, result: true};

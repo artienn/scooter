@@ -11,9 +11,7 @@ const server_url = `${baseUri}/api/balance/callback`;
 const template = (opt) => {
     opt.server_url = server_url;
     opt.public_key = liq.publicKey;
-    console.log(opt)
     const data = (new Buffer(JSON.stringify(opt))).toString('base64');
-    console.log(data);
     const sha = crypto.createHash('sha1').update(liq.privateKey + data + liq.privateKey).digest();
     const signature = sha.toString('base64');
     return {data, signature};
@@ -89,7 +87,6 @@ exports.hold = (phone, amount, description, order_id, card, card_exp_month, card
         opt.card_cvv = card_cvv;
         opt.card = card;
     }
-    console.log(opt, JSON.stringify(opt));
     return template(opt);
 };
 
@@ -100,7 +97,6 @@ exports.holdCompletion = async (order_id) => {
             version,
             order_id
         };
-    console.log(options);
     return template(options);
 };
 
@@ -113,7 +109,6 @@ exports.cancelPayment = (order_id) => {
             version,
             order_id
         };
-    console.log(options);
     return template(options);
 };
 

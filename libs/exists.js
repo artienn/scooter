@@ -7,7 +7,6 @@ exports.existsMany = async (model, queries) => {
         return model.findOne(q);
     }));
     for (const e of essences) {
-        console.log(e);
         if (e) {
             message += JSON.stringify(e) + ',';
             flag = true;
