@@ -69,7 +69,7 @@ const checkLocationUpdateScooterWithoutContract = async () => {
             continue;
         }
         if (scooterCoordsWithoutContract && scooterCoordsWithoutContract.lat && scooterCoordsWithoutContract.lon) {
-            if (!checkDistanceOfIncomingValue({lat: scooterCoordsWithoutContract.lat, lon: scooterCoordsWithoutContract.lon}, {lat: scooter.coords.lat, lon: scooter.coords.lon})) {
+            if (!checkDistanceOfIncomingValue({lat: scooterCoordsWithoutContract.lat, lon: scooterCoordsWithoutContract.lon}, {lat: scooter.coords.lat, lon: scooter.coords.lon}, 3)) {
                 console.error('SCOOTER IS BEING STOLEN', scooter);
                 await scooterUpdateCoordsWithoutContract(scooter);
             }
