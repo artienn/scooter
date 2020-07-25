@@ -7,7 +7,8 @@ const ScooterCoordsWithoutContract = new Schema({
         ref: 'scooter'
     },
     lat: Number,
-    lon: Number
+    lon: Number,
+    smsSend: Boolean
 }, {
     timestamps: true
 });

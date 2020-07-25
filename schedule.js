@@ -69,14 +69,14 @@ const checkLocationUpdateScooterWithoutContract = async () => {
             continue;
         }
         if (scooterCoordsWithoutContract && scooterCoordsWithoutContract.lat && scooterCoordsWithoutContract.lon) {
-            if (!checkDistanceOfIncomingValue({lat: scooterCoordsWithoutContract.lat, lon: scooterCoordsWithoutContract.lon}, {lat: scooter.coords.lat, lon: scooter.coords.lon}, 3)) {
+            if (!checkDistanceOfIncomingValue({lat: scooterCoordsWithoutContract.lat, lon: scooterCoordsWithoutContract.lon}, {lat: scooter.coords.lat, lon: scooter.coords.lon}, 5) && !scooterCoordsWithoutContract.smsSend) {
                 console.error('SCOOTER IS BEING STOLEN', scooter);
                 await scooterUpdateCoordsWithoutContract(scooter);
+                await ScooterCoordsWithoutContract.updateOne({scooter: scooter._id}, {$set: {lat: scooter.coords.lat, lon: scooter.coords.lon, smsSend: true}});
             }
         } else {
             await ScooterCoordsWithoutContract({scooter: scooter._id, lat: scooter.coords.lat, lon: scooter.coords.lon}).save();
         }
-        await ScooterCoordsWithoutContract.updateOne({scooter: scooter._id}, {$set: {lat: scooter.coords.lat, lon: scooter.coords.lon, updatedAt: new Date()}});
     }
 };
 
