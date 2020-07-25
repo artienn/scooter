@@ -65,13 +65,13 @@ const checkLocationUpdateScooterWithoutContract = async () => {
         const scooterCoordsWithoutContract = await ScooterCoordsWithoutContract.findOne({scooter: scooter._id});
         if (!scooter.coords || !scooter.coords.lat || !scooter.coords.lon) {
             console.error('SCOOTER WITHOUT COORDS', scooter);
-            // await scooterWithoutCoords(scooter);
+            await scooterWithoutCoords(scooter);
             continue;
         }
         if (scooterCoordsWithoutContract && scooterCoordsWithoutContract.lat && scooterCoordsWithoutContract.lon) {
             if (!checkDistanceOfIncomingValue({lat: scooterCoordsWithoutContract.lat, lon: scooterCoordsWithoutContract.lon}, {lat: scooter.coords.lat, lon: scooter.coords.lon})) {
                 console.error('SCOOTER IS BEING STOLEN', scooter);
-                // await scooterUpdateCoordsWithoutContract(scooter);
+                await scooterUpdateCoordsWithoutContract(scooter);
             }
         } else {
             await ScooterCoordsWithoutContract({scooter: scooter._id, lat: scooter.coords.lat, lon: scooter.coords.lon}).save();
