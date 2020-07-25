@@ -47,7 +47,7 @@ app.use((error, _req, res, _next) => {
     res.status(status).send({message: error.message});
 });
 
-
+console.log(process.env['NODE_ENV']);
 app.listen(port, () => {
     console.log('Listen on ' + port);
 });

@@ -5,11 +5,11 @@ const ContractModel = require('./schemas/Contract');
 const Balance = require('./controllers/Balance');
 const User = require('./schemas/User');
 const fcm = require('./libs/fcm');
+const {checkDistanceOfIncomingValue} = require('./libs/geoLib');
 const {sendMessage} = require('./libs/sendSms');
-const {scooterGoOutZone, blockScooterWarning} = require('./libs/scooterErrors');
+const {scooterGoOutZone, blockScooterWarning, scooterUpdateCoordsWithoutContract, scooterWithoutCoords} = require('./libs/scooterErrors');
 const Scooter = require('./schemas/Scooter');
-const {GoOutZoneOfScooter} = require('./schemas');
-
+const {GoOutZoneOfScooter, ScooterCoordsWithoutContract} = require('./schemas');
 
 const updateUserBalance = async () => {
     const {contracts} = await Contract.getUserActiveContracts();
@@ -59,5 +59,27 @@ const checkScooters = async () => {
     }
 };
 
+const checkLocationUpdateScooterWithoutContract = async () => {
+    const scooters = await Scooter.find({viewed: true, free: true});
+    for (const scooter of scooters) {
+        const scooterCoordsWithoutContract = await ScooterCoordsWithoutContract.findOne({scooter: scooter._id});
+        if (!scooter.coords || !scooter.coords.lat || !scooter.coords.lon) {
+            console.error('SCOOTER WITHOUT COORDS', scooter);
+            // await scooterWithoutCoords(scooter);
+            continue;
+        }
+        if (scooterCoordsWithoutContract && scooterCoordsWithoutContract.lat && scooterCoordsWithoutContract.lon) {
+            if (!checkDistanceOfIncomingValue({lat: scooterCoordsWithoutContract.lat, lon: scooterCoordsWithoutContract.lon}, {lat: scooter.coords.lat, lon: scooter.coords.lon})) {
+                console.error('SCOOTER IS BEING STOLEN', scooter);
+                // await scooterUpdateCoordsWithoutContract(scooter);
+            }
+        } else {
+            await ScooterCoordsWithoutContract({scooter: scooter._id, lat: scooter.coords.lat, lon: scooter.coords.lon}).save();
+        }
+        await ScooterCoordsWithoutContract.updateOne({scooter: scooter._id}, {$set: {lat: scooter.coords.lat, lon: scooter.coords.lon, updatedAt: new Date()}});
+    }
+};
+
 schedule.scheduleJob('*/20 * * * * *', updateUserBalance);
 schedule.scheduleJob('*/15 * * * * *', checkScooters);
+schedule.scheduleJob('*/10 * * * * *', checkLocationUpdateScooterWithoutContract);

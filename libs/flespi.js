@@ -1,4 +1,6 @@
 const mqtt = require('mqtt');
+const NODE_ENV = process.env['NODE_ENV'];
+
 const option = {
     wsOptions : {
         objectMode : false,
@@ -31,5 +33,6 @@ client.on('connect', () => {
 
 exports.lockScooter = (scooterId, lock) => {
     console.log('Publish lock', scooterId, lock);
+    if (NODE_ENV === 'develop') return;
     client.publish(`flespi/rest/put/gw/devices/${scooterId}/settings/sclockctrl`, `{"address":"connection","properties":{"lock": ${lock === true ? 1 : 0}}}`);
 };

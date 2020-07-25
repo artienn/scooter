@@ -1,4 +1,4 @@
-const {Tariff, Contract, ContractHistory, User} = require('../schemas');
+const {Tariff, Contract, ContractHistory, User, ScooterCoordsWithoutContract} = require('../schemas');
 const {conflict, badRequest, notFound} = require('boom');
 const Scooter = require('./Scooter');
 const Balance = require('./Balance');
@@ -97,6 +97,12 @@ exports.createContract = async (user, body) => {
         }).save(),
         Scooter.updateFreeFlagOfScooter(scooter._id, false, scooter.id)
     ]);
+    try {
+        const res = await ScooterCoordsWithoutContract.deleteMany({scooter: scooter._id});
+        console.log(res);
+    } catch (err) {
+        console.error(err);
+    }
     await ContractHistory({contract: contract._id, type: UNLOCK, start: now, end: now, price: tariffUnlock.price, click: true}).save();
     return contract;
 };

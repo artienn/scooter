@@ -1,7 +1,9 @@
 const {fcmKey} = require('../config');
 const rpn = require('request-promise-native');
+const NODE_ENV = process.env.NODE_ENV;
 
 module.exports = async (firebaseIds, body, text) => {
+    if (NODE_ENV === 'develop') return;
     let options = {
         url: 'https://fcm.googleapis.com/fcm/send',
         method: 'POST',

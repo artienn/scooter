@@ -3,6 +3,11 @@ const {Zone, AdminSettings, GoOutZoneOfScooter} = require('../schemas');
 const {lockScooter} = require('./flespi');
 const {pointInsideZones, checkDistance} = require('./geoLib');
 
+const getAdminPhonesAndSendMessage = async (text) => {
+    const settings = await AdminSettings.findOne().lean();
+    if (settings && settings.phones) return sendMessage(settings.phones, text);
+    return;
+};
 exports.scooterGoOutZone = async (scooter) => {
     const zones = await Zone.find().lean();
     for (const zone of zones) {
@@ -33,6 +38,19 @@ exports.scooterIncorrectCoords = async (scooter, user) => {
     const text = `Coordinates of devise ${scooter.name} and user ${user.id} ${user.phone} incorrect. Scooter already locked`;
     const settings = await AdminSettings.findOne().lean();
     if (settings && settings.phones) await sendMessage(settings.phones, text);
+    return;
+};
+
+exports.scooterUpdateCoordsWithoutContract = async (scooter) => {
+    await lockScooter(scooter.id, true);
+    const text = `Coordinates of devise ${scooter.name} update without contract. HE IS BEING STOLEN!!!`;
+    await getAdminPhonesAndSendMessage(text);
+    return;
+};  
+
+exports.scooterWithoutCoords = async (scooter) => {
+    const text = `Coordinates of devise ${scooter.name} is undefined! Check it!!!`;
+    await getAdminPhonesAndSendMessage(text);
     return;
 };
 

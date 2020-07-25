@@ -16,3 +16,9 @@ exports.checkDistance = (userCoords, scooterCoords) => {
     if (distance > Distance(`${DISTANCE_BETWEEN_USER_AND_SCOOTER} m`)) return false;
     return true;
 };  
+
+exports.checkDistanceOfIncomingValue = (coords1, coords2, dist) => {
+    const distance = Distance.between(coords1, coords2);
+    if (distance > Distance(`${dist} m`)) return false;
+    return true;
+};
