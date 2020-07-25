@@ -10,7 +10,7 @@ exports.listOfFreeScooters = async (free = true, version = null) => {
         query.free = true;
         query.viewed = {$ne: false};
     }
-    const scooters = await Scooter.find(query).sort({battery: 1});
+    const scooters = await Scooter.find(query).sort({name: 1});
     let freeScooters = 0;
     let unFreeScooters = 0;
     for (const scooter of scooters) {
