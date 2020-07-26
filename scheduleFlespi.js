@@ -101,4 +101,4 @@ const updateData = async () => {
 };
 
 
-schedule.scheduleJob('*/10 * * * * *', updateData);
+schedule.scheduleJob('*/5 * * * * *', updateData);
