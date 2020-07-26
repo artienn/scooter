@@ -1,10 +1,11 @@
-const {Admin, AdminSettings, User} = require('../schemas');
+const {Admin, AdminSettings, User, AdminNotice} = require('../schemas');
 const auth = require('vvdev-auth');
 const {unauthorized} = require('boom');
 const jwt = require('../libs/jwt');
 const fcm = require('../libs/fcm');
 const SystemQueue = require('./SystemQueue');
 const admin = require('firebase-admin');
+const pagination = require('../libs/pagination');
 
 exports.login = async (login, password) => {
     const admin = await Admin.findOne({login});
@@ -54,5 +55,31 @@ exports.sendPush = async (text, userType) => {
         await fcm(firebaseIds, {}, text);
         skip += limit;
     }
+    return {message: 'ok'};
+};
+
+exports.createAdminNotice = async (text) => {
+    return AdminNotice({text, viewed: false}).save();
+};
+
+exports.getAdminNotice = async (viewed, limit, page) => {
+    limit = limit ? parseInt(limit) : 20;
+    page = page ? parseInt(page) : 1;
+    if (!limit || limit < 1) limit = 20;
+    if (!page || page < 1) page = 1;
+    const query = {};
+    if (viewed === false || viewed === true) query.viewed = viewed;
+    const [adminNotices, count] = await Promise.all([
+        AdminNotice.find(query).limit(limit).skip(limit * (page - 1)).sort({createdAt: -1}),
+        AdminNotice.countDocuments(query)
+    ]);
+    return {
+        adminNotices, 
+        pagination: pagination(limit, page, count)
+    };
+};
+
+exports.updateAdminNotice = async (_id, viewed) => {
+    await AdminNotice.updateOne({_id}, {$set: {viewed}});
     return {message: 'ok'};
 };

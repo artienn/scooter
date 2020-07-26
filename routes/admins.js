@@ -42,4 +42,24 @@ router.post('/push_notifications', checkAdmin, async (req, res, next) => {
     }
 });
 
+router.get('/notices', checkAdmin, async (req, res, next) => {
+    try {
+        const {viewed, page, limit} = req.query;
+        const result = await Admin.getAdminNotice(viewed === 'true' ? true : viewed === 'false' ? false : null, limit, page);
+        res.send(result);
+    } catch (err) {
+        next(err);
+    }
+});
+
+router.put('/notices/:id', checkAdmin, async (req, res, next) => {
+    try {
+        const {viewed} = req.body;
+        const result = await Admin.updateAdminNotice(req.params.id, viewed);
+        res.send(result);
+    } catch (err) {
+        next(err);
+    }
+});
+
 module.exports = router;

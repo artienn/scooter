@@ -304,6 +304,44 @@ paths:
       responses:
         200:
           description: ok
+  /admins/notices:
+    get:
+      tags:
+      - Admin
+      summary: Get admin messages
+      parameters:
+      - in: query
+        name: limit
+        type: string
+      - in: query
+        name: page
+        type: string
+      - in: query
+        name: viewed
+        type: string
+      responses:
+        200:
+          description: ok
+  /admins/notices/{id}:
+    put:
+      tags:
+      - Admin
+      summary: Update viewed flag
+      parameters:
+      - in: path
+        name: id
+        type: string
+        required: true
+      - in: body
+        name: page
+        schema:
+          type: object
+          properties:
+            viewed:
+              type: boolean
+      responses:
+        200:
+          description: ok
   /users/code:
     post:
       tags:
