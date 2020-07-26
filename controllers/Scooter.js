@@ -42,6 +42,7 @@ exports.lockScooterByAdmin = async (_id, lock) => {
     if (!scooter) throw notFound('Scooter not found');
     if (lock === true || lock === false) {
         flespi.lockScooter(scooter.id, lock);
+        await Scooter.updateOne({_id}, {$set: {lock}});
     }
     return {message: 'ok'};
 };
