@@ -71,7 +71,7 @@ const checkLocationUpdateScooterWithoutContract = async () => {
         if (scooterCoordsWithoutContract && scooterCoordsWithoutContract.lat && scooterCoordsWithoutContract.lon) {
             if (!checkDistanceOfIncomingValue({lat: scooterCoordsWithoutContract.lat, lon: scooterCoordsWithoutContract.lon}, {lat: scooter.coords.lat, lon: scooter.coords.lon}, 5) && !scooterCoordsWithoutContract.smsSend) {
                 console.error('SCOOTER IS BEING STOLEN', scooter);
-                await scooterUpdateCoordsWithoutContract(scooter);
+                await scooterUpdateCoordsWithoutContract(scooter, scooterCoordsWithoutContract.smsSend);
                 await ScooterCoordsWithoutContract.updateOne({scooter: scooter._id}, {$set: {lat: scooter.coords.lat, lon: scooter.coords.lon, smsSend: true}});
             }
         } else {

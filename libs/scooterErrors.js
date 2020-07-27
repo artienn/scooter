@@ -43,10 +43,10 @@ exports.scooterIncorrectCoords = async (scooter, user) => {
     return;
 };
 
-exports.scooterUpdateCoordsWithoutContract = async (scooter) => {
+exports.scooterUpdateCoordsWithoutContract = async (scooter, send) => {
     await lockScooter(scooter.id, true);
     const text = `Coordinates of devise ${scooter.name} update without contract. HE IS BEING STOLEN!!!`;
-    await getAdminPhonesAndSendMessage(text);
+    if (!send) await getAdminPhonesAndSendMessage(text);
     return;
 };  
 
