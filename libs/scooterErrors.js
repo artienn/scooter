@@ -9,7 +9,7 @@ const getAdminPhonesAndSendMessage = async (text) => {
         AdminSettings.findOne().lean(),
         Admin.createAdminNotice(text)
     ]);
-    if (settings && settings.phones) return sendMessage(settings.phones, text);
+    // if (settings && settings.phones) return sendMessage(settings.phones, text);
     return;
 };
 exports.scooterGoOutZone = async (scooter) => {
