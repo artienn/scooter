@@ -39,7 +39,7 @@ exports.blockScooterWarning = async (_id, scooterId, scooterName, userPhone) => 
 exports.scooterIncorrectCoords = async (scooter, user) => {
     await lockScooter(scooter.id, true);
     const text = `Coordinates of devise ${scooter.name} and user ${user.id} ${user.phone} incorrect. Scooter already locked`;
-    await getAdminPhonesAndSendMessage(text);
+    // await getAdminPhonesAndSendMessage(text);
     return;
 };
 
@@ -52,7 +52,7 @@ exports.scooterUpdateCoordsWithoutContract = async (scooter, send) => {
 
 exports.scooterWithoutCoords = async (scooter) => {
     const text = `Coordinates of devise ${scooter.name} is undefined! Check it!!!`;
-    await getAdminPhonesAndSendMessage(text);
+    // await getAdminPhonesAndSendMessage(text);
     return;
 };
 
